@@ -1,0 +1,58 @@
+FROM centos:8
+
+### Install Python
+RUN yum -y install epel-release python3 python3-pip python3-devel
+
+### Install GraphicsMagick
+RUN dnf info GraphicsMagick
+RUN dnf install -y GraphicsMagick GraphicsMagick-devel GraphicsMagick-perl
+
+RUN yum install -y libXext libSM libXrender
+
+### Install Development Tools(gcc)
+RUN dnf groupinstall -y "Development Tools"
+
+### Install JDK
+RUN yum install -y java-1.8.0-openjdk-devel
+
+### Install Node and Yarn
+RUN curl -sL https://rpm.nodesource.com/setup_12.x | bash -
+RUN curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
+RUN rpm --import https://dl.yarnpkg.com/rpm/pubkey.gpg
+RUN yum install -y nodejs yarn
+
+### Install Vue CLI
+RUN yarn global add @vue/cli @vue/cli-service @vue/cli-service-global
+
+### Install Code-Server
+RUN yarn global add code-server
+
+### Copy source code
+RUN mkdir /LifeAnalytics
+COPY . /LifeAnalytics
+WORKDIR /LifeAnalytics/django
+
+### Expose ports
+EXPOSE 8000 8080
+
+### Install python packages
+RUN pip3 install -r requirement.txt
+RUN pip3 install python-bioformats==4.0.0
+
+### Run migration for django project
+RUN python3 manage.py migrate
+
+### Build vue frontend project
+RUN yarn install
+RUN yarn build:staging
+
+### Remove unnecessary directories/files
+### RUN rm -rf node_modules public src
+### RUN rm requirement.txt package.json yarn.lock .env.staging babel.config.js vue.config.js
+
+### Launch the code-server
+# RUN code-server --auth none --bind-addr 0.0.0.0:8080 ./
+
+### Launch the app
+CMD ["0.0.0.0:8000"]
+ENTRYPOINT ["python3", "manage.py", "runserver"]
