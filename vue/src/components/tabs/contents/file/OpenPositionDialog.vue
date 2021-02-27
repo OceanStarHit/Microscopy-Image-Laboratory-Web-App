@@ -6,7 +6,7 @@
         title="Position"
         :singleButton="false"
         okTitle="Select"
-        @select="visibleDialog = false"
+        @select="onSelect"
         @close="onCancel"
       >
         <v-tabs v-model="selectedTab" fixed-tabs>
