@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="display:none;">
     <input type="file" id="uploadFile" @change="requestUploadFile" />
     <v-dialog v-model="visibleDialog" max-width="980">
       <simple-dialog

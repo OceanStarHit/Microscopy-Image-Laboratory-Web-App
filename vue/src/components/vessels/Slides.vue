@@ -159,12 +159,12 @@ export default {
 
         this.slide.width = this.rect.width;
 
-        const max_height = this.rect.height / 3;
+        const MAX_HEIGHT = this.rect.height / 3;
 
         const one_height =
           (this.rect.height - (this.count - 1) * 20) / this.count;
-        if (one_height > max_height) {
-          this.slide.height = max_height;
+        if (one_height > MAX_HEIGHT) {
+          this.slide.height = MAX_HEIGHT;
         } else {
           this.slide.height = one_height;
         }

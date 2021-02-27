@@ -26,13 +26,13 @@ export default {
 
   methods: {
     onCount: () => {
-      // console.log("Count");
+      console.log("Count");
     },
     onBack: () => {
-      // console.log("Back");
+      console.log("Back");
     },
     onSplit: () => {
-      // console.log("Split");
+      console.log("Split");
     }
   }
 };

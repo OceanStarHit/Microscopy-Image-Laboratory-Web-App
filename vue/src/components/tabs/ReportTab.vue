@@ -44,22 +44,22 @@ export default {
 
   methods: {
     onClick1: function() {
-      // console.log("Click1");
+      console.log("Click1");
     },
     onClick2: function() {
-      // console.log("Click2");
+      console.log("Click2");
     },
     onClick3: function() {
-      // console.log("Click3");
+      console.log("Click3");
     },
     onClick4: function() {
-      // console.log("Click4");
+      console.log("Click4");
     },
     onClick5: function() {
-      // console.log("Click5");
+      console.log("Click5");
     },
     onClick6: function() {
-      // console.log("Click6");
+      console.log("Click6");
     }
   }
 };

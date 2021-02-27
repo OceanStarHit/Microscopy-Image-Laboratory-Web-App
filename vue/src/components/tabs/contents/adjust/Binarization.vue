@@ -1,12 +1,7 @@
 <template>
-  <small-card title="Focus Stack">
-    <custom-button icon="play-circle" label="Go" @click="select1" />
-    <custom-button
-      icon="format-align-center"
-      label="Alignment"
-      @click="select2"
-    />
-    <custom-button icon="cog" label="Set" @click="select3" />
+  <small-card title="Binarization">
+    <custom-button icon="creation" label="Auto" @click="select1" />
+    <custom-button icon="tune-vertical" label="Adjust" @click="select2" />
   </small-card>
 </template>
 
@@ -15,7 +10,7 @@ import SmallCard from "../../../custom/SmallCard";
 import CustomButton from "../../../custom/CustomButton";
 
 export default {
-  name: "FocusStack",
+  name: "Binarization",
 
   components: {
     SmallCard,
@@ -30,9 +25,6 @@ export default {
     },
     select2: function() {
       console.log("Select-2");
-    },
-    select3: function() {
-      console.log("Select-3");
     }
   }
 };

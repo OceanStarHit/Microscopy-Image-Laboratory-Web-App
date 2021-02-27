@@ -24,19 +24,19 @@ export default {
 
   methods: {
     select1: function() {
-      // console.log("Select-1");
+      console.log("Select-1");
     },
     select2: function() {
-      // console.log("Select-2");
+      console.log("Select-2");
     },
     select3: function() {
-      // console.log("Select-3");
+      console.log("Select-3");
     },
     select4: function() {
-      // console.log("Select-4");
+      console.log("Select-4");
     },
     select5: function() {
-      // console.log("Select-5");
+      console.log("Select-5");
     }
   }
 };

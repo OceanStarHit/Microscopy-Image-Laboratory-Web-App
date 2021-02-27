@@ -40,10 +40,10 @@ export default {
 
   methods: {
     refresh: function() {
-      // console.log("Refresh");
+      console.log("Refresh");
     },
     help: function() {
-      // console.log("Help");
+      console.log("Help");
     }
   }
 };

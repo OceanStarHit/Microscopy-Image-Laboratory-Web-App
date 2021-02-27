@@ -115,67 +115,67 @@ export default {
 
   methods: {
     refresh: function() {
-      // console.log("Refresh");
+      console.log("Refresh");
     },
     help: function() {
-      // console.log("Help");
+      console.log("Help");
     },
     onPosition: function() {
-      // console.log("Position");
+      console.log("Position");
     },
     onSave: function() {
-      // console.log("Save");
+      console.log("Save");
     },
     onSaveAs: function() {
-      // console.log("SaveAs");
+      console.log("SaveAs");
     },
     onExport: function() {
-      // console.log("Export");
+      console.log("Export");
     },
     onLoad: function() {
-      // console.log("Load");
+      console.log("Load");
     },
     onCut: function() {
-      // console.log("Cut");
+      console.log("Cut");
     },
     onCopy: function() {
-      // console.log("Copy");
+      console.log("Copy");
     },
     onPaste: function() {
-      // console.log("Paste");
+      console.log("Paste");
     },
     onNew: function() {
-      // console.log("New");
+      console.log("New");
     },
     onSelect1: function() {
-      // console.log("Select-1");
+      console.log("Select-1");
     },
     onSelect2: function() {
-      // console.log("Select-2");
+      console.log("Select-2");
     },
     onSelect3: function() {
-      // console.log("Select-3");
+      console.log("Select-3");
     },
     onSelect4: function() {
-      // console.log("Select-4");
+      console.log("Select-4");
     },
     onSelect5: function() {
-      // console.log("Select-5");
+      console.log("Select-5");
     },
     onSelect6: function() {
-      // console.log("Select-6");
+      console.log("Select-6");
     },
     onSelect7: function() {
-      // console.log("Select-7");
+      console.log("Select-7");
     },
     onSelect8: function() {
-      // console.log("Select-8");
+      console.log("Select-8");
     },
     onSelect9: function() {
-      // console.log("Select-9");
+      console.log("Select-9");
     },
     onSelect10: function() {
-      // console.log("Select-10");
+      console.log("Select-10");
     }
   }
 };

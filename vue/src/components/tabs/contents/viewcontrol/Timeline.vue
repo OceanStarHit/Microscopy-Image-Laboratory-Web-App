@@ -168,22 +168,22 @@ export default {
       this.$forceUpdate();
     },
     onRefresh: function() {
-      // console.log("Refresh");
+      console.log("Refresh");
     },
     onSetting: function() {
-      // console.log("Setting");
+      console.log("Setting");
     },
     onPlay: function() {
-      // console.log("Play");
+      console.log("Play");
     },
     onStop: function() {
-      // console.log("Stop");
+      console.log("Stop");
     },
     onRewind: function() {
-      // console.log("Rewind");
+      console.log("Rewind");
     },
     onFForward: function() {
-      // console.log("FForward");
+      console.log("FForward");
     }
   },
 

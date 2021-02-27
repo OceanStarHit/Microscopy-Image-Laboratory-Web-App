@@ -30,22 +30,22 @@ export default {
 
   methods: {
     onLight: () => {
-      // console.log("Light");
+      console.log("Light");
     },
     onBlack: () => {
-      // console.log("Black");
+      console.log("Black");
     },
     onObject: () => {
-      // console.log("Object");
+      console.log("Object");
     },
     onArea: () => {
-      // console.log("Area");
+      console.log("Area");
     },
     onBack: () => {
-      // console.log("Back");
+      console.log("Back");
     },
     onSet: () => {
-      // console.log("Set");
+      console.log("Set");
     }
   }
 };

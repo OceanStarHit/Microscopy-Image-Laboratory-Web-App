@@ -23,16 +23,16 @@ export default {
 
   methods: {
     onArea: () => {
-      // console.log("onArea");
+      console.log("onArea");
     },
     onColor: () => {
-      // console.log("onColor");
+      console.log("onColor");
     },
     onInt: () => {
-      // console.log("onInt");
+      console.log("onInt");
     },
     onSet: () => {
-      // console.log("onSet");
+      console.log("onSet");
     }
   }
 };

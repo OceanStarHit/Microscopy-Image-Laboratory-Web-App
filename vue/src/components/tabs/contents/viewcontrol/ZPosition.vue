@@ -109,7 +109,7 @@ export default {
       this.$forceUpdate();
     },
     on3DView: function() {
-      // console.log("3D View");
+      console.log("3D View");
     }
   },
 

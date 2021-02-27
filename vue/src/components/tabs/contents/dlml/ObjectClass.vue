@@ -22,13 +22,13 @@ export default {
 
   methods: {
     onAuto: () => {
-      // console.log("Auto");
+      console.log("Auto");
     },
     onAdd: () => {
-      // console.log("Add");
+      console.log("Add");
     },
     onErase: () => {
-      // console.log("Erase");
+      console.log("Erase");
     }
   }
 };

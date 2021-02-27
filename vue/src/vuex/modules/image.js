@@ -118,7 +118,7 @@ const actions = {
       .catch(error => {
         commit("setLoading", false);
 
-        // console.log(error);
+        console.log(error);
       });
   },
   changeImage({ commit, state }, imageId) {
@@ -146,7 +146,7 @@ const actions = {
       .catch(error => {
         commit("setLoading", false);
 
-        // console.log(error);
+        console.log(error);
       });
   },
   changeParameterByZ({ commit, state }, z) {
@@ -319,7 +319,7 @@ function changeParameter(commit, state, params) {
     .catch(error => {
       commit("setLoading", false);
 
-      // console.log(error);
+      console.log(error);
     });
 }
 
@@ -357,6 +357,6 @@ function adjustImage({ commit, state }, params) {
     .catch(error => {
       commit("setLoading", false);
 
-      // console.log(error);
+      console.log(error);
     });
 }

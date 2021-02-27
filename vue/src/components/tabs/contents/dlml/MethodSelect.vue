@@ -21,10 +21,10 @@ export default {
 
   methods: {
     onNew: () => {
-      // console.log("New");
+      console.log("New");
     },
     onCall: () => {
-      // console.log("Call");
+      console.log("Call");
     }
   }
 };

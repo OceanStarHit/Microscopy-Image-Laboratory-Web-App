@@ -23,16 +23,16 @@ export default {
 
   methods: {
     onGo: () => {
-      // console.log("Go");
+      console.log("Go");
     },
     onGood: () => {
-      // console.log("Good");
+      console.log("Good");
     },
     onNo: () => {
-      // console.log("No");
+      console.log("No");
     },
     onReturn: () => {
-      // console.log("Return");
+      console.log("Return");
     }
   }
 };

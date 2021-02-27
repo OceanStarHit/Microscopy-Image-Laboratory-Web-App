@@ -105,10 +105,10 @@ export default {
       this.width = this.getWidth();
     },
     select2: function() {
-      // console.log("Select-2");
+      console.log("Select-2");
     },
     select3: function() {
-      // console.log("Select-3");
+      console.log("Select-3");
     }
   }
 };

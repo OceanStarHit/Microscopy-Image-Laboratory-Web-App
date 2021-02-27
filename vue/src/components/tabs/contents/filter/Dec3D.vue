@@ -21,10 +21,10 @@ export default {
 
   methods: {
     select1: function() {
-      // console.log("Select-1");
+      console.log("Select-1");
     },
     select2: function() {
-      // console.log("Select-2");
+      console.log("Select-2");
     }
   }
 };

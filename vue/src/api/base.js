@@ -13,18 +13,18 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use(request => {
-  // console.log("[API Request]", request);
+  console.log("[API Request]", request);
 
   return request;
 });
 
 api.interceptors.response.use(
   response => {
-    // console.log("[API Response]", response);
+    console.log("[API Response]", response);
     return response.data;
   },
   error => {
-    // console.log("[API ERROR]", error);
+    console.log("[API ERROR]", error);
 
     return Promise.reject(error);
   }

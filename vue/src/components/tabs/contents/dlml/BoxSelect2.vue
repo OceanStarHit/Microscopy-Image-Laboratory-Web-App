@@ -26,25 +26,25 @@ export default {
 
   methods: {
     select1: () => {
-      // console.log("Select-1");
+      console.log("Select-1");
     },
     select2: () => {
-      // console.log("Select-2");
+      console.log("Select-2");
     },
     select3: () => {
-      // console.log("Select-3");
+      console.log("Select-3");
     },
     select4: () => {
-      // console.log("Select-4");
+      console.log("Select-4");
     },
     select5: () => {
-      // console.log("Select-5");
+      console.log("Select-5");
     },
     select6: () => {
-      // console.log("Select-6");
+      console.log("Select-6");
     },
     select7: () => {
-      // console.log("Select-7");
+      console.log("Select-7");
     }
   }
 };
