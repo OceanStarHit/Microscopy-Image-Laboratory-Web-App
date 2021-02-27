@@ -6,7 +6,7 @@
         title="Position"
         :singleButton="false"
         okTitle="Select"
-        @select="visibleDialog = false"
+        @select="onSelect"
         @close="onCancel"
       >
         <v-tabs v-model="selectedTab" fixed-tabs>
@@ -202,8 +202,10 @@ export default {
 
       if (fileInput.files && fileInput.files.length > 0) {
         for (let file of fileInput.files) {
+          if (!file) {
+            continue;
+          }
           if (
-            file &&
             file.type.startsWith("image/") &&
             !file.type.startsWith("image/tif")
           ) {
@@ -249,7 +251,7 @@ export default {
     imageURL(idx) {
       return this.imgDatas.length > idx
         ? this.imgDatas[idx]
-                : require("../../../../assets/images/no-preview.png");
+        : require("../../../../assets/images/no-preview.png");
     }
   }
 };
