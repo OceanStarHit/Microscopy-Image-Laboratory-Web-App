@@ -51,3 +51,8 @@ export default {
   }
 };
 </script>
+<style scoped>
+.v-btn {
+  width: 80px;
+}
+</style>
