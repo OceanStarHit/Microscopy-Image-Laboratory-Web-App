@@ -5,6 +5,7 @@ from . import apis
 
 urlpatterns = [
     path('set-image', apis.set_image),
+    path('set-metadata', apis.set_metadata),
     path('change-image', apis.change_image),
     path('change-parameter', apis.change_parameter),
     path('adjust-image', apis.adjust_image),

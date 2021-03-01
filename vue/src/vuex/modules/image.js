@@ -26,6 +26,8 @@ const state = () => ({
   plates: [],
   wellSamples: [],
 
+  metadatas: [],
+
   originData: null,
   parameters: DEFAULT_PARAMS,
   isNew: false
@@ -39,6 +41,7 @@ const getters = {
       isNew: state.isNew
     };
   },
+  metadatas: (state, getters) => state.metadatas,
   imageId: (state, getters) => state.imageId,
   imageParams: (state, getters) => state.parameters,
   objectiveX: (state, getters) => {
@@ -112,6 +115,52 @@ const actions = {
         }, 100);
 
         commit("setImageResponse", response);
+
+        commit("setLoading", false);
+      })
+      .catch(error => {
+        commit("setLoading", false);
+
+        console.log(error);
+      });
+  },
+  setImageDataFromPosition({ commit, state }, imageData) {
+    if (state.loading) return;
+
+    commit("setLoading", true);
+
+    commit("setImageData", imageData);
+
+    commit("setLoading", false);
+  },
+  setMetadataFromPosition({ commit, state }, metadata) {
+    if (state.loading) return;
+
+    commit("setLoading", true);
+
+    const imageObj = new Image();
+    imageObj.src = metadata.imageData;
+
+    setTimeout(() => {
+      if (imageObj.height) {
+        commit("setImageData", imageObj.src);
+      } else {
+        setTimeout(function() {
+          commit("setImageData", imageObj.src);
+        }, 1000);
+      }
+    }, 100);
+
+    commit("setLoading", false);
+  },
+  setMetaFiles({ commit, state }, formData) {
+    if (state.loading) return;
+
+    commit("setLoading", true);
+
+    API.setMetadata(formData)
+      .then(response => {
+        commit("setMetadatasResponse", response);
 
         commit("setLoading", false);
       })
@@ -221,6 +270,9 @@ const mutations = {
       (state.positionY = payload.positionY),
       (state.plates = payload.plates),
       (state.wellSamples = payload.wellSamples);
+  },
+  setMetadatasResponse(state, payload) {
+    state.metadatas = payload;
   },
   setImageData(state, payload) {
     state.imageData = payload;

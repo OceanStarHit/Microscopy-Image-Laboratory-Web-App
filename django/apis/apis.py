@@ -51,6 +51,33 @@ def set_image(request):
         return response_error()
 
 @csrf_exempt
+def set_metadata(request):
+
+    try:
+        jsonReq = request.FILES
+        jsonRes = {}
+        for key in jsonReq:
+            metadata = jsonReq[key]
+
+            if utils.check_source_format(metadata):
+                metafile = utils.save_source_image(metadata)
+
+                metaInfo = ImageInfo(metafile)
+                ret = metaInfo.parse_by_bioformat(show_log=True)
+                
+                if ret:
+                    jsonRes[key] = metaInfo.get_first_image()
+                else:
+                    jsonRes[key] = None
+            else:
+                jsonRes[key] = None
+
+        return JsonResponse(jsonRes, status=HTTPStatus.OK)
+
+    except Exception:
+        return response_error()
+
+@csrf_exempt
 def change_image(request):
     global current_data
 

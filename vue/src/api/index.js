@@ -11,6 +11,10 @@ export const setImage = params => {
   return api.post("set-image", params);
 };
 
+export const setMetadata = params => {
+  return api.post("set-metadata", params);
+};
+
 export const changeImage = params => {
   return api.post("change-image", params);
 };

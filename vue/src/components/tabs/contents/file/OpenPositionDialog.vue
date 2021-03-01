@@ -18,10 +18,10 @@
           >
         </v-tabs>
 
-        <v-tabs-items v-model="selectedTab">
+        <v-tabs-items v-model="selectedTab" class="v-tab-item">
           <v-tab-item value="tabs-images">
             <v-sheet
-              class="drop pa-5"
+              class="drop pa-5 v-sheet"
               height="350"
               :class="getClasses"
               @dragover.prevent="dragOver"
@@ -29,45 +29,135 @@
               @drop.prevent="drop($event)"
             >
               <div
+                v-if="!imgFiles.length"
                 class="d-flex align-center justify-center"
                 style="height: 200px;"
               >
-                <p
-                  v-if="!imgFiles.length"
-                  class="text-h4 grey--text text--lighten-2"
-                >
+                <p class="text-h4 grey--text text--lighten-2">
                   Drag and Drop.
                 </p>
-                <v-row v-else class="align-center justify-center row-style">
-                  <div
-                    class="img-align"
-                    v-for="(imgFile, idx) in imgFiles"
-                    :key="idx"
-                    @click="selectImage(idx)"
-                    :style="
-                      idx === curImgIdx
-                        ? { background: 'rgb(204,232,255)' }
-                        : {}
-                    "
+              </div>
+              <v-row v-else class="align-center justify-center">
+                <div
+                  class="img-align"
+                  v-for="(imgFile, idx) in imgFiles"
+                  :key="idx"
+                  @click="selectImage(idx)"
+                  :style="
+                    idx === curImgIdx ? { background: 'rgb(204,232,255)' } : {}
+                  "
+                >
+                  <v-img
+                    class="v-img-align"
+                    :src="imgDatas[idx]"
+                    width="150"
+                    height="150"
+                    fill
+                  />
+                  <p class="ms-5 name-center">
+                    {{ imgFile.name }}
+                  </p>
+                </div>
+              </v-row>
+            </v-sheet>
+          </v-tab-item>
+          <v-tab-item value="tabs-tiling" class="v-tab-item">
+            <v-sheet
+              class="drop pa-5 v-sheet"
+              height="350"
+              :class="getClasses"
+              @dragover.prevent="dragOver"
+              @dragleave.prevent="dragLeave"
+              @drop.prevent="drop($event)"
+            >
+              <div
+                v-if="!tilingFiles.length"
+                class="d-flex align-center justify-center"
+                style="height: 200px;"
+              >
+                <p class="text-h4 grey--text text--lighten-2">
+                  Drag and Drop.
+                </p>
+              </div>
+            </v-sheet>
+          </v-tab-item>
+          <v-tab-item value="tabs-metadata" class="v-tab-item">
+            <v-sheet
+              class="drop pa-5 v-sheet"
+              height="350"
+              :class="getClasses"
+              @dragover.prevent="dragOver"
+              @dragleave.prevent="dragLeave"
+              @drop.prevent="drop($event)"
+            >
+              <div
+                v-if="!allFiles.length"
+                class="d-flex align-center justify-center"
+                style="height: 200px;"
+              >
+                <p class="text-h4 grey--text text--lighten-2">
+                  Drag and Drop.
+                </p>
+              </div>
+              <v-card v-else>
+                <v-card-title class="v-card-title">
+                  <v-btn
+                    v-if="curFileIdx == allFiles.length - 1"
+                    depressed
+                    disabled
                   >
-                    <v-img
-                      class="v-img-align"
-                      :src="imgDatas[idx]"
-                      width="150"
-                      height="150"
-                      fill
-                    />
-                    <p class="ms-5 name-center">
-                      {{ imgFile.name }}
-                    </p>
-                  </div>
-                </v-row>
-              </div>
+                    Update
+                  </v-btn>
+                  <v-btn v-else depressed color="primary" @click="update">
+                    Update
+                  </v-btn>
+                  <v-spacer></v-spacer>
+                  <v-text-field
+                    v-model="search"
+                    append-icon="mdi-magnify"
+                    label="Search"
+                    single-line
+                    hide-details
+                  ></v-text-field>
+                </v-card-title>
+                <v-data-table
+                  :headers="headers"
+                  :items="contents"
+                  :search="search"
+                  item-key="no"
+                >
+                  <template v-slot:body="{ items }">
+                    <tbody>
+                      <tr
+                        :style="
+                          key === curMetaIdx
+                            ? { background: 'rgb(204,232,255)' }
+                            : {}
+                        "
+                        @click="selected(key)"
+                        v-for="(item, key) in items"
+                        :key="item.no"
+                      >
+                        <td>{{ item.no }}</td>
+                        <td>{{ item.filename }}</td>
+                        <td>{{ item.series }}</td>
+                        <td>{{ item.frame }}</td>
+                        <td>{{ item.c }}</td>
+                        <td>{{ item.size_c }}</td>
+                        <td>{{ item.size_t }}</td>
+                        <td>{{ item.size_x }}</td>
+                        <td>{{ item.size_y }}</td>
+                        <td>{{ item.size_z }}</td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-data-table>
+              </v-card>
             </v-sheet>
           </v-tab-item>
-          <v-tab-item value="tabs-tiling">
+          <v-tab-item value="tabs-name-type" class="v-tab-item">
             <v-sheet
-              class="drop pa-5"
+              class="drop pa-5 v-sheet"
               height="350"
               :class="getClasses"
               @dragover.prevent="dragOver"
@@ -75,57 +165,11 @@
               @drop.prevent="drop($event)"
             >
               <div
+                v-if="!typeFiles.length"
                 class="d-flex align-center justify-center"
                 style="height: 200px;"
               >
-                <p
-                  v-if="!imageSource"
-                  class="text-h4 grey--text text--lighten-2"
-                >
-                  Drag and Drop.
-                </p>
-              </div>
-            </v-sheet>
-          </v-tab-item>
-          <v-tab-item value="tabs-metadata">
-            <v-sheet
-              class="drop pa-5"
-              height="350"
-              :class="getClasses"
-              @dragover.prevent="dragOver"
-              @dragleave.prevent="dragLeave"
-              @drop.prevent="drop($event)"
-            >
-              <div
-                class="d-flex align-center justify-center"
-                style="height: 200px;"
-              >
-                <p
-                  v-if="!imageSource"
-                  class="text-h4 grey--text text--lighten-2"
-                >
-                  Drag and Drop.
-                </p>
-              </div>
-            </v-sheet>
-          </v-tab-item>
-          <v-tab-item value="tabs-name-type">
-            <v-sheet
-              class="drop pa-5"
-              height="350"
-              :class="getClasses"
-              @dragover.prevent="dragOver"
-              @dragleave.prevent="dragLeave"
-              @drop.prevent="drop($event)"
-            >
-              <div
-                class="d-flex align-center justify-center"
-                style="height: 200px;"
-              >
-                <p
-                  v-if="!imageSource"
-                  class="text-h4 grey--text text--lighten-2"
-                >
+                <p class="text-h4 grey--text text--lighten-2">
                   Drag and Drop.
                 </p>
               </div>
@@ -151,13 +195,82 @@ export default {
 
   data: () => ({
     isDragging: false,
-    imageSource: null,
-    imageData: null,
     selectedTab: null,
+
+    // for all files
+    allFiles: [],
+    curFileIdx: -1,
+
+    // for image tag
     imgFiles: [],
     imgDatas: [],
-    curImgIdx: -1
+    curImgIdx: -1,
+
+    // for tiling
+    tilingFiles: [],
+    tilingDatas: [],
+    curTileIdx: -1,
+
+    // for meta tag
+    metaFiles: [],
+    metaDatas: [],
+    curMetaIdx: -1,
+
+    // for filename type
+    typeFiles: [],
+    typeDatas: [],
+    curTypeIdx: -1,
+
+    search: "",
+    headers: [
+      { text: "No", value: "no", sortable: false },
+      { text: "FileName", value: "filename", sortable: false },
+      { text: "Series", value: "series", sortable: false },
+      { text: "Frame", value: "frame", sortable: false },
+      { text: "C", value: "c", sortable: false },
+      { text: "SizeC", value: "size_c", sortable: false },
+      { text: "SizeT", value: "size_t", sortable: false },
+      { text: "SizeX", value: "size_x", sortable: false },
+      { text: "SizeY", value: "size_y", sortable: false },
+      { text: "SizeZ", value: "size_z", sortable: false }
+    ],
+    contents: []
   }),
+
+  created() {
+    this.unwatch = this.$store.watch(
+      (state, getters) => getters["image/metadatas"],
+      res => {
+        for (var key in res) {
+          this.curFileIdx = parseInt(key.split("_")[1]);
+          if (this.curFileIdx < this.allFiles.length) {
+            if (res[key]) {
+              this.metaFiles.push(this.allFiles[this.curFileIdx]);
+              this.metaDatas.push(res[key]);
+
+              let coreMetadata = res[key].coreMetadata;
+              this.contents.push({
+                no: this.metaDatas.length,
+                filename: this.allFiles[this.curFileIdx].name,
+                series: coreMetadata.seriesCount,
+                frame: coreMetadata.imageCount,
+                c: coreMetadata.currentSeries,
+                size_c: coreMetadata.sizeC,
+                size_t: coreMetadata.sizeT,
+                size_x: coreMetadata.sizeX,
+                size_y: coreMetadata.sizeY,
+                size_z: coreMetadata.sizeZ
+              });
+            }
+          }
+        }
+      }
+    );
+  },
+
+  beforeDestroy() {
+    this.unwatch();
+  },
 
   props: {
     value: {
@@ -209,9 +322,10 @@ export default {
             file.type.startsWith("image/") &&
             !file.type.startsWith("image/tif")
           ) {
+            // for image tag
             this.imgFiles.push(file);
 
-            var self = this;
+            let self = this;
             const reader = new FileReader();
             reader.onload = function() {
               let res = reader.result;
@@ -220,21 +334,36 @@ export default {
               }
             };
             reader.readAsDataURL(file);
+          } else {
+            // for meta tag
+            this.allFiles.push(file);
           }
         }
       }
     },
     onSelect() {
-      this.visibleDialog = false;
+      switch (this.selectedTab) {
+        case "tabs-images":
+          if (-1 < this.curImgIdx && this.curImgIdx < this.imgFiles.length) {
+            let imgData = this.imgDatas[this.curImgIdx];
+            if (imgData) {
+              this.$store.dispatch("image/setImageDataFromPosition", imgData);
+            }
+          }
+          break;
 
-      if (this.curImgIdx < this.imgFiles.length) {
-        let imgFile = this.imgFiles[this.curImgIdx];
-        if (imgFile) {
-          var formData = new FormData();
-          formData.append("sourceImage", imgFile);
-          this.$store.dispatch("image/setImage", formData);
-        }
+        case "tabs-metadata":
+          if (-1 < this.curMetaIdx && this.curMetaIdx < this.metaFiles.length) {
+            let metadata = this.metaDatas[this.curMetaIdx];
+            if (metadata) {
+              this.$store.dispatch("image/setMetadataFromPosition", metadata);
+              this.visibleDialog = false;
+            }
+          }
+          break;
       }
+
+      this.visibleDialog = false;
     },
     onCancel() {
       this.imgFiles = null;
@@ -244,14 +373,18 @@ export default {
     },
     selectImage(idx) {
       this.curImgIdx = idx;
-      console.log(this.curImgIdx);
-    }
-  },
-  watch: {
-    imageURL(idx) {
-      return this.imgDatas.length > idx
-        ? this.imgDatas[idx]
-        : require("../../../../assets/images/no-preview.png");
+    },
+    selected(key) {
+      this.curMetaIdx = key;
+    },
+    update() {
+      if (this.curFileIdx < this.allFiles.length - 1) {
+        var formData = new FormData();
+        for (var i = this.curFileIdx + 1; i < this.allFiles.length; i++) {
+          formData.append("metafile" + "_" + i, this.allFiles[i]);
+        }
+        this.$store.dispatch("image/setMetaFiles", formData);
+      }
     }
   }
 };
@@ -275,13 +408,17 @@ export default {
 .v-img-align {
   margin: auto;
 }
-.row-style {
-  margin-top: 150px;
-  margin-bottom: 20px;
-  overflow: auto;
-  height: 330px;
-}
 #uploadFile {
   display: none;
+}
+.v-sheet {
+  overflow: auto;
+  padding: 15px !important;
+}
+.v-tab-item {
+  padding-top: 10px;
+}
+.v-card-title {
+  padding-top: 0px;
 }
 </style>
