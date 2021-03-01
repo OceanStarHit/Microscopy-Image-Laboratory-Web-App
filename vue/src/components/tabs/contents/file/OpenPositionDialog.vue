@@ -362,7 +362,7 @@ export default {
               this.nameContents.push({
                 filename: filename,
                 classes: "metadata",
-                idx: this.metaContents.length - 1
+                idx: this.metaDatas.length - 1
               });
             }
           }
@@ -473,32 +473,51 @@ export default {
     onSelect() {
       switch (this.selectedTab) {
         case "tabs-images":
-          if (-1 < this.curImgIdx && this.curImgIdx < this.imgFiles.length) {
-            let imgData = this.imgDatas[this.curImgIdx];
-            if (imgData) {
-              this.$store.dispatch("image/setImageDataFromPosition", imgData);
-            }
-          }
+          this.showImageData(this.curImgIdx);
           break;
 
         case "tabs-tiling":
           break;
 
         case "tabs-metadata":
-          if (-1 < this.curMetaIdx && this.curMetaIdx < this.metaFiles.length) {
-            let metadata = this.metaDatas[this.curMetaIdx];
-            if (metadata) {
-              this.$store.dispatch("image/setMetadataFromPosition", metadata);
-              this.visibleDialog = false;
-            }
-          }
+          this.showMetaData(this.curMetaIdx);
           break;
 
         case "tabs-name-type":
+          if (
+            -1 < this.curNameIdx &&
+            this.curNameIdx < this.nameContents.length
+          ) {
+            let nameType = this.nameContents[this.curNameIdx];
+            switch (nameType.classes) {
+              case "image":
+                this.showImageData(nameType.idx);
+                break;
+              case "metadata":
+                this.showMetaData(nameType.idx);
+                break;
+            }
+          }
           break;
       }
 
       this.visibleDialog = false;
+    },
+    showImageData(idx) {
+      if (-1 < idx && idx < this.imgDatas.length) {
+        let imgData = this.imgDatas[idx];
+        if (imgData) {
+          this.$store.dispatch("image/setImageDataFromPosition", imgData);
+        }
+      }
+    },
+    showMetaData(idx) {
+      if (-1 < idx && idx < this.metaDatas.length) {
+        let metaData = this.metaDatas[idx];
+        if (metaData) {
+          this.$store.dispatch("image/setMetadataFromPosition", metaData);
+        }
+      }
     },
     onClose() {
       this.visibleDialog = false;
