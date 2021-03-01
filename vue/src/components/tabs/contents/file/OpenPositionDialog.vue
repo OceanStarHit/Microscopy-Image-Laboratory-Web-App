@@ -6,8 +6,9 @@
         title="Position"
         :singleButton="false"
         okTitle="Select"
+        cancelTitle="Close"
         @select="onSelect"
-        @close="onCancel"
+        @close="onClose"
       >
         <v-tabs v-model="selectedTab" fixed-tabs>
           <v-tab href="#tabs-images" class="primary--text">Images</v-tab>
@@ -365,10 +366,7 @@ export default {
 
       this.visibleDialog = false;
     },
-    onCancel() {
-      this.imgFiles = null;
-      this.imgDatas = null;
-
+    onClose() {
       this.visibleDialog = false;
     },
     selectImage(idx) {

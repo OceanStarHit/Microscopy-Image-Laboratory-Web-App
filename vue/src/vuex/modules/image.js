@@ -151,6 +151,8 @@ const actions = {
       }
     }, 100);
 
+    commit("setImageResponse", metadata);
+
     commit("setLoading", false);
   },
   setMetaFiles({ commit, state }, formData) {
