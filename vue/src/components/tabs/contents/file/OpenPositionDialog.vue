@@ -5,8 +5,14 @@
       <simple-dialog
         title="Position"
         :singleButton="false"
+        :updateButton="true"
+        :deleteButton="true"
+        updateTitle="Update"
+        deleteTitle="Delete"
         okTitle="Select"
-        cancelTitle="Close"
+        cancelTitle="Cancel"
+        @update="onUpdate"
+        @delete="onDelete"
         @select="onSelect"
         @close="onClose"
       >
@@ -92,7 +98,7 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="!otherFiles.length"
+                v-if="!newFiles.length"
                 class="d-flex align-center justify-center"
                 style="height: 200px;"
               >
@@ -105,7 +111,7 @@
                   <v-btn
                     class="common"
                     depressed
-                    :disabled="curFileIdx == otherFiles.length - 1"
+                    :disabled="curFileIdx == newFiles.length - 1"
                     color="primary"
                     @click="updateMetadata"
                   >
@@ -276,7 +282,7 @@ export default {
     selectedTab: null,
 
     // for all files
-    otherFiles: [],
+    newFiles: [],
     curFileIdx: -1,
 
     // for image tag
@@ -341,12 +347,12 @@ export default {
           if (res[key]) {
             this.curFileIdx = parseInt(key.split("_")[1]);
 
-            if (this.curFileIdx < this.otherFiles.length) {
-              this.metaFiles.push(this.otherFiles[this.curFileIdx]);
+            if (this.curFileIdx < this.newFiles.length) {
+              this.metaFiles.push(this.newFiles[this.curFileIdx]);
               this.metaDatas.push(res[key]);
 
               let coreMetadata = res[key].coreMetadata;
-              let filename = this.otherFiles[this.curFileIdx].name;
+              let filename = this.newFiles[this.curFileIdx].name;
               var cnt = this.metaContents.length;
               this.metaContents.push({
                 no: cnt,
@@ -471,11 +477,32 @@ export default {
             reader.readAsDataURL(file);
           } else {
             // for meta tag
-            this.otherFiles.push(file);
+            this.newFiles.push(file);
           }
         }
       }
     },
+    showImageData(idx) {
+      if (-1 < idx && idx < this.imgDatas.length) {
+        let imgData = this.imgDatas[idx];
+        if (imgData) {
+          this.$store.dispatch("image/setImageDataFromPosition", imgData);
+        }
+      }
+    },
+    showMetaData(idx) {
+      if (-1 < idx && idx < this.metaDatas.length) {
+        let metaData = this.metaDatas[idx];
+        if (metaData) {
+          this.$store.dispatch("image/setMetadataFromPosition", metaData);
+        }
+      }
+    },
+
+    // the entire simple dialog
+    // update,delete, select, cancel
+    onUpdate() {},
+    onDelete() {},
     onSelect() {
       switch (this.selectedTab) {
         case "tabs-images":
@@ -509,25 +536,10 @@ export default {
 
       this.visibleDialog = false;
     },
-    showImageData(idx) {
-      if (-1 < idx && idx < this.imgDatas.length) {
-        let imgData = this.imgDatas[idx];
-        if (imgData) {
-          this.$store.dispatch("image/setImageDataFromPosition", imgData);
-        }
-      }
-    },
-    showMetaData(idx) {
-      if (-1 < idx && idx < this.metaDatas.length) {
-        let metaData = this.metaDatas[idx];
-        if (metaData) {
-          this.$store.dispatch("image/setMetadataFromPosition", metaData);
-        }
-      }
-    },
     onClose() {
       this.visibleDialog = false;
     },
+
     selectImage(idx) {
       switch (this.selectedTab) {
         case "tabs-images":
@@ -549,10 +561,10 @@ export default {
 
     // update
     updateMetadata() {
-      if (this.curFileIdx < this.otherFiles.length - 1) {
+      if (this.curFileIdx < this.newFiles.length - 1) {
         var formData = new FormData();
-        for (var i = this.curFileIdx + 1; i < this.otherFiles.length; i++) {
-          formData.append("metafile" + "_" + i, this.otherFiles[i]);
+        for (var i = this.curFileIdx + 1; i < this.newFiles.length; i++) {
+          formData.append("metafile" + "_" + i, this.newFiles[i]);
         }
         this.$store.dispatch("image/setMetaFiles", formData);
       }

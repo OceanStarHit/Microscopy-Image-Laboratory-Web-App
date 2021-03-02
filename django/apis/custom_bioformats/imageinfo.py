@@ -113,6 +113,7 @@ class ImageInfo(object):
             image_tzc = utils.save_image(image_array, scale, channel)
 
             response['imageData'] = utils.make_image_data(image_tzc)
+
         except Exception:
             print_exc()
             pass
@@ -732,7 +733,11 @@ class ImageInfo(object):
     def parse_channel_data(self, J, image_index):
         channel_data = []
 
-        channel_count = J.getChannelCount(image_index)
+        try:
+            channel_count = J.getChannelCount(image_index)
+        except Exception:
+            channel_count = 0
+
         if channel_count > 0:
             for channel_index in range(channel_count):
                 try:
