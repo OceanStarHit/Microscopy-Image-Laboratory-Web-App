@@ -27,7 +27,7 @@ export default {
     imageSource: null,
     publicPath: process.env.VUE_APP_STATIC_URL
       ? process.env.VUE_APP_STATIC_URL
-      : "../../"
+      : "../static/"
   }),
   created() {
     this.unwatch = this.$store.watch(

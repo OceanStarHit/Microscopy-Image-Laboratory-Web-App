@@ -3297,8 +3297,10 @@ __webpack_require__.r(__webpack_exports__);
 
             var coreMetadata = res[key].coreMetadata;
             var filename = _this.otherFiles[_this.curFileIdx].name;
+            var cnt = _this.metaContents.length;
 
             _this.metaContents.push({
+              no: cnt,
               filename: filename,
               series: coreMetadata.seriesCount,
               frame: coreMetadata.imageCount,
@@ -3310,7 +3312,10 @@ __webpack_require__.r(__webpack_exports__);
               size_z: coreMetadata.sizeZ
             });
 
+            cnt = _this.nameContents.length;
+
             _this.nameContents.push({
+              no: cnt,
               filename: filename,
               classes: "metadata",
               idx: _this.metaDatas.length - 1
@@ -3392,7 +3397,10 @@ __webpack_require__.r(__webpack_exports__);
                 // for image tag
                 _this2.imgFiles.push(file);
 
+                var cnt = _this2.nameContents.length;
+
                 _this2.nameContents.push({
+                  no: cnt,
                   filename: file.name,
                   classes: "image",
                   idx: _this2.imgFiles.length - 1
@@ -8752,7 +8760,7 @@ var render = function() {
                                                   {
                                                     key: idx,
                                                     style:
-                                                      idx === _vm.curMetaIdx
+                                                      item.no === _vm.curMetaIdx
                                                         ? {
                                                             background:
                                                               "rgb(204,232,255)"
@@ -8761,7 +8769,7 @@ var render = function() {
                                                     on: {
                                                       click: function($event) {
                                                         return _vm.selectImage(
-                                                          idx
+                                                          item.no
                                                         )
                                                       }
                                                     }
@@ -9006,7 +9014,8 @@ var render = function() {
                                                     {
                                                       key: idx,
                                                       style:
-                                                        idx === _vm.curNameIdx
+                                                        item.no ===
+                                                        _vm.curNameIdx
                                                           ? {
                                                               background:
                                                                 "rgb(204,232,255)"
@@ -9017,7 +9026,7 @@ var render = function() {
                                                           $event
                                                         ) {
                                                           return _vm.selectImage(
-                                                            idx
+                                                            item.no
                                                           )
                                                         }
                                                       }
@@ -9105,7 +9114,7 @@ var render = function() {
                                       ],
                                       null,
                                       false,
-                                      3484939769
+                                      691545017
                                     )
                                   })
                                 ],

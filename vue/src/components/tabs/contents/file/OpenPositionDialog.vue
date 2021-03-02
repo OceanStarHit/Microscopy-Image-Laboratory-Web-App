@@ -131,11 +131,11 @@
                         v-for="(item, idx) in items"
                         :key="idx"
                         :style="
-                          idx === curMetaIdx
+                          item.no === curMetaIdx
                             ? { background: 'rgb(204,232,255)' }
                             : {}
                         "
-                        @click="selectImage(idx)"
+                        @click="selectImage(item.no)"
                       >
                         <td>{{ idx + 1 }}</td>
                         <td>{{ item.filename }}</td>
@@ -231,11 +231,11 @@
                         v-for="(item, idx) in items"
                         :key="idx"
                         :style="
-                          idx === curNameIdx
+                          item.no === curNameIdx
                             ? { background: 'rgb(204,232,255)' }
                             : {}
                         "
-                        @click="selectImage(idx)"
+                        @click="selectImage(item.no)"
                       >
                         <td>{{ idx + 1 }}</td>
                         <td>{{ item.filename }}</td>
@@ -347,7 +347,9 @@ export default {
 
               let coreMetadata = res[key].coreMetadata;
               let filename = this.otherFiles[this.curFileIdx].name;
+              var cnt = this.metaContents.length;
               this.metaContents.push({
+                no: cnt,
                 filename: filename,
                 series: coreMetadata.seriesCount,
                 frame: coreMetadata.imageCount,
@@ -359,7 +361,9 @@ export default {
                 size_z: coreMetadata.sizeZ
               });
 
+              cnt = this.nameContents.length;
               this.nameContents.push({
+                no: cnt,
                 filename: filename,
                 classes: "metadata",
                 idx: this.metaDatas.length - 1
@@ -448,7 +452,9 @@ export default {
           ) {
             // for image tag
             this.imgFiles.push(file);
+            let cnt = this.nameContents.length;
             this.nameContents.push({
+              no: cnt,
               filename: file.name,
               classes: "image",
               idx: this.imgFiles.length - 1
