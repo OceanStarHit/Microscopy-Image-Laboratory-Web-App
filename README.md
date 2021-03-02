@@ -9,6 +9,7 @@
 
 # 3. Run a command line below:
 python manage.py runserver
+# Copy and Paste, and Press Enter Key
 
 # 4. Open chrome browser and link to "http://127.0.0.1:8000/".
 

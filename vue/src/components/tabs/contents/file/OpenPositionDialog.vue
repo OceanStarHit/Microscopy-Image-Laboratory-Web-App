@@ -406,7 +406,7 @@ export default {
       ) {
         if (
           this.makeNameType().match(
-            /^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+            /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
           )
         ) {
           return false;
@@ -581,43 +581,43 @@ export default {
     // regrex for name and type
     getSeries(filename) {
       let type = filename.match(
-        /^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[2] : "";
     },
     getColumn(filename) {
       let type = filename.match(
-        /^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[5] : "";
     },
     getRow(filename) {
       let type = filename.match(
-        /^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[6] : "";
     },
     getField(filename) {
       let type = filename.match(
-        /^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[7] : "";
     },
     getViewMethod(filename) {
       let type = filename.match(
-        /^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[8] : "";
     },
     getZPosition(filename) {
       let type = filename.match(
-        /^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[4] : "";
     },
     getTimepoint(filename) {
       let type = filename.match(
-        /^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[3] : "";
     },
@@ -665,7 +665,7 @@ export default {
     makeNameType() {
       var filename = this.nameContents[this.curNameIdx].filename;
       let type = filename.match(
-        /^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       let idx = filename.lastIndexOf(".");
       let ext = filename.substring(idx + 1);

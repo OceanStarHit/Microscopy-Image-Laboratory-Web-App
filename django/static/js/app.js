@@ -3350,7 +3350,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     updateNameTypeDisable: function updateNameTypeDisable() {
       if (this.isChangedNameType() && -1 < this.curNameIdx && this.curNameIdx < this.nameContents.length) {
-        if (this.makeNameType().match(/^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/)) {
+        if (this.makeNameType().match(/^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/)) {
           return false;
         }
       }
@@ -3538,31 +3538,31 @@ __webpack_require__.r(__webpack_exports__);
     },
     // regrex for name and type
     getSeries: function getSeries(filename) {
-      var type = filename.match(/^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
+      var type = filename.match(/^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
       return type ? type[2] : "";
     },
     getColumn: function getColumn(filename) {
-      var type = filename.match(/^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
+      var type = filename.match(/^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
       return type ? type[5] : "";
     },
     getRow: function getRow(filename) {
-      var type = filename.match(/^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
+      var type = filename.match(/^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
       return type ? type[6] : "";
     },
     getField: function getField(filename) {
-      var type = filename.match(/^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
+      var type = filename.match(/^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
       return type ? type[7] : "";
     },
     getViewMethod: function getViewMethod(filename) {
-      var type = filename.match(/^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
+      var type = filename.match(/^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
       return type ? type[8] : "";
     },
     getZPosition: function getZPosition(filename) {
-      var type = filename.match(/^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
+      var type = filename.match(/^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
       return type ? type[4] : "";
     },
     getTimepoint: function getTimepoint(filename) {
-      var type = filename.match(/^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
+      var type = filename.match(/^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
       return type ? type[3] : "";
     },
     getNameType: function getNameType(idx) {
@@ -3607,7 +3607,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     makeNameType: function makeNameType() {
       var filename = this.nameContents[this.curNameIdx].filename;
-      var type = filename.match(/^(\w+)_(\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
+      var type = filename.match(/^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
       var idx = filename.lastIndexOf(".");
       var ext = filename.substring(idx + 1);
       filename = (type ? type[1] : filename.substring(0, idx)) + "_" + (this.nameTypes[0].value ? this.nameTypes[0].value : this.getSeries(filename)) + "_" + (this.nameTypes[6].value ? this.nameTypes[6].value : this.getTimepoint(filename)) + "_" + (this.nameTypes[5].value ? this.nameTypes[5].value : this.getZPosition(filename)) + "_" + (this.nameTypes[1].value ? this.nameTypes[1].value : this.getColumn(filename)) + (this.nameTypes[2].value ? this.nameTypes[2].value : this.getRow(filename)) + (this.nameTypes[3].value ? this.nameTypes[3].value : this.getField(filename)) + (this.nameTypes[4].value ? this.nameTypes[4].value : this.getViewMethod(filename)) + "." + ext;
