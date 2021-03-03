@@ -5,14 +5,17 @@
       <simple-dialog
         title="Position"
         okTitle="Select"
+        :newButton="true"
         :updateButton="true"
-        :deleteButton="true"
+        :removeButton="true"
         :singleButton="false"
+        :newDisable="!newPossible"
         :updateDisable="!newFiles.length"
         :selectDisable="!selectPossible"
-        :deleteDisable="!deletePossible"
+        :removeDisable="!removePossible"
+        @new="onNew"
         @update="onUpdate"
-        @delete="onDelete"
+        @remove="onRemove"
         @select="onSelect"
         @close="onClose"
       >
@@ -61,7 +64,7 @@
                   v-model="selectedNewContents"
                   class="new-file-table"
                   :headers="newHeaders"
-                  :items="newContents"
+                  :items="getNewContents"
                   :search="searchNewFile"
                   :single-select="false"
                   :item-class="meta_row_highlight"
@@ -289,7 +292,6 @@ export default {
     // for all files
     searchNewFile: "",
     newFiles: [],
-    newContents: [],
     selectedNewContents: [],
     newHeaders: [
       { text: "No", value: "no", sortable: false },
@@ -366,8 +368,7 @@ export default {
         }
 
         // init new files
-        this.newFiles = [];
-        this.newContents = [];
+        this.initNewInfo();
       }
     );
   },
@@ -415,7 +416,27 @@ export default {
     clearNameTypeDisable() {
       return !this.isChangedNameType();
     },
-    deletePossible() {
+    newPossible() {
+      switch (this.selectedTab) {
+        case "tabs-new":
+          return this.newFiles.length;
+
+        case "tabs-images":
+          return this.metaFiles.length;
+
+        case "tabs-tiling":
+          break;
+
+        case "tabs-metadata":
+          return this.metaFiles.length;
+
+        case "tabs-name-type":
+          return this.metaFiles.length;
+      }
+
+      return false;
+    },
+    removePossible() {
       switch (this.selectedTab) {
         case "tabs-new":
           return this.selectedNewContents.length;
@@ -454,6 +475,20 @@ export default {
       }
 
       return false;
+    },
+
+    // get contents: new file contents,
+    // meta file contents, name type contents
+    getNewContents() {
+      const contents = [];
+      this.newFiles.forEach(file => {
+        contents.push({
+          no: contents.length + 1,
+          filename: file.name
+        });
+      });
+
+      return contents;
     },
     getNameContents() {
       const contents = [];
@@ -517,19 +552,38 @@ export default {
 
       if (fileInput.files && fileInput.files.length > 0) {
         for (let file of fileInput.files) {
-          if (file) {
-            this.newFiles.push(file);
-            this.newContents.push({
-              no: this.newContents.length + 1,
-              filename: file.name
-            });
-          }
+          this.newFiles.push(file);
         }
       }
     },
 
     // the entire simple dialog
-    // update,delete, select, cancel
+    // new, update, remove, select, cancel
+    onNew() {
+      switch (this.selectedTab) {
+        case "tabs-new":
+          this.initNewInfo();
+          break;
+
+        case "tabs-images":
+          this.initMetaInfo();
+          this.initMetaSelectedInfo();
+          break;
+
+        case "tabs-tiling":
+          break;
+
+        case "tabs-metadata":
+          this.initMetaInfo();
+          this.initMetaSelectedInfo();
+          break;
+
+        case "tabs-name-type":
+          this.initMetaInfo();
+          this.initMetaSelectedInfo();
+          break;
+      }
+    },
     onUpdate() {
       if (this.newFiles.length > 0) {
         // dispatch
@@ -538,17 +592,15 @@ export default {
           formData.append("metafile" + "_" + i, this.newFiles[i]);
         }
         this.$store.dispatch("image/setMetaFiles", formData);
-
-        this.selectedNewContents = [];
       }
     },
-    onDelete() {
+    onRemove() {
       switch (this.selectedTab) {
         case "tabs-new":
           {
             const remainFiles = [];
             const remainContents = [];
-            this.newContents.forEach(content => {
+            this.getNewContents.forEach(content => {
               if (
                 !this.selectedNewContents.includes(content) &&
                 0 < content.no &&
@@ -560,7 +612,6 @@ export default {
               }
             });
             this.newFiles = remainFiles;
-            this.newContents = remainContents;
             this.selectedNewContents = [];
           }
           break;
@@ -578,7 +629,7 @@ export default {
             this.metaFiles = remainFiles;
             this.metaDatas = remainDatas;
           }
-          this.initMetaDatas();
+          this.initMetaSelectedInfo();
           break;
 
         case "tabs-tiling":
@@ -604,7 +655,7 @@ export default {
             this.metaFiles = remainFiles;
             this.metaDatas = remainDatas;
           }
-          this.initMetaDatas();
+          this.initMetaSelectedInfo();
           break;
 
         case "tabs-name-type":
@@ -627,17 +678,9 @@ export default {
             this.metaFiles = remainFiles;
             this.metaDatas = remainDatas;
           }
-          this.initMetaDatas();
+          this.initMetaSelectedInfo();
           break;
       }
-    },
-    initMetaDatas() {
-      this.curImgIdx = -1;
-      this.curMetaIdx = -1;
-      this.curNameIdx = -1;
-      this.selectedImgIndices = [];
-      this.selectedMetaContents = [];
-      this.selectedNameContents = [];
     },
     onSelect() {
       switch (this.selectedTab) {
@@ -680,6 +723,27 @@ export default {
     },
     onClose() {
       this.visibleDialog = false;
+    },
+
+    // init
+    initNewInfo() {
+      this.newFiles = [];
+      this.searchNewFile = "";
+      this.selectedNewIndices = [];
+    },
+    initMetaInfo() {
+      this.metaFiles = [];
+      this.metaDatas = [];
+      this.searchMetadata = "";
+      this.searchNameType = "";
+    },
+    initMetaSelectedInfo() {
+      this.curImgIdx = -1;
+      this.curMetaIdx = -1;
+      this.curNameIdx = -1;
+      this.selectedImgIndices = [];
+      this.selectedMetaContents = [];
+      this.selectedNameContents = [];
     },
 
     selectContent(content) {
@@ -810,7 +874,7 @@ export default {
       switch (this.selectedTab) {
         case "tabs-new":
           if (this.selectedNewContents.includes(item)) {
-            rowClass = "row_delete";
+            rowClass = "row_remove";
           }
           break;
 
@@ -819,7 +883,7 @@ export default {
             rowClass = "success lighten-3 ";
           }
           if (this.selectedImgIndices.includes(item)) {
-            rowClass += "row_delete";
+            rowClass += "row_remove";
           }
           break;
 
@@ -831,7 +895,7 @@ export default {
             rowClass = "success lighten-3 ";
           }
           if (this.selectedMetaContents.includes(item)) {
-            rowClass += "row_delete";
+            rowClass += "row_remove";
           }
           break;
 
@@ -840,7 +904,7 @@ export default {
             rowClass = "success lighten-3 ";
           }
           if (this.selectedNameContents.includes(item)) {
-            rowClass += "row_delete";
+            rowClass += "row_remove";
           }
           break;
       }
@@ -975,7 +1039,7 @@ export default {
 .name-type-table >>> tr td:nth-child(3) {
   width: 295px !important;
 }
-::v-deep .row_delete {
+::v-deep .row_remove {
   color: #c36a0a;
 }
 </style>

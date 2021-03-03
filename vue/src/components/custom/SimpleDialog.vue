@@ -7,6 +7,14 @@
     <v-card-actions class="pa-6">
       <v-spacer></v-spacer>
       <v-btn
+        :disabled="newDisable"
+        v-if="newButton"
+        color="warning lighten-1"
+        @click="newed"
+      >
+        {{ newTitle }}
+      </v-btn>
+      <v-btn
         v-if="updateButton"
         :disabled="updateDisable"
         color="info darken-1"
@@ -15,12 +23,12 @@
         {{ updateTitle }}
       </v-btn>
       <v-btn
-        :disabled="deleteDisable"
-        v-if="deleteButton"
-        color="warning darken-1"
-        @click="deleted"
+        :disabled="removeDisable"
+        v-if="removeButton"
+        color="warning darken-2"
+        @click="removed"
       >
-        {{ deleteTitle }}
+        {{ removeTitle }}
       </v-btn>
       <v-btn
         :disabled="selectDisable"
@@ -48,6 +56,20 @@ export default {
       default: ""
     },
 
+    // new button
+    newTitle: {
+      type: String,
+      default: "New"
+    },
+    newButton: {
+      type: Boolean,
+      default: false
+    },
+    newDisable: {
+      type: Boolean,
+      default: false
+    },
+
     // update button
     updateTitle: {
       type: String,
@@ -62,16 +84,16 @@ export default {
       default: false
     },
 
-    // delete button
-    deleteTitle: {
+    // remove button
+    removeTitle: {
       type: String,
-      default: "Delete"
+      default: "remove"
     },
-    deleteButton: {
+    removeButton: {
       type: Boolean,
       default: false
     },
-    deleteDisable: {
+    removeDisable: {
       type: Boolean,
       default: false
     },
@@ -98,11 +120,14 @@ export default {
   },
 
   methods: {
+    newed: function() {
+      this.$emit("new");
+    },
     updated: function() {
       this.$emit("update");
     },
-    deleted: function() {
-      this.$emit("delete");
+    removed: function() {
+      this.$emit("remove");
     },
     selected: function() {
       this.$emit("select");
