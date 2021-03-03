@@ -4,19 +4,20 @@
     <v-dialog v-model="visibleDialog" max-width="980">
       <simple-dialog
         title="Position"
-        :singleButton="false"
+        okTitle="Select"
         :updateButton="true"
         :deleteButton="true"
-        updateTitle="Update"
-        deleteTitle="Delete"
-        okTitle="Select"
-        cancelTitle="Cancel"
+        :singleButton="false"
+        :updateDisable="!newFiles.length"
+        :selectDisable="!selectPossible"
+        :deleteDisable="!deletePossible"
         @update="onUpdate"
         @delete="onDelete"
         @select="onSelect"
         @close="onClose"
       >
         <v-tabs v-model="selectedTab" fixed-tabs>
+          <v-tab href="#tabs-new" class="primary--text">New Files</v-tab>
           <v-tab href="#tabs-images" class="primary--text">Images</v-tab>
           <v-tab href="#tabs-tiling" class="primary--text">Tiling</v-tab>
           <v-tab href="#tabs-metadata" class="primary--text">Metadata</v-tab>
@@ -26,6 +27,52 @@
         </v-tabs>
 
         <v-tabs-items v-model="selectedTab" class="v-tab-item">
+          <!-- New File Tab -->
+          <v-tab-item value="tabs-new" class="v-tab-item">
+            <v-sheet
+              class="drop pa-5 v-sheet"
+              height="350"
+              :class="getClasses"
+              @dragover.prevent="dragOver"
+              @dragleave.prevent="dragLeave"
+              @drop.prevent="drop($event)"
+            >
+              <div
+                v-if="!newFiles.length"
+                class="d-flex align-center justify-center"
+                style="height: 200px;"
+              >
+                <p class="text-h4 grey--text text--lighten-2">
+                  Drag and Drop.
+                </p>
+              </div>
+              <v-card v-else>
+                <v-card-title class="v-card-title">
+                  <v-spacer></v-spacer>
+                  <v-text-field
+                    v-model="searchNewFile"
+                    append-icon="mdi-magnify"
+                    label="Search"
+                    single-line
+                    hide-details
+                  ></v-text-field>
+                </v-card-title>
+                <v-data-table
+                  v-model="selectedNewContents"
+                  class="new-file-table"
+                  :headers="newHeaders"
+                  :items="newContents"
+                  :search="searchNewFile"
+                  :single-select="false"
+                  :item-class="meta_row_highlight"
+                  item-key="no"
+                  show-select
+                >
+                </v-data-table>
+              </v-card>
+            </v-sheet>
+          </v-tab-item>
+          <!-- Images Tab -->
           <v-tab-item value="tabs-images">
             <v-sheet
               class="drop pa-5 v-sheet"
@@ -36,7 +83,7 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="!imgFiles.length"
+                v-if="!metaFiles.length"
                 class="d-flex align-center justify-center"
                 style="height: 200px;"
               >
@@ -47,22 +94,20 @@
               <v-row v-else class="align-center justify-center">
                 <div
                   class="img-align"
-                  v-for="(imgFile, idx) in imgFiles"
+                  v-for="(file, idx) in metaFiles"
                   :key="idx"
-                  @click="selectImage(idx)"
-                  :style="
-                    idx === curImgIdx ? { background: 'rgb(204,232,255)' } : {}
-                  "
+                  @click="selectContent(idx)"
+                  v-bind:class="meta_row_highlight(idx)"
                 >
                   <v-img
                     class="v-img-align"
-                    :src="imgDatas[idx]"
+                    :src="metaDatas[idx].imageData"
                     width="150"
                     height="150"
                     fill
                   />
                   <p class="ms-5 name-center">
-                    {{ imgFile.name }}
+                    {{ file.name }}
                   </p>
                 </div>
               </v-row>
@@ -98,7 +143,7 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="!newFiles.length"
+                v-if="!metaFiles.length"
                 class="d-flex align-center justify-center"
                 style="height: 200px;"
               >
@@ -108,18 +153,9 @@
               </div>
               <v-card v-else>
                 <v-card-title class="v-card-title">
-                  <v-btn
-                    class="common"
-                    depressed
-                    :disabled="curFileIdx == newFiles.length - 1"
-                    color="primary"
-                    @click="updateMetadata"
-                  >
-                    Update
-                  </v-btn>
                   <v-spacer></v-spacer>
                   <v-text-field
-                    v-model="search"
+                    v-model="searchMetadata"
                     append-icon="mdi-magnify"
                     label="Search"
                     single-line
@@ -127,35 +163,17 @@
                   ></v-text-field>
                 </v-card-title>
                 <v-data-table
+                  v-model="selectedMetaContents"
+                  class="meta-file-table"
                   :headers="metaHeaders"
-                  :items="metaContents"
-                  :search="search"
+                  :items="getMetaContents"
+                  :search="searchMetadata"
+                  :single-select="false"
+                  :item-class="meta_row_highlight"
+                  item-key="no"
+                  show-select
+                  @click:row="selectContent"
                 >
-                  <template v-slot:body="{ items }">
-                    <tbody>
-                      <tr
-                        v-for="(item, idx) in items"
-                        :key="idx"
-                        :style="
-                          item.no === curMetaIdx
-                            ? { background: 'rgb(204,232,255)' }
-                            : {}
-                        "
-                        @click="selectImage(item.no)"
-                      >
-                        <td>{{ idx + 1 }}</td>
-                        <td>{{ item.filename }}</td>
-                        <td>{{ item.series }}</td>
-                        <td>{{ item.frame }}</td>
-                        <td>{{ item.c }}</td>
-                        <td>{{ item.size_c }}</td>
-                        <td>{{ item.size_t }}</td>
-                        <td>{{ item.size_x }}</td>
-                        <td>{{ item.size_y }}</td>
-                        <td>{{ item.size_z }}</td>
-                      </tr>
-                    </tbody>
-                  </template>
                 </v-data-table>
               </v-card>
             </v-sheet>
@@ -200,7 +218,7 @@
                 <v-card-title class="v-card-title">
                   <v-btn
                     class="common"
-                    :disabled="updateNameTypeDisable"
+                    :disabled="!changeNameType"
                     depressed
                     color="primary"
                     @click="updateNameType"
@@ -219,7 +237,7 @@
                   </v-btn>
                   <v-spacer></v-spacer>
                   <v-text-field
-                    v-model="search"
+                    v-model="searchNameType"
                     append-icon="mdi-magnify"
                     label="Search"
                     single-line
@@ -227,34 +245,17 @@
                   ></v-text-field>
                 </v-card-title>
                 <v-data-table
+                  v-model="selectedNameContents"
+                  class="name-type-table"
                   :headers="nameHeaders"
-                  :items="nameContents"
-                  :search="search"
+                  :items="getNameContents"
+                  :search="searchNameType"
+                  :single-select="false"
+                  :item-class="meta_row_highlight"
+                  item-key="no"
+                  show-select
+                  @click:row="selectContent"
                 >
-                  <template v-slot:body="{ items }">
-                    <tbody>
-                      <tr
-                        v-for="(item, idx) in items"
-                        :key="idx"
-                        :style="
-                          item.no === curNameIdx
-                            ? { background: 'rgb(204,232,255)' }
-                            : {}
-                        "
-                        @click="selectImage(item.no)"
-                      >
-                        <td>{{ idx + 1 }}</td>
-                        <td>{{ item.filename }}</td>
-                        <td>{{ getSeries(item.filename) }}</td>
-                        <td>{{ getColumn(item.filename) }}</td>
-                        <td>{{ getRow(item.filename) }}</td>
-                        <td>{{ getField(item.filename) }}</td>
-                        <td>{{ getViewMethod(item.filename) }}</td>
-                        <td>{{ getZPosition(item.filename) }}</td>
-                        <td>{{ getTimepoint(item.filename) }}</td>
-                      </tr>
-                    </tbody>
-                  </template>
                 </v-data-table>
               </v-card>
             </v-sheet>
@@ -281,25 +282,35 @@ export default {
     isDragging: false,
     selectedTab: null,
 
-    // for all files
-    newFiles: [],
-    curFileIdx: -1,
-
-    // for image tag
-    imgFiles: [],
-    imgDatas: [],
-    curImgIdx: -1,
-
-    // for tiling
-    tilingFiles: [],
-    tilingDatas: [],
-    curTileIdx: -1,
-
-    // for meta tag
+    // meta files
     metaFiles: [],
     metaDatas: [],
+
+    // for all files
+    searchNewFile: "",
+    newFiles: [],
+    newContents: [],
+    selectedNewContents: [],
+    newHeaders: [
+      { text: "No", value: "no", sortable: false },
+      { text: "File Name", value: "filename", sortable: false }
+    ],
+
+    // for image tag
+    curImgIdx: -1,
+    imgFiles: [],
+    imgDatas: [],
+    selectedImgIndices: [],
+
+    // for tiling
+    curTileIdx: -1,
+    tilingFiles: [],
+    tilingDatas: [],
+
+    // for meta tag
     curMetaIdx: -1,
-    search: "",
+    searchMetadata: "",
+    selectedMetaContents: [],
     metaHeaders: [
       { text: "No", value: "no", sortable: false },
       { text: "FileName", value: "filename", sortable: false },
@@ -312,10 +323,11 @@ export default {
       { text: "SizeY", value: "size_y", sortable: false },
       { text: "SizeZ", value: "size_z", sortable: false }
     ],
-    metaContents: [],
 
     // for filename type
     curNameIdx: -1,
+    searchNameType: "",
+    selectedNameContents: [],
     nameTypes: [
       { name: "Series", value: "", color: "success" },
       { name: "Column", value: "", color: "deep-orange" },
@@ -323,7 +335,7 @@ export default {
       { name: "Field", value: "", color: "warning" },
       { name: "View Method", value: "", color: "purple" },
       { name: "Z Position", value: "", color: "blue-grey" },
-      { name: "Timepoint", value: "", color: "error" }
+      { name: "Time Point", value: "", color: "error" }
     ],
     nameHeaders: [
       { text: "No", value: "no", sortable: false },
@@ -334,9 +346,8 @@ export default {
       { text: "Field", value: "field", sortable: false },
       { text: "View Method", value: "viewMethod", sortable: false },
       { text: "Z Position", value: "zPosition", sortable: false },
-      { text: "Timepoint", value: "timepoint", sortable: false }
-    ],
-    nameContents: []
+      { text: "Time Point", value: "timepoint", sortable: false }
+    ]
   }),
 
   created() {
@@ -345,38 +356,18 @@ export default {
       res => {
         for (var key in res) {
           if (res[key]) {
-            this.curFileIdx = parseInt(key.split("_")[1]);
+            const curFileIdx = parseInt(key.split("_")[1]);
 
-            if (this.curFileIdx < this.newFiles.length) {
-              this.metaFiles.push(this.newFiles[this.curFileIdx]);
+            if (curFileIdx < this.newFiles.length) {
+              this.metaFiles.push(this.newFiles[curFileIdx]);
               this.metaDatas.push(res[key]);
-
-              let coreMetadata = res[key].coreMetadata;
-              let filename = this.newFiles[this.curFileIdx].name;
-              var cnt = this.metaContents.length;
-              this.metaContents.push({
-                no: cnt,
-                filename: filename,
-                series: coreMetadata.seriesCount,
-                frame: coreMetadata.imageCount,
-                c: coreMetadata.currentSeries,
-                size_c: coreMetadata.sizeC,
-                size_t: coreMetadata.sizeT,
-                size_x: coreMetadata.sizeX,
-                size_y: coreMetadata.sizeY,
-                size_z: coreMetadata.sizeZ
-              });
-
-              cnt = this.nameContents.length;
-              this.nameContents.push({
-                no: cnt,
-                filename: filename,
-                classes: "metadata",
-                idx: this.metaDatas.length - 1
-              });
             }
           }
         }
+
+        // init new files
+        this.newFiles = [];
+        this.newContents = [];
       }
     );
   },
@@ -404,25 +395,103 @@ export default {
     getClasses() {
       return { isDragging: this.isDragging };
     },
-    updateNameTypeDisable() {
+    changeNameType() {
       if (
         this.isChangedNameType() &&
         -1 < this.curNameIdx &&
-        this.curNameIdx < this.nameContents.length
+        this.curNameIdx < this.metaFiles.length
       ) {
         if (
           this.makeNameType().match(
             /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
           )
         ) {
-          return false;
+          return true;
         }
       }
 
-      return true;
+      return false;
     },
     clearNameTypeDisable() {
       return !this.isChangedNameType();
+    },
+    deletePossible() {
+      switch (this.selectedTab) {
+        case "tabs-new":
+          return this.selectedNewContents.length;
+
+        case "tabs-images":
+          return this.selectedImgIndices.length;
+
+        case "tabs-tiling":
+          break;
+
+        case "tabs-metadata":
+          return this.selectedMetaContents.length;
+
+        case "tabs-name-type":
+          return this.selectedNameContents.length;
+      }
+
+      return false;
+    },
+    selectPossible() {
+      switch (this.selectedTab) {
+        case "tabs-new":
+          return false;
+
+        case "tabs-images":
+          return this.curImgIdx > -1;
+
+        case "tabs-tiling":
+          return false;
+
+        case "tabs-metadata":
+          return this.curMetaIdx > -1;
+
+        case "tabs-name-type":
+          return this.curNameIdx > -1;
+      }
+
+      return false;
+    },
+    getNameContents() {
+      const contents = [];
+      this.metaFiles.forEach(file => {
+        contents.push({
+          no: contents.length + 1,
+          filename: file.name,
+          series: this.getSeries(file.name),
+          column: this.getColumn(file.name),
+          row: this.getRow(file.name),
+          field: this.getField(file.name),
+          viewMethod: this.getViewMethod(file.name),
+          zPosition: this.getZPosition(file.name),
+          timepoint: this.getTimepoint(file.name)
+        });
+      });
+
+      return contents;
+    },
+    getMetaContents() {
+      const contents = [];
+      this.metaFiles.forEach((file, idx) => {
+        const coreMetadata = this.metaDatas[idx].coreMetadata;
+        contents.push({
+          no: contents.length + 1,
+          filename: file.name,
+          series: coreMetadata.seriesCount,
+          frame: coreMetadata.imageCount,
+          c: coreMetadata.currentSeries,
+          size_c: coreMetadata.sizeC,
+          size_t: coreMetadata.sizeT,
+          size_x: coreMetadata.sizeX,
+          size_y: coreMetadata.sizeY,
+          size_z: coreMetadata.sizeZ
+        });
+      });
+
+      return contents;
     }
   },
 
@@ -448,65 +517,135 @@ export default {
 
       if (fileInput.files && fileInput.files.length > 0) {
         for (let file of fileInput.files) {
-          if (!file) {
-            continue;
-          }
-
-          if (
-            file.type.startsWith("image/") &&
-            !file.type.startsWith("image/tif")
-          ) {
-            // for image tag
-            this.imgFiles.push(file);
-            let cnt = this.nameContents.length;
-            this.nameContents.push({
-              no: cnt,
-              filename: file.name,
-              classes: "image",
-              idx: this.imgFiles.length - 1
-            });
-
-            let self = this;
-            const reader = new FileReader();
-            reader.onload = function() {
-              let res = reader.result;
-              if (res) {
-                self.imgDatas.push(res);
-              }
-            };
-            reader.readAsDataURL(file);
-          } else {
-            // for meta tag
+          if (file) {
             this.newFiles.push(file);
+            this.newContents.push({
+              no: this.newContents.length + 1,
+              filename: file.name
+            });
           }
-        }
-      }
-    },
-    showImageData(idx) {
-      if (-1 < idx && idx < this.imgDatas.length) {
-        let imgData = this.imgDatas[idx];
-        if (imgData) {
-          this.$store.dispatch("image/setImageDataFromPosition", imgData);
-        }
-      }
-    },
-    showMetaData(idx) {
-      if (-1 < idx && idx < this.metaDatas.length) {
-        let metaData = this.metaDatas[idx];
-        if (metaData) {
-          this.$store.dispatch("image/setMetadataFromPosition", metaData);
         }
       }
     },
 
     // the entire simple dialog
     // update,delete, select, cancel
-    onUpdate() {},
-    onDelete() {},
+    onUpdate() {
+      if (this.newFiles.length > 0) {
+        // dispatch
+        var formData = new FormData();
+        for (var i = 0; i < this.newFiles.length; i++) {
+          formData.append("metafile" + "_" + i, this.newFiles[i]);
+        }
+        this.$store.dispatch("image/setMetaFiles", formData);
+
+        this.selectedNewContents = [];
+      }
+    },
+    onDelete() {
+      switch (this.selectedTab) {
+        case "tabs-new":
+          {
+            const remainFiles = [];
+            const remainContents = [];
+            this.newContents.forEach(content => {
+              if (
+                !this.selectedNewContents.includes(content) &&
+                0 < content.no &&
+                content.no <= this.newFiles.length
+              ) {
+                remainFiles.push(this.newFiles[content.no - 1]);
+                content.no = remainContents.length + 1;
+                remainContents.push(content);
+              }
+            });
+            this.newFiles = remainFiles;
+            this.newContents = remainContents;
+            this.selectedNewContents = [];
+          }
+          break;
+
+        case "tabs-images":
+          {
+            const remainFiles = [];
+            const remainDatas = [];
+            this.metaFiles.forEach((file, idx) => {
+              if (!this.selectedImgIndices.includes(idx)) {
+                remainFiles.push(file);
+                remainDatas.push(this.metaDatas[idx]);
+              }
+            });
+            this.metaFiles = remainFiles;
+            this.metaDatas = remainDatas;
+          }
+          this.initMetaDatas();
+          break;
+
+        case "tabs-tiling":
+          break;
+
+        case "tabs-metadata":
+          {
+            const remainFiles = [];
+            const remainDatas = [];
+            const remainContents = [];
+            this.getMetaContents.forEach(content => {
+              if (
+                !this.selectedMetaContents.includes(content) &&
+                0 < content.no &&
+                content.no <= this.metaFiles.length
+              ) {
+                remainFiles.push(this.metaFiles[content.no - 1]);
+                remainDatas.push(this.metaDatas[content.no - 1]);
+                content.no = remainContents.length + 1;
+                remainContents.push(content);
+              }
+            });
+            this.metaFiles = remainFiles;
+            this.metaDatas = remainDatas;
+          }
+          this.initMetaDatas();
+          break;
+
+        case "tabs-name-type":
+          {
+            const remainFiles = [];
+            const remainDatas = [];
+            const remainContents = [];
+            this.getNameContents.forEach(content => {
+              if (
+                !this.selectedNameContents.includes(content) &&
+                0 < content.no &&
+                content.no <= this.metaFiles.length
+              ) {
+                remainFiles.push(this.metaFiles[content.no - 1]);
+                remainDatas.push(this.metaDatas[content.no - 1]);
+                content.no = remainContents.length + 1;
+                remainContents.push(content);
+              }
+            });
+            this.metaFiles = remainFiles;
+            this.metaDatas = remainDatas;
+          }
+          this.initMetaDatas();
+          break;
+      }
+    },
+    initMetaDatas() {
+      this.curImgIdx = -1;
+      this.curMetaIdx = -1;
+      this.curNameIdx = -1;
+      this.selectedImgIndices = [];
+      this.selectedMetaContents = [];
+      this.selectedNameContents = [];
+    },
     onSelect() {
       switch (this.selectedTab) {
+        case "tabs-new":
+          break;
+
         case "tabs-images":
-          this.showImageData(this.curImgIdx);
+          this.showMetaData(this.curImgIdx);
           break;
 
         case "tabs-tiling":
@@ -517,61 +656,66 @@ export default {
           break;
 
         case "tabs-name-type":
-          if (
-            -1 < this.curNameIdx &&
-            this.curNameIdx < this.nameContents.length
-          ) {
-            let nameType = this.nameContents[this.curNameIdx];
-            switch (nameType.classes) {
-              case "image":
-                this.showImageData(nameType.idx);
-                break;
-              case "metadata":
-                this.showMetaData(nameType.idx);
-                break;
-            }
-          }
+          this.showMetaData(this.curNameIdx);
           break;
       }
 
       this.visibleDialog = false;
     },
+    showImageData(idx) {
+      if (-1 < idx && idx < this.imgDatas.length) {
+        const imgData = this.imgDatas[idx];
+        if (imgData) {
+          this.$store.dispatch("image/setImageDataFromPosition", imgData);
+        }
+      }
+    },
+    showMetaData(idx) {
+      if (-1 < idx && idx < this.metaDatas.length) {
+        const metaData = this.metaDatas[idx];
+        if (metaData) {
+          this.$store.dispatch("image/setMetadataFromPosition", metaData);
+        }
+      }
+    },
     onClose() {
       this.visibleDialog = false;
     },
 
-    selectImage(idx) {
+    selectContent(content) {
       switch (this.selectedTab) {
+        case "tabs-new":
+          break;
+
         case "tabs-images":
-          this.curImgIdx = idx;
+          {
+            this.curImgIdx = content;
+            const i = this.selectedImgIndices.indexOf(content);
+            if (i > -1) {
+              this.selectedImgIndices.splice(i, 1);
+            } else {
+              this.selectedImgIndices.push(content);
+            }
+          }
           break;
 
         case "tabs-tiling":
           break;
 
         case "tabs-metadata":
-          this.curMetaIdx = idx;
+          this.curMetaIdx = content.no - 1;
           break;
 
         case "tabs-name-type":
-          this.curNameIdx = idx;
+          this.curNameIdx = content.no - 1;
           break;
       }
     },
 
     // update
-    updateMetadata() {
-      if (this.curFileIdx < this.newFiles.length - 1) {
-        var formData = new FormData();
-        for (var i = this.curFileIdx + 1; i < this.newFiles.length; i++) {
-          formData.append("metafile" + "_" + i, this.newFiles[i]);
-        }
-        this.$store.dispatch("image/setMetaFiles", formData);
-      }
-    },
     updateNameType() {
-      let filename = this.makeNameType();
-      var nameType = this.nameContents[this.curNameIdx];
+      const filename = this.makeNameType();
+      var nameType = this.getNameContents[this.curNameIdx];
       nameType.filename = filename;
       switch (nameType.classes) {
         case "image":
@@ -592,43 +736,43 @@ export default {
 
     // regrex for name and type
     getSeries(filename) {
-      let type = filename.match(
+      const type = filename.match(
         /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[2] : "";
     },
     getColumn(filename) {
-      let type = filename.match(
+      const type = filename.match(
         /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[5] : "";
     },
     getRow(filename) {
-      let type = filename.match(
+      const type = filename.match(
         /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[6] : "";
     },
     getField(filename) {
-      let type = filename.match(
+      const type = filename.match(
         /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[7] : "";
     },
     getViewMethod(filename) {
-      let type = filename.match(
+      const type = filename.match(
         /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[8] : "";
     },
     getZPosition(filename) {
-      let type = filename.match(
+      const type = filename.match(
         /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[4] : "";
     },
     getTimepoint(filename) {
-      let type = filename.match(
+      const type = filename.match(
         /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[3] : "";
@@ -637,31 +781,71 @@ export default {
       if (this.curNameIdx == -1) {
         return "";
       } else {
+        const filename = this.metaFiles[this.curNameIdx].name;
         switch (idx) {
           case 0:
-            return this.getSeries(this.nameContents[this.curNameIdx].filename);
+            return this.getSeries(filename);
           case 1:
-            return this.getColumn(this.nameContents[this.curNameIdx].filename);
+            return this.getColumn(filename);
           case 2:
-            return this.getRow(this.nameContents[this.curNameIdx].filename);
+            return this.getRow(filename);
           case 3:
-            return this.getField(this.nameContents[this.curNameIdx].filename);
+            return this.getField(filename);
           case 4:
-            return this.getViewMethod(
-              this.nameContents[this.curNameIdx].filename
-            );
+            return this.getViewMethod(filename);
           case 5:
-            return this.getZPosition(
-              this.nameContents[this.curNameIdx].filename
-            );
+            return this.getZPosition(filename);
           case 6:
-            return this.getTimepoint(
-              this.nameContents[this.curNameIdx].filename
-            );
+            return this.getTimepoint(filename);
         }
       }
 
       return "";
+    },
+
+    // styles
+    meta_row_highlight(item) {
+      let rowClass = "";
+
+      switch (this.selectedTab) {
+        case "tabs-new":
+          if (this.selectedNewContents.includes(item)) {
+            rowClass = "row_delete";
+          }
+          break;
+
+        case "tabs-images":
+          if (item == this.curImgIdx) {
+            rowClass = "success lighten-3 ";
+          }
+          if (this.selectedImgIndices.includes(item)) {
+            rowClass += "row_delete";
+          }
+          break;
+
+        case "tabs-tiling":
+          break;
+
+        case "tabs-metadata":
+          if (item.no - 1 == this.curMetaIdx) {
+            rowClass = "success lighten-3 ";
+          }
+          if (this.selectedMetaContents.includes(item)) {
+            rowClass += "row_delete";
+          }
+          break;
+
+        case "tabs-name-type":
+          if (item.no - 1 == this.curNameIdx) {
+            rowClass = "success lighten-3 ";
+          }
+          if (this.selectedNameContents.includes(item)) {
+            rowClass += "row_delete";
+          }
+          break;
+      }
+
+      return rowClass;
     },
 
     // utils
@@ -675,12 +859,12 @@ export default {
       return false;
     },
     makeNameType() {
-      var filename = this.nameContents[this.curNameIdx].filename;
-      let type = filename.match(
+      var filename = this.metaFiles[this.curNameIdx].name;
+      const type = filename.match(
         /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
-      let idx = filename.lastIndexOf(".");
-      let ext = filename.substring(idx + 1);
+      const idx = filename.lastIndexOf(".");
+      const ext = filename.substring(idx + 1);
       filename =
         (type ? type[1] : filename.substring(0, idx)) +
         "_" +
@@ -726,11 +910,12 @@ export default {
   text-align: center;
 }
 .img-align {
-  width: 25%;
+  width: 23%;
   padding: 10px;
+  margin: 1%;
 }
 .img-align > p {
-  margin: auto;
+  margin: 0px !important;
 }
 .v-img-align {
   margin: auto;
@@ -777,5 +962,20 @@ export default {
 }
 .common {
   width: 80px;
+}
+.new-file-table >>> tr th:nth-child(2),
+.new-file-table >>> tr td:nth-child(2) {
+  width: 60px !important;
+}
+.meta-file-table >>> tr th:nth-child(3),
+.meta-file-table >>> tr td:nth-child(3) {
+  width: 295px !important;
+}
+.name-type-table >>> tr th:nth-child(3),
+.name-type-table >>> tr td:nth-child(3) {
+  width: 295px !important;
+}
+::v-deep .row_delete {
+  color: #c36a0a;
 }
 </style>
