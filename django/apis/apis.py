@@ -53,10 +53,11 @@ def set_image(request):
 @csrf_exempt
 def set_metadata(request):
 
-    try:
-        jsonReq = request.FILES
-        jsonRes = {}
-        for key in jsonReq:
+    jsonReq = request.FILES
+    jsonRes = {}
+    for key in jsonReq:
+
+        try:
             metadata = jsonReq[key]
 
             if utils.check_source_format(metadata):
@@ -71,11 +72,10 @@ def set_metadata(request):
                     jsonRes[key] = None
             else:
                 jsonRes[key] = None
+        except Exception:
+            jsonRes[key] = None
 
-        return JsonResponse(jsonRes, status=HTTPStatus.OK)
-
-    except Exception:
-        return response_error()
+    return JsonResponse(jsonRes, status=HTTPStatus.OK)
 
 @csrf_exempt
 def change_image(request):
