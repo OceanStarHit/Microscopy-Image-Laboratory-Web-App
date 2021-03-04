@@ -695,6 +695,34 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "SimpleDialog",
   data: function data() {
@@ -705,25 +733,79 @@ __webpack_require__.r(__webpack_exports__);
       type: String,
       "default": ""
     },
-    singleButton: {
-      type: Boolean,
-      "default": true
-    },
-    cancelTitle: {
+    // new button
+    newTitle: {
       type: String,
-      "default": "Cancel"
+      "default": "New"
     },
+    newButton: {
+      type: Boolean,
+      "default": false
+    },
+    newDisable: {
+      type: Boolean,
+      "default": false
+    },
+    // update button
+    updateTitle: {
+      type: String,
+      "default": "Update"
+    },
+    updateButton: {
+      type: Boolean,
+      "default": false
+    },
+    updateDisable: {
+      type: Boolean,
+      "default": false
+    },
+    // remove button
+    removeTitle: {
+      type: String,
+      "default": "remove"
+    },
+    removeButton: {
+      type: Boolean,
+      "default": false
+    },
+    removeDisable: {
+      type: Boolean,
+      "default": false
+    },
+    // ok button
     okTitle: {
       type: String,
       "default": "OK"
+    },
+    selectDisable: {
+      type: Boolean,
+      "default": false
+    },
+    // close button
+    closeTitle: {
+      type: String,
+      "default": "Cancel"
+    },
+    singleButton: {
+      type: Boolean,
+      "default": true
     }
   },
   methods: {
-    closed: function closed() {
-      this.$emit("close");
+    newed: function newed() {
+      this.$emit("new");
+    },
+    updated: function updated() {
+      this.$emit("update");
+    },
+    removed: function removed() {
+      this.$emit("remove");
     },
     selected: function selected() {
       this.$emit("select");
+    },
+    closed: function closed() {
+      this.$emit("close");
     }
   }
 });
@@ -2860,15 +2942,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var core_js_modules_es_string_split_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_split_js__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! core-js/modules/es.regexp.exec.js */ "./node_modules/core-js/modules/es.regexp.exec.js");
 /* harmony import */ var core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! core-js/modules/es.function.name.js */ "./node_modules/core-js/modules/es.function.name.js");
-/* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var core_js_modules_es_string_match_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! core-js/modules/es.string.match.js */ "./node_modules/core-js/modules/es.string.match.js");
-/* harmony import */ var core_js_modules_es_string_match_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_match_js__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var core_js_modules_es_string_starts_with_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! core-js/modules/es.string.starts-with.js */ "./node_modules/core-js/modules/es.string.starts-with.js");
-/* harmony import */ var core_js_modules_es_string_starts_with_js__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_starts_with_js__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var core_js_modules_es_array_last_index_of_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! core-js/modules/es.array.last-index-of.js */ "./node_modules/core-js/modules/es.array.last-index-of.js");
-/* harmony import */ var core_js_modules_es_array_last_index_of_js__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_last_index_of_js__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var _custom_SimpleDialog__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../../custom/SimpleDialog */ "./src/components/custom/SimpleDialog.vue");
+/* harmony import */ var core_js_modules_es_string_match_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! core-js/modules/es.string.match.js */ "./node_modules/core-js/modules/es.string.match.js");
+/* harmony import */ var core_js_modules_es_string_match_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_match_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var core_js_modules_es_array_for_each_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! core-js/modules/es.array.for-each.js */ "./node_modules/core-js/modules/es.array.for-each.js");
+/* harmony import */ var core_js_modules_es_array_for_each_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_for_each_js__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var core_js_modules_web_dom_collections_for_each_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each.js */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
+/* harmony import */ var core_js_modules_web_dom_collections_for_each_js__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each_js__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! core-js/modules/es.function.name.js */ "./node_modules/core-js/modules/es.function.name.js");
+/* harmony import */ var core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_function_name_js__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! core-js/modules/es.array.includes.js */ "./node_modules/core-js/modules/es.array.includes.js");
+/* harmony import */ var core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_includes_js__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var core_js_modules_es_string_includes_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! core-js/modules/es.string.includes.js */ "./node_modules/core-js/modules/es.string.includes.js");
+/* harmony import */ var core_js_modules_es_string_includes_js__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_includes_js__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var core_js_modules_es_array_index_of_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! core-js/modules/es.array.index-of.js */ "./node_modules/core-js/modules/es.array.index-of.js");
+/* harmony import */ var core_js_modules_es_array_index_of_js__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_index_of_js__WEBPACK_IMPORTED_MODULE_10__);
+/* harmony import */ var core_js_modules_es_array_splice_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! core-js/modules/es.array.splice.js */ "./node_modules/core-js/modules/es.array.splice.js");
+/* harmony import */ var core_js_modules_es_array_splice_js__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_splice_js__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var core_js_modules_es_array_last_index_of_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! core-js/modules/es.array.last-index-of.js */ "./node_modules/core-js/modules/es.array.last-index-of.js");
+/* harmony import */ var core_js_modules_es_array_last_index_of_js__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_last_index_of_js__WEBPACK_IMPORTED_MODULE_12__);
+/* harmony import */ var _custom_SimpleDialog__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../../custom/SimpleDialog */ "./src/components/custom/SimpleDialog.vue");
 
 
 
@@ -2877,6 +2969,21 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
+
+
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -3145,28 +3252,41 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "OpenPositionDialog",
   components: {
-    SimpleDialog: _custom_SimpleDialog__WEBPACK_IMPORTED_MODULE_8__["default"]
+    SimpleDialog: _custom_SimpleDialog__WEBPACK_IMPORTED_MODULE_13__["default"]
   },
   data: function data() {
     return {
       isDragging: false,
       selectedTab: null,
-      // for all files
-      otherFiles: [],
-      curFileIdx: -1,
-      // for image tag
-      imgFiles: [],
-      imgDatas: [],
-      curImgIdx: -1,
-      // for tiling
-      tilingFiles: [],
-      tilingDatas: [],
-      curTileIdx: -1,
-      // for meta tag
+      // meta files
       metaFiles: [],
       metaDatas: [],
+      // for all files
+      searchNewFile: "",
+      newFiles: [],
+      selectedNewContents: [],
+      newHeaders: [{
+        text: "No",
+        value: "no",
+        sortable: false
+      }, {
+        text: "File Name",
+        value: "filename",
+        sortable: false
+      }],
+      // for image tag
+      curImgIdx: -1,
+      imgFiles: [],
+      imgDatas: [],
+      selectedImgIndices: [],
+      // for tiling
+      curTileIdx: -1,
+      tilingFiles: [],
+      tilingDatas: [],
+      // for meta tag
       curMetaIdx: -1,
-      search: "",
+      searchMetadata: "",
+      selectedMetaContents: [],
       metaHeaders: [{
         text: "No",
         value: "no",
@@ -3208,9 +3328,10 @@ __webpack_require__.r(__webpack_exports__);
         value: "size_z",
         sortable: false
       }],
-      metaContents: [],
       // for filename type
       curNameIdx: -1,
+      searchNameType: "",
+      selectedNameContents: [],
       nameTypes: [{
         name: "Series",
         value: "",
@@ -3236,7 +3357,7 @@ __webpack_require__.r(__webpack_exports__);
         value: "",
         color: "blue-grey"
       }, {
-        name: "Timepoint",
+        name: "Time Point",
         value: "",
         color: "error"
       }],
@@ -3273,11 +3394,10 @@ __webpack_require__.r(__webpack_exports__);
         value: "zPosition",
         sortable: false
       }, {
-        text: "Timepoint",
+        text: "Time Point",
         value: "timepoint",
         sortable: false
-      }],
-      nameContents: []
+      }]
     };
   },
   created: function created() {
@@ -3288,41 +3408,18 @@ __webpack_require__.r(__webpack_exports__);
     }, function (res) {
       for (var key in res) {
         if (res[key]) {
-          _this.curFileIdx = parseInt(key.split("_")[1]);
+          var curFileIdx = parseInt(key.split("_")[1]);
 
-          if (_this.curFileIdx < _this.otherFiles.length) {
-            _this.metaFiles.push(_this.otherFiles[_this.curFileIdx]);
+          if (curFileIdx < _this.newFiles.length) {
+            _this.metaFiles.push(_this.newFiles[curFileIdx]);
 
             _this.metaDatas.push(res[key]);
-
-            var coreMetadata = res[key].coreMetadata;
-            var filename = _this.otherFiles[_this.curFileIdx].name;
-            var cnt = _this.metaContents.length;
-
-            _this.metaContents.push({
-              no: cnt,
-              filename: filename,
-              series: coreMetadata.seriesCount,
-              frame: coreMetadata.imageCount,
-              c: coreMetadata.currentSeries,
-              size_c: coreMetadata.sizeC,
-              size_t: coreMetadata.sizeT,
-              size_x: coreMetadata.sizeX,
-              size_y: coreMetadata.sizeY,
-              size_z: coreMetadata.sizeZ
-            });
-
-            cnt = _this.nameContents.length;
-
-            _this.nameContents.push({
-              no: cnt,
-              filename: filename,
-              classes: "metadata",
-              idx: _this.metaDatas.length - 1
-            });
           }
         }
-      }
+      } // init new files
+
+
+      _this.initNewInfo();
     });
   },
   beforeDestroy: function beforeDestroy() {
@@ -3348,17 +3445,129 @@ __webpack_require__.r(__webpack_exports__);
         isDragging: this.isDragging
       };
     },
-    updateNameTypeDisable: function updateNameTypeDisable() {
-      if (this.isChangedNameType() && -1 < this.curNameIdx && this.curNameIdx < this.nameContents.length) {
+    changeNameType: function changeNameType() {
+      if (this.isChangedNameType() && -1 < this.curNameIdx && this.curNameIdx < this.metaFiles.length) {
         if (this.makeNameType().match(/^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/)) {
-          return false;
+          return true;
         }
       }
 
-      return true;
+      return false;
     },
     clearNameTypeDisable: function clearNameTypeDisable() {
       return !this.isChangedNameType();
+    },
+    newPossible: function newPossible() {
+      switch (this.selectedTab) {
+        case "tabs-new":
+          return this.newFiles.length;
+
+        case "tabs-images":
+          return this.metaFiles.length;
+
+        case "tabs-tiling":
+          break;
+
+        case "tabs-metadata":
+          return this.metaFiles.length;
+
+        case "tabs-name-type":
+          return this.metaFiles.length;
+      }
+
+      return false;
+    },
+    removePossible: function removePossible() {
+      switch (this.selectedTab) {
+        case "tabs-new":
+          return this.selectedNewContents.length;
+
+        case "tabs-images":
+          return this.selectedImgIndices.length;
+
+        case "tabs-tiling":
+          break;
+
+        case "tabs-metadata":
+          return this.selectedMetaContents.length;
+
+        case "tabs-name-type":
+          return this.selectedNameContents.length;
+      }
+
+      return false;
+    },
+    selectPossible: function selectPossible() {
+      switch (this.selectedTab) {
+        case "tabs-new":
+          return false;
+
+        case "tabs-images":
+          return this.curImgIdx > -1;
+
+        case "tabs-tiling":
+          return false;
+
+        case "tabs-metadata":
+          return this.curMetaIdx > -1;
+
+        case "tabs-name-type":
+          return this.curNameIdx > -1;
+      }
+
+      return false;
+    },
+    // get contents: new file contents,
+    // meta file contents, name type contents
+    getNewContents: function getNewContents() {
+      var contents = [];
+      this.newFiles.forEach(function (file) {
+        contents.push({
+          no: contents.length + 1,
+          filename: file.name
+        });
+      });
+      return contents;
+    },
+    getNameContents: function getNameContents() {
+      var _this2 = this;
+
+      var contents = [];
+      this.metaFiles.forEach(function (file) {
+        contents.push({
+          no: contents.length + 1,
+          filename: file.name,
+          series: _this2.getSeries(file.name),
+          column: _this2.getColumn(file.name),
+          row: _this2.getRow(file.name),
+          field: _this2.getField(file.name),
+          viewMethod: _this2.getViewMethod(file.name),
+          zPosition: _this2.getZPosition(file.name),
+          timepoint: _this2.getTimepoint(file.name)
+        });
+      });
+      return contents;
+    },
+    getMetaContents: function getMetaContents() {
+      var _this3 = this;
+
+      var contents = [];
+      this.metaFiles.forEach(function (file, idx) {
+        var coreMetadata = _this3.metaDatas[idx].coreMetadata;
+        contents.push({
+          no: contents.length + 1,
+          filename: file.name,
+          series: coreMetadata.seriesCount,
+          frame: coreMetadata.imageCount,
+          c: coreMetadata.currentSeries,
+          size_c: coreMetadata.sizeC,
+          size_t: coreMetadata.sizeT,
+          size_x: coreMetadata.sizeX,
+          size_y: coreMetadata.sizeY,
+          size_z: coreMetadata.sizeZ
+        });
+      });
+      return contents;
     }
   },
   methods: {
@@ -3376,8 +3585,6 @@ __webpack_require__.r(__webpack_exports__);
       e.preventDefault();
     },
     requestUploadFile: function requestUploadFile() {
-      var _this2 = this;
-
       var fileInput = this.$el.querySelector("#uploadFile");
 
       if (fileInput.files && fileInput.files.length > 0) {
@@ -3387,42 +3594,7 @@ __webpack_require__.r(__webpack_exports__);
         try {
           for (_iterator.s(); !(_step = _iterator.n()).done;) {
             var file = _step.value;
-
-            if (!file) {
-              continue;
-            }
-
-            if (file.type.startsWith("image/") && !file.type.startsWith("image/tif")) {
-              (function () {
-                // for image tag
-                _this2.imgFiles.push(file);
-
-                var cnt = _this2.nameContents.length;
-
-                _this2.nameContents.push({
-                  no: cnt,
-                  filename: file.name,
-                  classes: "image",
-                  idx: _this2.imgFiles.length - 1
-                });
-
-                var self = _this2;
-                var reader = new FileReader();
-
-                reader.onload = function () {
-                  var res = reader.result;
-
-                  if (res) {
-                    self.imgDatas.push(res);
-                  }
-                };
-
-                reader.readAsDataURL(file);
-              })();
-            } else {
-              // for meta tag
-              this.otherFiles.push(file);
-            }
+            this.newFiles.push(file);
           }
         } catch (err) {
           _iterator.e(err);
@@ -3431,10 +3603,137 @@ __webpack_require__.r(__webpack_exports__);
         }
       }
     },
+    // the entire simple dialog
+    // new, update, remove, select, cancel
+    onNew: function onNew() {
+      switch (this.selectedTab) {
+        case "tabs-new":
+          this.initNewInfo();
+          break;
+
+        case "tabs-images":
+          this.initMetaInfo();
+          this.initMetaSelectedInfo();
+          break;
+
+        case "tabs-tiling":
+          break;
+
+        case "tabs-metadata":
+          this.initMetaInfo();
+          this.initMetaSelectedInfo();
+          break;
+
+        case "tabs-name-type":
+          this.initMetaInfo();
+          this.initMetaSelectedInfo();
+          break;
+      }
+    },
+    onUpdate: function onUpdate() {
+      if (this.newFiles.length > 0) {
+        // dispatch
+        var formData = new FormData();
+
+        for (var i = 0; i < this.newFiles.length; i++) {
+          formData.append("metafile" + "_" + i, this.newFiles[i]);
+        }
+
+        this.$store.dispatch("image/setMetaFiles", formData);
+      }
+    },
+    onRemove: function onRemove() {
+      var _this4 = this;
+
+      switch (this.selectedTab) {
+        case "tabs-new":
+          {
+            var remainFiles = [];
+            var remainContents = [];
+            this.getNewContents.forEach(function (content) {
+              if (!_this4.selectedNewContents.includes(content) && 0 < content.no && content.no <= _this4.newFiles.length) {
+                remainFiles.push(_this4.newFiles[content.no - 1]);
+                content.no = remainContents.length + 1;
+                remainContents.push(content);
+              }
+            });
+            this.newFiles = remainFiles;
+            this.selectedNewContents = [];
+          }
+          break;
+
+        case "tabs-images":
+          {
+            var _remainFiles = [];
+            var remainDatas = [];
+            this.metaFiles.forEach(function (file, idx) {
+              if (!_this4.selectedImgIndices.includes(idx)) {
+                _remainFiles.push(file);
+
+                remainDatas.push(_this4.metaDatas[idx]);
+              }
+            });
+            this.metaFiles = _remainFiles;
+            this.metaDatas = remainDatas;
+          }
+          this.initMetaSelectedInfo();
+          break;
+
+        case "tabs-tiling":
+          break;
+
+        case "tabs-metadata":
+          {
+            var _remainFiles2 = [];
+            var _remainDatas = [];
+            var _remainContents = [];
+            this.getMetaContents.forEach(function (content) {
+              if (!_this4.selectedMetaContents.includes(content) && 0 < content.no && content.no <= _this4.metaFiles.length) {
+                _remainFiles2.push(_this4.metaFiles[content.no - 1]);
+
+                _remainDatas.push(_this4.metaDatas[content.no - 1]);
+
+                content.no = _remainContents.length + 1;
+
+                _remainContents.push(content);
+              }
+            });
+            this.metaFiles = _remainFiles2;
+            this.metaDatas = _remainDatas;
+          }
+          this.initMetaSelectedInfo();
+          break;
+
+        case "tabs-name-type":
+          {
+            var _remainFiles3 = [];
+            var _remainDatas2 = [];
+            var _remainContents2 = [];
+            this.getNameContents.forEach(function (content) {
+              if (!_this4.selectedNameContents.includes(content) && 0 < content.no && content.no <= _this4.metaFiles.length) {
+                _remainFiles3.push(_this4.metaFiles[content.no - 1]);
+
+                _remainDatas2.push(_this4.metaDatas[content.no - 1]);
+
+                content.no = _remainContents2.length + 1;
+
+                _remainContents2.push(content);
+              }
+            });
+            this.metaFiles = _remainFiles3;
+            this.metaDatas = _remainDatas2;
+          }
+          this.initMetaSelectedInfo();
+          break;
+      }
+    },
     onSelect: function onSelect() {
       switch (this.selectedTab) {
+        case "tabs-new":
+          break;
+
         case "tabs-images":
-          this.showImageData(this.curImgIdx);
+          this.showMetaData(this.curImgIdx);
           break;
 
         case "tabs-tiling":
@@ -3445,20 +3744,7 @@ __webpack_require__.r(__webpack_exports__);
           break;
 
         case "tabs-name-type":
-          if (-1 < this.curNameIdx && this.curNameIdx < this.nameContents.length) {
-            var nameType = this.nameContents[this.curNameIdx];
-
-            switch (nameType.classes) {
-              case "image":
-                this.showImageData(nameType.idx);
-                break;
-
-              case "metadata":
-                this.showMetaData(nameType.idx);
-                break;
-            }
-          }
-
+          this.showMetaData(this.curNameIdx);
           break;
       }
 
@@ -3485,39 +3771,60 @@ __webpack_require__.r(__webpack_exports__);
     onClose: function onClose() {
       this.visibleDialog = false;
     },
-    selectImage: function selectImage(idx) {
+    // init
+    initNewInfo: function initNewInfo() {
+      this.newFiles = [];
+      this.searchNewFile = "";
+      this.selectedNewIndices = [];
+    },
+    initMetaInfo: function initMetaInfo() {
+      this.metaFiles = [];
+      this.metaDatas = [];
+      this.searchMetadata = "";
+      this.searchNameType = "";
+    },
+    initMetaSelectedInfo: function initMetaSelectedInfo() {
+      this.curImgIdx = -1;
+      this.curMetaIdx = -1;
+      this.curNameIdx = -1;
+      this.selectedImgIndices = [];
+      this.selectedMetaContents = [];
+      this.selectedNameContents = [];
+    },
+    selectContent: function selectContent(content) {
       switch (this.selectedTab) {
+        case "tabs-new":
+          break;
+
         case "tabs-images":
-          this.curImgIdx = idx;
+          {
+            this.curImgIdx = content;
+            var i = this.selectedImgIndices.indexOf(content);
+
+            if (i > -1) {
+              this.selectedImgIndices.splice(i, 1);
+            } else {
+              this.selectedImgIndices.push(content);
+            }
+          }
           break;
 
         case "tabs-tiling":
           break;
 
         case "tabs-metadata":
-          this.curMetaIdx = idx;
+          this.curMetaIdx = content.no - 1;
           break;
 
         case "tabs-name-type":
-          this.curNameIdx = idx;
+          this.curNameIdx = content.no - 1;
           break;
       }
     },
     // update
-    updateMetadata: function updateMetadata() {
-      if (this.curFileIdx < this.otherFiles.length - 1) {
-        var formData = new FormData();
-
-        for (var i = this.curFileIdx + 1; i < this.otherFiles.length; i++) {
-          formData.append("metafile" + "_" + i, this.otherFiles[i]);
-        }
-
-        this.$store.dispatch("image/setMetaFiles", formData);
-      }
-    },
     updateNameType: function updateNameType() {
       var filename = this.makeNameType();
-      var nameType = this.nameContents[this.curNameIdx];
+      var nameType = this.getNameContents[this.curNameIdx];
       nameType.filename = filename;
 
       switch (nameType.classes) {
@@ -3569,31 +3876,84 @@ __webpack_require__.r(__webpack_exports__);
       if (this.curNameIdx == -1) {
         return "";
       } else {
+        var filename = this.metaFiles[this.curNameIdx].name;
+
         switch (idx) {
           case 0:
-            return this.getSeries(this.nameContents[this.curNameIdx].filename);
+            return this.getSeries(filename);
 
           case 1:
-            return this.getColumn(this.nameContents[this.curNameIdx].filename);
+            return this.getColumn(filename);
 
           case 2:
-            return this.getRow(this.nameContents[this.curNameIdx].filename);
+            return this.getRow(filename);
 
           case 3:
-            return this.getField(this.nameContents[this.curNameIdx].filename);
+            return this.getField(filename);
 
           case 4:
-            return this.getViewMethod(this.nameContents[this.curNameIdx].filename);
+            return this.getViewMethod(filename);
 
           case 5:
-            return this.getZPosition(this.nameContents[this.curNameIdx].filename);
+            return this.getZPosition(filename);
 
           case 6:
-            return this.getTimepoint(this.nameContents[this.curNameIdx].filename);
+            return this.getTimepoint(filename);
         }
       }
 
       return "";
+    },
+    // styles
+    meta_row_highlight: function meta_row_highlight(item) {
+      var rowClass = "";
+
+      switch (this.selectedTab) {
+        case "tabs-new":
+          if (this.selectedNewContents.includes(item)) {
+            rowClass = "row_remove";
+          }
+
+          break;
+
+        case "tabs-images":
+          if (item == this.curImgIdx) {
+            rowClass = "success lighten-3 ";
+          }
+
+          if (this.selectedImgIndices.includes(item)) {
+            rowClass += "row_remove";
+          }
+
+          break;
+
+        case "tabs-tiling":
+          break;
+
+        case "tabs-metadata":
+          if (item.no - 1 == this.curMetaIdx) {
+            rowClass = "success lighten-3 ";
+          }
+
+          if (this.selectedMetaContents.includes(item)) {
+            rowClass += "row_remove";
+          }
+
+          break;
+
+        case "tabs-name-type":
+          if (item.no - 1 == this.curNameIdx) {
+            rowClass = "success lighten-3 ";
+          }
+
+          if (this.selectedNameContents.includes(item)) {
+            rowClass += "row_remove";
+          }
+
+          break;
+      }
+
+      return rowClass;
     },
     // utils
     isChangedNameType: function isChangedNameType() {
@@ -3606,7 +3966,7 @@ __webpack_require__.r(__webpack_exports__);
       return false;
     },
     makeNameType: function makeNameType() {
-      var filename = this.nameContents[this.curNameIdx].filename;
+      var filename = this.metaFiles[this.curNameIdx].name;
       var type = filename.match(/^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
       var idx = filename.lastIndexOf(".");
       var ext = filename.substring(idx + 1);
@@ -6462,24 +6822,63 @@ var render = function() {
         { staticClass: "pa-6" },
         [
           _c("v-spacer"),
-          !_vm.singleButton
+          _vm.newButton
             ? _c(
                 "v-btn",
                 {
-                  attrs: { color: "primary darken-1" },
-                  on: { click: _vm.closed }
+                  attrs: {
+                    disabled: _vm.newDisable,
+                    color: "warning lighten-1"
+                  },
+                  on: { click: _vm.newed }
                 },
-                [_vm._v(" " + _vm._s(_vm.cancelTitle) + " ")]
+                [_vm._v(" " + _vm._s(_vm.newTitle) + " ")]
+              )
+            : _vm._e(),
+          _vm.updateButton
+            ? _c(
+                "v-btn",
+                {
+                  attrs: {
+                    disabled: _vm.updateDisable,
+                    color: "info darken-1"
+                  },
+                  on: { click: _vm.updated }
+                },
+                [_vm._v(" " + _vm._s(_vm.updateTitle) + " ")]
+              )
+            : _vm._e(),
+          _vm.removeButton
+            ? _c(
+                "v-btn",
+                {
+                  attrs: {
+                    disabled: _vm.removeDisable,
+                    color: "warning darken-2"
+                  },
+                  on: { click: _vm.removed }
+                },
+                [_vm._v(" " + _vm._s(_vm.removeTitle) + " ")]
               )
             : _vm._e(),
           _c(
             "v-btn",
             {
-              attrs: { color: "success darken-1" },
+              attrs: { disabled: _vm.selectDisable, color: "success darken-2" },
               on: { click: _vm.selected }
             },
             [_vm._v(" " + _vm._s(_vm.okTitle) + " ")]
-          )
+          ),
+          !_vm.singleButton
+            ? _c(
+                "v-btn",
+                {
+                  attrs: { color: "primary darken-2" },
+                  on: { click: _vm.closed }
+                },
+                [_vm._v(" " + _vm._s(_vm.closeTitle) + " ")]
+              )
+            : _vm._e()
         ],
         1
       )
@@ -8431,11 +8830,23 @@ var render = function() {
             {
               attrs: {
                 title: "Position",
-                singleButton: false,
                 okTitle: "Select",
-                cancelTitle: "Close"
+                newButton: true,
+                updateButton: true,
+                removeButton: true,
+                singleButton: false,
+                newDisable: !_vm.newPossible,
+                updateDisable: !_vm.newFiles.length,
+                selectDisable: !_vm.selectPossible,
+                removeDisable: !_vm.removePossible
               },
-              on: { select: _vm.onSelect, close: _vm.onClose }
+              on: {
+                new: _vm.onNew,
+                update: _vm.onUpdate,
+                remove: _vm.onRemove,
+                select: _vm.onSelect,
+                close: _vm.onClose
+              }
             },
             [
               _c(
@@ -8451,6 +8862,14 @@ var render = function() {
                   }
                 },
                 [
+                  _c(
+                    "v-tab",
+                    {
+                      staticClass: "primary--text",
+                      attrs: { href: "#tabs-new" }
+                    },
+                    [_vm._v("New Files")]
+                  ),
                   _c(
                     "v-tab",
                     {
@@ -8501,6 +8920,105 @@ var render = function() {
                 [
                   _c(
                     "v-tab-item",
+                    { staticClass: "v-tab-item", attrs: { value: "tabs-new" } },
+                    [
+                      _c(
+                        "v-sheet",
+                        {
+                          staticClass: "drop pa-5 v-sheet",
+                          class: _vm.getClasses,
+                          attrs: { height: "350" },
+                          on: {
+                            dragover: function($event) {
+                              $event.preventDefault()
+                              return _vm.dragOver($event)
+                            },
+                            dragleave: function($event) {
+                              $event.preventDefault()
+                              return _vm.dragLeave($event)
+                            },
+                            drop: function($event) {
+                              $event.preventDefault()
+                              return _vm.drop($event)
+                            }
+                          }
+                        },
+                        [
+                          !_vm.newFiles.length
+                            ? _c(
+                                "div",
+                                {
+                                  staticClass:
+                                    "d-flex align-center justify-center",
+                                  staticStyle: { height: "200px" }
+                                },
+                                [
+                                  _c(
+                                    "p",
+                                    {
+                                      staticClass:
+                                        "text-h4 grey--text text--lighten-2"
+                                    },
+                                    [_vm._v(" Drag and Drop. ")]
+                                  )
+                                ]
+                              )
+                            : _c(
+                                "v-card",
+                                [
+                                  _c(
+                                    "v-card-title",
+                                    { staticClass: "v-card-title" },
+                                    [
+                                      _c("v-spacer"),
+                                      _c("v-text-field", {
+                                        attrs: {
+                                          "append-icon": "mdi-magnify",
+                                          label: "Search",
+                                          "single-line": "",
+                                          "hide-details": ""
+                                        },
+                                        model: {
+                                          value: _vm.searchNewFile,
+                                          callback: function($$v) {
+                                            _vm.searchNewFile = $$v
+                                          },
+                                          expression: "searchNewFile"
+                                        }
+                                      })
+                                    ],
+                                    1
+                                  ),
+                                  _c("v-data-table", {
+                                    staticClass: "new-file-table",
+                                    attrs: {
+                                      headers: _vm.newHeaders,
+                                      items: _vm.getNewContents,
+                                      search: _vm.searchNewFile,
+                                      "single-select": false,
+                                      "item-class": _vm.meta_row_highlight,
+                                      "item-key": "no",
+                                      "show-select": ""
+                                    },
+                                    model: {
+                                      value: _vm.selectedNewContents,
+                                      callback: function($$v) {
+                                        _vm.selectedNewContents = $$v
+                                      },
+                                      expression: "selectedNewContents"
+                                    }
+                                  })
+                                ],
+                                1
+                              )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  ),
+                  _c(
+                    "v-tab-item",
                     { attrs: { value: "tabs-images" } },
                     [
                       _c(
@@ -8525,7 +9043,7 @@ var render = function() {
                           }
                         },
                         [
-                          !_vm.imgFiles.length
+                          !_vm.metaFiles.length
                             ? _c(
                                 "div",
                                 {
@@ -8547,19 +9065,16 @@ var render = function() {
                             : _c(
                                 "v-row",
                                 { staticClass: "align-center justify-center" },
-                                _vm._l(_vm.imgFiles, function(imgFile, idx) {
+                                _vm._l(_vm.metaFiles, function(file, idx) {
                                   return _c(
                                     "div",
                                     {
                                       key: idx,
                                       staticClass: "img-align",
-                                      style:
-                                        idx === _vm.curImgIdx
-                                          ? { background: "rgb(204,232,255)" }
-                                          : {},
+                                      class: _vm.meta_row_highlight(idx),
                                       on: {
                                         click: function($event) {
-                                          return _vm.selectImage(idx)
+                                          return _vm.selectContent(idx)
                                         }
                                       }
                                     },
@@ -8567,7 +9082,7 @@ var render = function() {
                                       _c("v-img", {
                                         staticClass: "v-img-align",
                                         attrs: {
-                                          src: _vm.imgDatas[idx],
+                                          src: _vm.metaDatas[idx].imageData,
                                           width: "150",
                                           height: "150",
                                           fill: ""
@@ -8576,11 +9091,7 @@ var render = function() {
                                       _c(
                                         "p",
                                         { staticClass: "ms-5 name-center" },
-                                        [
-                                          _vm._v(
-                                            " " + _vm._s(imgFile.name) + " "
-                                          )
-                                        ]
+                                        [_vm._v(" " + _vm._s(file.name) + " ")]
                                       )
                                     ],
                                     1
@@ -8677,7 +9188,7 @@ var render = function() {
                           }
                         },
                         [
-                          !_vm.otherFiles.length
+                          !_vm.metaFiles.length
                             ? _c(
                                 "div",
                                 {
@@ -8703,21 +9214,6 @@ var render = function() {
                                     "v-card-title",
                                     { staticClass: "v-card-title" },
                                     [
-                                      _c(
-                                        "v-btn",
-                                        {
-                                          staticClass: "common",
-                                          attrs: {
-                                            depressed: "",
-                                            disabled:
-                                              _vm.curFileIdx ==
-                                              _vm.otherFiles.length - 1,
-                                            color: "primary"
-                                          },
-                                          on: { click: _vm.updateMetadata }
-                                        },
-                                        [_vm._v(" Update ")]
-                                      ),
                                       _c("v-spacer"),
                                       _c("v-text-field", {
                                         attrs: {
@@ -8727,107 +9223,35 @@ var render = function() {
                                           "hide-details": ""
                                         },
                                         model: {
-                                          value: _vm.search,
+                                          value: _vm.searchMetadata,
                                           callback: function($$v) {
-                                            _vm.search = $$v
+                                            _vm.searchMetadata = $$v
                                           },
-                                          expression: "search"
+                                          expression: "searchMetadata"
                                         }
                                       })
                                     ],
                                     1
                                   ),
                                   _c("v-data-table", {
+                                    staticClass: "meta-file-table",
                                     attrs: {
                                       headers: _vm.metaHeaders,
-                                      items: _vm.metaContents,
-                                      search: _vm.search
+                                      items: _vm.getMetaContents,
+                                      search: _vm.searchMetadata,
+                                      "single-select": false,
+                                      "item-class": _vm.meta_row_highlight,
+                                      "item-key": "no",
+                                      "show-select": ""
                                     },
-                                    scopedSlots: _vm._u([
-                                      {
-                                        key: "body",
-                                        fn: function(ref) {
-                                          var items = ref.items
-                                          return [
-                                            _c(
-                                              "tbody",
-                                              _vm._l(items, function(
-                                                item,
-                                                idx
-                                              ) {
-                                                return _c(
-                                                  "tr",
-                                                  {
-                                                    key: idx,
-                                                    style:
-                                                      item.no === _vm.curMetaIdx
-                                                        ? {
-                                                            background:
-                                                              "rgb(204,232,255)"
-                                                          }
-                                                        : {},
-                                                    on: {
-                                                      click: function($event) {
-                                                        return _vm.selectImage(
-                                                          item.no
-                                                        )
-                                                      }
-                                                    }
-                                                  },
-                                                  [
-                                                    _c("td", [
-                                                      _vm._v(_vm._s(idx + 1))
-                                                    ]),
-                                                    _c("td", [
-                                                      _vm._v(
-                                                        _vm._s(item.filename)
-                                                      )
-                                                    ]),
-                                                    _c("td", [
-                                                      _vm._v(
-                                                        _vm._s(item.series)
-                                                      )
-                                                    ]),
-                                                    _c("td", [
-                                                      _vm._v(_vm._s(item.frame))
-                                                    ]),
-                                                    _c("td", [
-                                                      _vm._v(_vm._s(item.c))
-                                                    ]),
-                                                    _c("td", [
-                                                      _vm._v(
-                                                        _vm._s(item.size_c)
-                                                      )
-                                                    ]),
-                                                    _c("td", [
-                                                      _vm._v(
-                                                        _vm._s(item.size_t)
-                                                      )
-                                                    ]),
-                                                    _c("td", [
-                                                      _vm._v(
-                                                        _vm._s(item.size_x)
-                                                      )
-                                                    ]),
-                                                    _c("td", [
-                                                      _vm._v(
-                                                        _vm._s(item.size_y)
-                                                      )
-                                                    ]),
-                                                    _c("td", [
-                                                      _vm._v(
-                                                        _vm._s(item.size_z)
-                                                      )
-                                                    ])
-                                                  ]
-                                                )
-                                              }),
-                                              0
-                                            )
-                                          ]
-                                        }
-                                      }
-                                    ])
+                                    on: { "click:row": _vm.selectContent },
+                                    model: {
+                                      value: _vm.selectedMetaContents,
+                                      callback: function($$v) {
+                                        _vm.selectedMetaContents = $$v
+                                      },
+                                      expression: "selectedMetaContents"
+                                    }
                                   })
                                 ],
                                 1
@@ -8947,7 +9371,7 @@ var render = function() {
                                         {
                                           staticClass: "common",
                                           attrs: {
-                                            disabled: _vm.updateNameTypeDisable,
+                                            disabled: !_vm.changeNameType,
                                             depressed: "",
                                             color: "primary"
                                           },
@@ -8980,142 +9404,35 @@ var render = function() {
                                           "hide-details": ""
                                         },
                                         model: {
-                                          value: _vm.search,
+                                          value: _vm.searchNameType,
                                           callback: function($$v) {
-                                            _vm.search = $$v
+                                            _vm.searchNameType = $$v
                                           },
-                                          expression: "search"
+                                          expression: "searchNameType"
                                         }
                                       })
                                     ],
                                     1
                                   ),
                                   _c("v-data-table", {
+                                    staticClass: "name-type-table",
                                     attrs: {
                                       headers: _vm.nameHeaders,
-                                      items: _vm.nameContents,
-                                      search: _vm.search
+                                      items: _vm.getNameContents,
+                                      search: _vm.searchNameType,
+                                      "single-select": false,
+                                      "item-class": _vm.meta_row_highlight,
+                                      "item-key": "no",
+                                      "show-select": ""
                                     },
-                                    scopedSlots: _vm._u(
-                                      [
-                                        {
-                                          key: "body",
-                                          fn: function(ref) {
-                                            var items = ref.items
-                                            return [
-                                              _c(
-                                                "tbody",
-                                                _vm._l(items, function(
-                                                  item,
-                                                  idx
-                                                ) {
-                                                  return _c(
-                                                    "tr",
-                                                    {
-                                                      key: idx,
-                                                      style:
-                                                        item.no ===
-                                                        _vm.curNameIdx
-                                                          ? {
-                                                              background:
-                                                                "rgb(204,232,255)"
-                                                            }
-                                                          : {},
-                                                      on: {
-                                                        click: function(
-                                                          $event
-                                                        ) {
-                                                          return _vm.selectImage(
-                                                            item.no
-                                                          )
-                                                        }
-                                                      }
-                                                    },
-                                                    [
-                                                      _c("td", [
-                                                        _vm._v(_vm._s(idx + 1))
-                                                      ]),
-                                                      _c("td", [
-                                                        _vm._v(
-                                                          _vm._s(item.filename)
-                                                        )
-                                                      ]),
-                                                      _c("td", [
-                                                        _vm._v(
-                                                          _vm._s(
-                                                            _vm.getSeries(
-                                                              item.filename
-                                                            )
-                                                          )
-                                                        )
-                                                      ]),
-                                                      _c("td", [
-                                                        _vm._v(
-                                                          _vm._s(
-                                                            _vm.getColumn(
-                                                              item.filename
-                                                            )
-                                                          )
-                                                        )
-                                                      ]),
-                                                      _c("td", [
-                                                        _vm._v(
-                                                          _vm._s(
-                                                            _vm.getRow(
-                                                              item.filename
-                                                            )
-                                                          )
-                                                        )
-                                                      ]),
-                                                      _c("td", [
-                                                        _vm._v(
-                                                          _vm._s(
-                                                            _vm.getField(
-                                                              item.filename
-                                                            )
-                                                          )
-                                                        )
-                                                      ]),
-                                                      _c("td", [
-                                                        _vm._v(
-                                                          _vm._s(
-                                                            _vm.getViewMethod(
-                                                              item.filename
-                                                            )
-                                                          )
-                                                        )
-                                                      ]),
-                                                      _c("td", [
-                                                        _vm._v(
-                                                          _vm._s(
-                                                            _vm.getZPosition(
-                                                              item.filename
-                                                            )
-                                                          )
-                                                        )
-                                                      ]),
-                                                      _c("td", [
-                                                        _vm._v(
-                                                          _vm._s(
-                                                            _vm.getTimepoint(
-                                                              item.filename
-                                                            )
-                                                          )
-                                                        )
-                                                      ])
-                                                    ]
-                                                  )
-                                                }),
-                                                0
-                                              )
-                                            ]
-                                          }
-                                        }
-                                      ],
-                                      null,
-                                      false,
-                                      691545017
-                                    )
+                                    on: { "click:row": _vm.selectContent },
+                                    model: {
+                                      value: _vm.selectedNameContents,
+                                      callback: function($$v) {
+                                        _vm.selectedNameContents = $$v
+                                      },
+                                      expression: "selectedNameContents"
+                                    }
                                   })
                                 ],
                                 1
@@ -11127,7 +11444,7 @@ module.exports = exports;
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.i, "\n.v-btn[data-v-688559b8] {\n  width: 80px;\n}\n", ""]);
+exports.push([module.i, "\n.v-btn[data-v-688559b8] {\n  width: 90px;\n}\n", ""]);
 // Exports
 module.exports = exports;
 
@@ -11199,7 +11516,7 @@ module.exports = exports;
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.i, "\n.isDragging[data-v-cd7ea02c] {\n  background-color: #e0f2f1;\n  border-color: #fff;\n}\n.name-center[data-v-cd7ea02c] {\n  text-align: center;\n}\n.img-align[data-v-cd7ea02c] {\n  width: 25%;\n  padding: 10px;\n}\n.img-align > p[data-v-cd7ea02c] {\n  margin: auto;\n}\n.v-img-align[data-v-cd7ea02c] {\n  margin: auto;\n}\n#uploadFile[data-v-cd7ea02c] {\n  display: none;\n}\n.v-sheet[data-v-cd7ea02c] {\n  overflow: auto;\n  padding: 15px !important;\n}\n.v-tab-item[data-v-cd7ea02c] {\n  padding-top: 10px;\n}\n.v-card-title[data-v-cd7ea02c] {\n  padding-top: 0px;\n}\n.type-align[data-v-cd7ea02c] {\n  width: 14.2%;\n  padding: 5px;\n}\n.type-btn[data-v-cd7ea02c] {\n  width: 100%;\n  text-transform: none;\n}\n.type-btn[data-v-cd7ea02c] input {\n  width: 100%;\n  text-align: center;\n}\n.type-btn[data-v-cd7ea02c] label {\n  width: 100%;\n  text-align: center;\n}\n.type-btn[data-v-cd7ea02c] .v-input__control {\n  min-height: 30px !important;\n}\n.name-type-input[data-v-cd7ea02c] {\n  margin-left: -5px;\n  margin-right: -5px;\n  margin-bottom: -30px;\n}\n.type-spacer[data-v-cd7ea02c] {\n  flex-grow: 0.1 !important;\n}\n.common[data-v-cd7ea02c] {\n  width: 80px;\n}\n", ""]);
+exports.push([module.i, "\n.isDragging[data-v-cd7ea02c] {\n  background-color: #e0f2f1;\n  border-color: #fff;\n}\n.name-center[data-v-cd7ea02c] {\n  text-align: center;\n}\n.img-align[data-v-cd7ea02c] {\n  width: 23%;\n  padding: 10px;\n  margin: 1%;\n}\n.img-align > p[data-v-cd7ea02c] {\n  margin: 0px !important;\n}\n.v-img-align[data-v-cd7ea02c] {\n  margin: auto;\n}\n#uploadFile[data-v-cd7ea02c] {\n  display: none;\n}\n.v-sheet[data-v-cd7ea02c] {\n  overflow: auto;\n  padding: 15px !important;\n}\n.v-tab-item[data-v-cd7ea02c] {\n  padding-top: 10px;\n}\n.v-card-title[data-v-cd7ea02c] {\n  padding-top: 0px;\n}\n.type-align[data-v-cd7ea02c] {\n  width: 14.2%;\n  padding: 5px;\n}\n.type-btn[data-v-cd7ea02c] {\n  width: 100%;\n  text-transform: none;\n}\n.type-btn[data-v-cd7ea02c] input {\n  width: 100%;\n  text-align: center;\n}\n.type-btn[data-v-cd7ea02c] label {\n  width: 100%;\n  text-align: center;\n}\n.type-btn[data-v-cd7ea02c] .v-input__control {\n  min-height: 30px !important;\n}\n.name-type-input[data-v-cd7ea02c] {\n  margin-left: -5px;\n  margin-right: -5px;\n  margin-bottom: -30px;\n}\n.type-spacer[data-v-cd7ea02c] {\n  flex-grow: 0.1 !important;\n}\n.common[data-v-cd7ea02c] {\n  width: 80px;\n}\n.new-file-table[data-v-cd7ea02c] tr th:nth-child(2),\n.new-file-table[data-v-cd7ea02c] tr td:nth-child(2) {\n  width: 60px !important;\n}\n.meta-file-table[data-v-cd7ea02c] tr th:nth-child(3),\n.meta-file-table[data-v-cd7ea02c] tr td:nth-child(3) {\n  width: 295px !important;\n}\n.name-type-table[data-v-cd7ea02c] tr th:nth-child(3),\n.name-type-table[data-v-cd7ea02c] tr td:nth-child(3) {\n  width: 295px !important;\n}\n[data-v-cd7ea02c] .row_remove {\n  color: #c36a0a;\n}\n", ""]);
 // Exports
 module.exports = exports;
 
