@@ -105,3 +105,8 @@ dist
 
 # Django Cache
 django/apis/cache/
+
+# django pycache
+django/apis/__pycache__/
+django/apis/custom_bioformats/__pycache__/
+django/backend/__pycache__/

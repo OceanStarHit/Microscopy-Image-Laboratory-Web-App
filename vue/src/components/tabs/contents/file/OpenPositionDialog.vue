@@ -86,7 +86,7 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="!metaFiles.length"
+                v-if="!allData.length"
                 class="d-flex align-center justify-center"
                 style="height: 200px;"
               >
@@ -97,20 +97,20 @@
               <v-row v-else class="align-center justify-center">
                 <div
                   class="img-align"
-                  v-for="(file, idx) in metaFiles"
+                  v-for="(data, idx) in allData"
                   :key="idx"
                   @click="selectContent(idx)"
                   v-bind:class="meta_row_highlight(idx)"
                 >
                   <v-img
                     class="v-img-align"
-                    :src="metaDatas[idx].imageData"
+                    :src="data.metadata.imageData"
                     width="150"
                     height="150"
                     fill
                   />
                   <p class="ms-5 name-center">
-                    {{ file.name }}
+                    {{ data.filename }}
                   </p>
                 </div>
               </v-row>
@@ -146,7 +146,7 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="!metaFiles.length"
+                v-if="!allData.length"
                 class="d-flex align-center justify-center"
                 style="height: 200px;"
               >
@@ -191,7 +191,7 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="imgFiles.length + metaFiles.length == 0"
+                v-if="allData.length == 0"
                 class="d-flex align-center justify-center"
                 style="height: 200px;"
               >
@@ -217,7 +217,7 @@
                   ></v-text-field>
                 </div>
               </v-row>
-              <v-card v-if="imgFiles.length + metaFiles.length > 0">
+              <v-card v-if="allData.length > 0">
                 <v-card-title class="v-card-title">
                   <v-btn
                     class="common"
@@ -284,6 +284,9 @@ export default {
   data: () => ({
     isDragging: false,
     selectedTab: null,
+
+    // all data
+    allData: [],
 
     // meta files
     metaFiles: [],
@@ -353,9 +356,10 @@ export default {
   }),
 
   created() {
-    this.unwatch = this.$store.watch(
-      (state, getters) => getters["image/metadatas"],
+    this.newResWatch = this.$store.watch(
+      (state, getters) => getters["image/getNewRes"],
       res => {
+        const filteredData = [];
         for (var key in res) {
           if (res[key]) {
             const curFileIdx = parseInt(key.split("_")[1]);
@@ -363,18 +367,33 @@ export default {
             if (curFileIdx < this.newFiles.length) {
               this.metaFiles.push(this.newFiles[curFileIdx]);
               this.metaDatas.push(res[key]);
+
+              filteredData.push({
+                filename: this.newFiles[curFileIdx].name,
+                metadata: res[key]
+              });
             }
           }
         }
+
+        this.addData(filteredData);
 
         // init new files
         this.initNewInfo();
       }
     );
+
+    this.allDataWatch = this.$store.watch(
+      (state, getters) => getters["image/getAllData"],
+      res => {
+        this.allData = res;
+      }
+    );
   },
 
   beforeDestroy() {
-    this.unwatch();
+    this.newResWatch();
+    this.allDataWatch();
   },
 
   props: {
@@ -400,7 +419,7 @@ export default {
       if (
         this.isChangedNameType() &&
         -1 < this.curNameIdx &&
-        this.curNameIdx < this.metaFiles.length
+        this.curNameIdx < this.allData.length
       ) {
         if (
           this.makeNameType().match(
@@ -422,16 +441,16 @@ export default {
           return this.newFiles.length;
 
         case "tabs-images":
-          return this.metaFiles.length;
+          return this.allData.length;
 
         case "tabs-tiling":
           break;
 
         case "tabs-metadata":
-          return this.metaFiles.length;
+          return this.allData.length;
 
         case "tabs-name-type":
-          return this.metaFiles.length;
+          return this.allData.length;
       }
 
       return false;
@@ -492,17 +511,17 @@ export default {
     },
     getNameContents() {
       const contents = [];
-      this.metaFiles.forEach(file => {
+      this.allData.forEach(data => {
         contents.push({
           no: contents.length + 1,
-          filename: file.name,
-          series: this.getSeries(file.name),
-          column: this.getColumn(file.name),
-          row: this.getRow(file.name),
-          field: this.getField(file.name),
-          viewMethod: this.getViewMethod(file.name),
-          zPosition: this.getZPosition(file.name),
-          timepoint: this.getTimepoint(file.name)
+          filename: data.filename,
+          series: this.getSeries(data.filename),
+          column: this.getColumn(data.filename),
+          row: this.getRow(data.filename),
+          field: this.getField(data.filename),
+          viewMethod: this.getViewMethod(data.filename),
+          zPosition: this.getZPosition(data.filename),
+          timepoint: this.getTimepoint(data.filename)
         });
       });
 
@@ -510,11 +529,11 @@ export default {
     },
     getMetaContents() {
       const contents = [];
-      this.metaFiles.forEach((file, idx) => {
-        const coreMetadata = this.metaDatas[idx].coreMetadata;
+      this.allData.forEach(data => {
+        const coreMetadata = data.metadata.coreMetadata;
         contents.push({
           no: contents.length + 1,
-          filename: file.name,
+          filename: data.filename,
           series: coreMetadata.seriesCount,
           frame: coreMetadata.imageCount,
           c: coreMetadata.currentSeries,
@@ -591,7 +610,7 @@ export default {
         for (var i = 0; i < this.newFiles.length; i++) {
           formData.append("metafile" + "_" + i, this.newFiles[i]);
         }
-        this.$store.dispatch("image/setMetaFiles", formData);
+        this.$store.dispatch("image/setNewFiles", formData);
       }
     },
     onRemove() {
@@ -618,16 +637,13 @@ export default {
 
         case "tabs-images":
           {
-            const remainFiles = [];
-            const remainDatas = [];
-            this.metaFiles.forEach((file, idx) => {
+            const newData = [];
+            this.allData.forEach((data, idx) => {
               if (!this.selectedImgIndices.includes(idx)) {
-                remainFiles.push(file);
-                remainDatas.push(this.metaDatas[idx]);
+                newData.push(data);
               }
             });
-            this.metaFiles = remainFiles;
-            this.metaDatas = remainDatas;
+            this.updateAllData(newData);
           }
           this.initMetaSelectedInfo();
           break;
@@ -637,46 +653,34 @@ export default {
 
         case "tabs-metadata":
           {
-            const remainFiles = [];
-            const remainDatas = [];
-            const remainContents = [];
+            const newData = [];
             this.getMetaContents.forEach(content => {
               if (
                 !this.selectedMetaContents.includes(content) &&
                 0 < content.no &&
-                content.no <= this.metaFiles.length
+                content.no <= this.allData.length
               ) {
-                remainFiles.push(this.metaFiles[content.no - 1]);
-                remainDatas.push(this.metaDatas[content.no - 1]);
-                content.no = remainContents.length + 1;
-                remainContents.push(content);
+                newData.push(this.allData[content.no - 1]);
               }
             });
-            this.metaFiles = remainFiles;
-            this.metaDatas = remainDatas;
+            this.updateAllData(newData);
           }
           this.initMetaSelectedInfo();
           break;
 
         case "tabs-name-type":
           {
-            const remainFiles = [];
-            const remainDatas = [];
-            const remainContents = [];
+            const newData = [];
             this.getNameContents.forEach(content => {
               if (
                 !this.selectedNameContents.includes(content) &&
                 0 < content.no &&
-                content.no <= this.metaFiles.length
+                content.no <= this.allData.length
               ) {
-                remainFiles.push(this.metaFiles[content.no - 1]);
-                remainDatas.push(this.metaDatas[content.no - 1]);
-                content.no = remainContents.length + 1;
-                remainContents.push(content);
+                newData.push(this.allData[content.no - 1]);
               }
             });
-            this.metaFiles = remainFiles;
-            this.metaDatas = remainDatas;
+            this.updateAllData(newData);
           }
           this.initMetaSelectedInfo();
           break;
@@ -723,6 +727,13 @@ export default {
     },
     onClose() {
       this.visibleDialog = false;
+    },
+
+    // add meta data to store
+    addData(datas) {
+      if (datas.length > 0) {
+        this.$store.dispatch("image/addData", datas);
+      }
     },
 
     // init
@@ -779,7 +790,7 @@ export default {
     // update
     updateNameType() {
       const filename = this.makeNameType();
-      var nameType = this.getNameContents[this.curNameIdx];
+      const nameType = this.getNameContents[this.curNameIdx];
       nameType.filename = filename;
       switch (nameType.classes) {
         case "image":
@@ -845,7 +856,7 @@ export default {
       if (this.curNameIdx == -1) {
         return "";
       } else {
-        const filename = this.metaFiles[this.curNameIdx].name;
+        const filename = this.allData[this.curNameIdx].filename;
         switch (idx) {
           case 0:
             return this.getSeries(filename);
@@ -913,6 +924,9 @@ export default {
     },
 
     // utils
+    updateAllData(updatedData) {
+      this.$store.dispatch("image/updateAllData", updatedData);
+    },
     isChangedNameType() {
       for (var i = 0; i < this.nameTypes.length; i++) {
         if (this.nameTypes[i].value != "") {
@@ -923,7 +937,7 @@ export default {
       return false;
     },
     makeNameType() {
-      var filename = this.metaFiles[this.curNameIdx].name;
+      var filename = this.allData[this.curNameIdx].filename;
       const type = filename.match(
         /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );

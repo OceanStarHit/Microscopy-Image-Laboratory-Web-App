@@ -26,7 +26,8 @@ const state = () => ({
   plates: [],
   wellSamples: [],
 
-  metadatas: [],
+  allData: [],
+  newRes: [],
 
   originData: null,
   parameters: DEFAULT_PARAMS,
@@ -41,7 +42,8 @@ const getters = {
       isNew: state.isNew
     };
   },
-  metadatas: (state, getters) => state.metadatas,
+  getAllData: (state, getters) => state.allData,
+  getNewRes: (state, getters) => state.newRes,
   imageId: (state, getters) => state.imageId,
   imageParams: (state, getters) => state.parameters,
   objectiveX: (state, getters) => {
@@ -124,6 +126,7 @@ const actions = {
         console.log(error);
       });
   },
+
   setImageDataFromPosition({ commit, state }, imageData) {
     if (state.loading) return;
 
@@ -133,6 +136,25 @@ const actions = {
 
     commit("setLoading", false);
   },
+
+  addData({ commit, state }, datas) {
+    if (state.loading) return;
+
+    commit("addData", datas);
+  },
+
+  removeData({ commit, state }, idx) {
+    if (state.loading) return;
+
+    commit("removeData", idx);
+  },
+
+  updateAllData({ commit, state }, datas) {
+    if (state.loading) return;
+
+    commit("updateAllData", datas);
+  },
+
   setMetadataFromPosition({ commit, state }, metadata) {
     if (state.loading) return;
 
@@ -155,14 +177,15 @@ const actions = {
 
     commit("setLoading", false);
   },
-  setMetaFiles({ commit, state }, formData) {
+
+  setNewFiles({ commit, state }, formData) {
     if (state.loading) return;
 
     commit("setLoading", true);
 
     API.setMetadata(formData)
       .then(response => {
-        commit("setMetadatasResponse", response);
+        commit("setNewResponse", response);
 
         commit("setLoading", false);
       })
@@ -172,6 +195,7 @@ const actions = {
         console.log(error);
       });
   },
+
   changeImage({ commit, state }, imageId) {
     if (state.loading) return;
 
@@ -200,6 +224,7 @@ const actions = {
         console.log(error);
       });
   },
+
   changeParameterByZ({ commit, state }, z) {
     changeParameter(commit, state, {
       T: state.parameters.T,
@@ -207,6 +232,7 @@ const actions = {
       C: state.parameters.C
     });
   },
+
   changeParameterByT({ commit, state }, t) {
     changeParameter(commit, state, {
       T: t,
@@ -214,6 +240,7 @@ const actions = {
       C: state.parameters.C
     });
   },
+
   changeParameterByC({ commit, state }, c) {
     changeParameter(commit, state, {
       T: state.parameters.T,
@@ -221,6 +248,7 @@ const actions = {
       C: c
     });
   },
+
   adjustImageByBrightness({ commit, state }, b) {
     adjustImage(
       { commit, state },
@@ -231,6 +259,7 @@ const actions = {
       }
     );
   },
+
   adjustImageByContrast({ commit, state }, c) {
     adjustImage(
       { commit, state },
@@ -241,6 +270,7 @@ const actions = {
       }
     );
   },
+
   adjustImageByGamma({ commit, state }, g) {
     adjustImage(
       { commit, state },
@@ -251,6 +281,7 @@ const actions = {
       }
     );
   },
+
   resetAdjust({ commit }) {
     commit("resetAdjust");
   }
@@ -261,6 +292,7 @@ const mutations = {
   setLoading(state, data) {
     state.loading = data;
   },
+
   setImageResponse(state, payload) {
     (state.coreMetadata = payload.coreMetadata),
       (state.originMetadata = payload.originMetadata),
@@ -273,9 +305,11 @@ const mutations = {
       (state.plates = payload.plates),
       (state.wellSamples = payload.wellSamples);
   },
-  setMetadatasResponse(state, payload) {
-    state.metadatas = payload;
+
+  setNewResponse(state, payload) {
+    state.newRes = payload;
   },
+
   setImageData(state, payload) {
     state.imageData = payload;
     state.originData = payload;
@@ -283,6 +317,21 @@ const mutations = {
 
     state.parameters = Object.assign({}, state.parameters, DEFAULT_PARAMS);
   },
+
+  addData(state, payload) {
+    payload.forEach(data => {
+      state.allData.push(data);
+    });
+  },
+
+  removeData(state, payload) {
+    state.allData.splice(payload, 1);
+  },
+
+  updateAllData(state, payload) {
+    state.allData = payload;
+  },
+
   changeImageData(state, payload) {
     state.imageData = payload.imageData;
     state.originData = payload.imageData;
@@ -298,6 +347,7 @@ const mutations = {
 
     state.parameters = Object.assign({}, state.parameters, DEFAULT_PARAMS);
   },
+
   changeParameterData(state, payload) {
     state.imageData = payload.imageData;
     state.originData = payload.imageData;
@@ -312,6 +362,7 @@ const mutations = {
       gamma: 0
     });
   },
+
   adjustImage(state, payload) {
     state.imageData = payload.imageData;
     state.parameters = Object.assign({}, state.parameters, {
@@ -321,6 +372,7 @@ const mutations = {
     });
     state.isNew = false;
   },
+
   resetAdjust(state) {
     state.imageData = state.originData;
     state.parameters = Object.assign({}, state.parameters, {
