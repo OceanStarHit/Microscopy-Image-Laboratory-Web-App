@@ -28,6 +28,7 @@ const state = () => ({
 
   allData: [],
   newRes: [],
+  newData: [],
 
   originData: null,
   parameters: DEFAULT_PARAMS,
@@ -44,6 +45,7 @@ const getters = {
   },
   getAllData: (state, getters) => state.allData,
   getNewRes: (state, getters) => state.newRes,
+  getNewData: (state, getters) => state.newData,
   imageId: (state, getters) => state.imageId,
   imageParams: (state, getters) => state.parameters,
   objectiveX: (state, getters) => {
@@ -137,10 +139,10 @@ const actions = {
     commit("setLoading", false);
   },
 
-  addData({ commit, state }, datas) {
+  addData({ commit, state }, data) {
     if (state.loading) return;
 
-    commit("addData", datas);
+    commit("addData", data);
   },
 
   removeData({ commit, state }, idx) {
@@ -149,10 +151,10 @@ const actions = {
     commit("removeData", idx);
   },
 
-  updateAllData({ commit, state }, datas) {
+  updateAllData({ commit, state }, data) {
     if (state.loading) return;
 
-    commit("updateAllData", datas);
+    commit("updateAllData", data);
   },
 
   setMetadataFromPosition({ commit, state }, metadata) {
@@ -319,6 +321,8 @@ const mutations = {
   },
 
   addData(state, payload) {
+    state.newData = payload;
+
     payload.forEach(data => {
       state.allData.push(data);
     });

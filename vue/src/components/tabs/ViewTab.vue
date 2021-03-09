@@ -1,5 +1,16 @@
 <template>
   <tab-item title="View">
+    <v-row justify="center">
+      <v-container class="max-width pagenation">
+        <v-pagination
+          v-model="page"
+          class="my-4 pagenation"
+          total-visible="5"
+          :length="1"
+        ></v-pagination>
+      </v-container>
+    </v-row>
+    <v-divider></v-divider>
     <Vessel />
     <v-divider></v-divider>
     <Objective />
@@ -48,7 +59,9 @@ export default {
     Timeline
   },
 
-  data: () => ({}),
+  data: () => ({
+    page: 1
+  }),
 
   computed: {
     ...mapGetters("image", {
@@ -59,3 +72,14 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.pagenation {
+  padding: 0px !important;
+}
+.pagenation >>> button {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+}
+</style>

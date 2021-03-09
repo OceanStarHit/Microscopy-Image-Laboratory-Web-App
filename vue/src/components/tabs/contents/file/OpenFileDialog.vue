@@ -38,7 +38,7 @@
             class="d-flex align-center justify-center"
             style="height: 250px;"
           >
-            <p v-if="!imageSource" class="text-h4 grey--text text--lighten-2">
+            <p v-if="!newFile" class="text-h4 grey--text text--lighten-2">
               Open or drop your file.
             </p>
             <v-row v-else class="align-center justify-center">
@@ -57,7 +57,7 @@
                 contain
               />
               <p class="ms-5">
-                {{ imageSource.name }}
+                {{ newFile.name }}
               </p>
             </v-row>
           </div>
@@ -81,7 +81,8 @@ export default {
 
   data: () => ({
     isDragging: false,
-    imageSource: null,
+    allData: [],
+    newFile: null,
     imageData: null
   }),
 
@@ -90,6 +91,36 @@ export default {
       type: Boolean,
       default: false
     }
+  },
+
+  created() {
+    this.newResWatch = this.$store.watch(
+      (state, getters) => getters["image/getNewRes"],
+      res => {
+        const filteredData = [];
+        for (var key in res) {
+          if (key == "file_0" && res[key]) {
+            filteredData.push({
+              filename: this.newFile.name,
+              metadata: res[key]
+            });
+          }
+          break;
+        }
+
+        this.addData(filteredData);
+
+        this.newFile = null;
+        this.imageData = null;
+      }
+    );
+
+    this.allDataWatch = this.$store.watch(
+      (state, getters) => getters["image/getCurPageData"],
+      res => {
+        this.allData = res;
+      }
+    );
   },
 
   computed: {
@@ -147,18 +178,18 @@ export default {
       const fileInput = this.$el.querySelector("#uploadFile");
 
       if (fileInput.files && fileInput.files.length > 0) {
-        this.imageSource = fileInput.files[0];
+        this.newFile = fileInput.files[0];
         this.imageData = null;
 
         if (
-          this.imageSource &&
-          this.imageSource.type.startsWith("image/") &&
-          this.imageSource.size < 2 * 1024 * 1024
+          this.newFile &&
+          this.newFile.type.startsWith("image/") &&
+          this.newFile.size < 2 * 1024 * 1024
         ) {
           var self = this;
           const reader = new FileReader();
           reader.onload = function() {
-            if (self.imageSource.type.startsWith("image/tif")) {
+            if (self.newFile.type.startsWith("image/tif")) {
               const buffer = self.base64ToArrayBuffer(
                 reader.result.substring(23)
               );
@@ -168,27 +199,47 @@ export default {
               self.imageData = reader.result;
             }
           };
-          reader.readAsDataURL(this.imageSource);
+          reader.readAsDataURL(this.newFile);
         }
       }
     },
+
     onSelect() {
       this.visibleDialog = false;
 
-      if (this.imageSource) {
-        var formData = new FormData();
-        formData.append("sourceImage", this.imageSource);
-        this.$store.dispatch("image/setImage", formData);
+      if (this.newFile) {
+        let i = 0;
+        for (; i < this.allData.length; i++) {
+          if (this.allData[i].filename == this.newFile.name) {
+            break;
+          }
+        }
+
+        if (i >= this.allData.length) {
+          var formData = new FormData();
+          formData.append("file_0", this.newFile);
+          this.$store.dispatch("image/setNewFiles", formData);
+
+          return;
+        }
       }
 
-      if (this.imageSource) this.imageSource = null;
-      if (this.imageData) this.imageData = null;
+      this.newFile = null;
+      this.imageData = null;
     },
+
     onCancel() {
-      if (this.imageSource) this.imageSource = null;
+      if (this.newFile) this.newFile = null;
       if (this.imageData) this.imageData = null;
 
       this.visibleDialog = false;
+    },
+
+    // add meta data to store
+    addData(data) {
+      if (data.length > 0) {
+        this.$store.dispatch("image/addData", data);
+      }
     }
   }
 };

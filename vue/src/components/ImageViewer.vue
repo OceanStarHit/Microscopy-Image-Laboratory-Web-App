@@ -52,6 +52,27 @@ export default {
         }
       }
     );
+
+    this.newDataWatch = this.$store.watch(
+      (state, getters) => getters["image/getNewData"],
+      newData => {
+        if (this.imageView && newData.length > 0) {
+          newData.forEach(data => {
+            const opt = {
+              tileSource: {
+                type: "image",
+                url: data.metadata.imageData
+              }
+            };
+
+            // this.imageView.world.removeAll();
+            this.imageView.addTiledImage(opt);
+            console.log("^^^^^^^^^^^^");
+            console.log(this.imageView.world.getItemCount());
+          });
+        }
+      }
+    );
   },
 
   mounted() {
@@ -93,6 +114,7 @@ export default {
 
   beforeDestroy() {
     this.unwatch();
+    this.newDataWatch();
   }
 };
 </script>

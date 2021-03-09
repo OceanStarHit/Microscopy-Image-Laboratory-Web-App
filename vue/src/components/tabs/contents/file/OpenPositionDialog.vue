@@ -290,7 +290,7 @@ export default {
 
     // meta files
     metaFiles: [],
-    metaDatas: [],
+    metaData: [],
 
     // for all files
     searchNewFile: "",
@@ -304,13 +304,13 @@ export default {
     // for image tag
     curImgIdx: -1,
     imgFiles: [],
-    imgDatas: [],
+    imgData: [],
     selectedImgIndices: [],
 
     // for tiling
     curTileIdx: -1,
     tilingFiles: [],
-    tilingDatas: [],
+    tilingData: [],
 
     // for meta tag
     curMetaIdx: -1,
@@ -362,11 +362,12 @@ export default {
         const filteredData = [];
         for (var key in res) {
           if (res[key]) {
+            const from = key.split("_")[0];
             const curFileIdx = parseInt(key.split("_")[1]);
 
-            if (curFileIdx < this.newFiles.length) {
+            if (from == "position" && curFileIdx < this.newFiles.length) {
               this.metaFiles.push(this.newFiles[curFileIdx]);
-              this.metaDatas.push(res[key]);
+              this.metaData.push(res[key]);
 
               filteredData.push({
                 filename: this.newFiles[curFileIdx].name,
@@ -384,7 +385,7 @@ export default {
     );
 
     this.allDataWatch = this.$store.watch(
-      (state, getters) => getters["image/getAllData"],
+      (state, getters) => getters["image/getCurPageData"],
       res => {
         this.allData = res;
       }
@@ -608,7 +609,7 @@ export default {
         // dispatch
         var formData = new FormData();
         for (var i = 0; i < this.newFiles.length; i++) {
-          formData.append("metafile" + "_" + i, this.newFiles[i]);
+          formData.append("position_" + i, this.newFiles[i]);
         }
         this.$store.dispatch("image/setNewFiles", formData);
       }
@@ -710,16 +711,16 @@ export default {
       this.visibleDialog = false;
     },
     showImageData(idx) {
-      if (-1 < idx && idx < this.imgDatas.length) {
-        const imgData = this.imgDatas[idx];
+      if (-1 < idx && idx < this.imgData.length) {
+        const imgData = this.imgData[idx];
         if (imgData) {
           this.$store.dispatch("image/setImageDataFromPosition", imgData);
         }
       }
     },
     showMetaData(idx) {
-      if (-1 < idx && idx < this.metaDatas.length) {
-        const metaData = this.metaDatas[idx];
+      if (-1 < idx && idx < this.metaData.length) {
+        const metaData = this.metaData[idx];
         if (metaData) {
           this.$store.dispatch("image/setMetadataFromPosition", metaData);
         }
@@ -730,9 +731,9 @@ export default {
     },
 
     // add meta data to store
-    addData(datas) {
-      if (datas.length > 0) {
-        this.$store.dispatch("image/addData", datas);
+    addData(data) {
+      if (data.length > 0) {
+        this.$store.dispatch("image/addData", data);
       }
     },
 
@@ -744,7 +745,7 @@ export default {
     },
     initMetaInfo() {
       this.metaFiles = [];
-      this.metaDatas = [];
+      this.metaData = [];
       this.searchMetadata = "";
       this.searchNameType = "";
     },
