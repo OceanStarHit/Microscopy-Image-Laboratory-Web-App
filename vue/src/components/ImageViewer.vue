@@ -53,23 +53,19 @@ export default {
       }
     );
 
-    this.newDataWatch = this.$store.watch(
-      (state, getters) => getters["image/getNewData"],
-      newData => {
-        if (this.imageView && newData.length > 0) {
-          newData.forEach(data => {
-            const opt = {
-              tileSource: {
-                type: "image",
-                url: data.metadata.imageData
-              }
-            };
+    this.imageDataWatch = this.$store.watch(
+      (state, getters) => getters["image/metaData"],
+      data => {
+        if (this.imageView && data) {
+          const opt = {
+            tileSource: {
+              type: "image",
+              url: data
+            }
+          };
 
-            // this.imageView.world.removeAll();
-            this.imageView.addTiledImage(opt);
-            console.log("^^^^^^^^^^^^");
-            console.log(this.imageView.world.getItemCount());
-          });
+          this.imageView.world.removeAll();
+          this.imageView.addTiledImage(opt);
         }
       }
     );
@@ -114,7 +110,7 @@ export default {
 
   beforeDestroy() {
     this.unwatch();
-    this.newDataWatch();
+    this.imageDataWatch();
   }
 };
 </script>

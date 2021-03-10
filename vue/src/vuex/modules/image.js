@@ -27,8 +27,11 @@ const state = () => ({
   wellSamples: [],
 
   allData: [],
+  allIndice: [],
   newRes: [],
   newData: [],
+
+  curPageIdx: -1,
 
   originData: null,
   parameters: DEFAULT_PARAMS,
@@ -43,11 +46,32 @@ const getters = {
       isNew: state.isNew
     };
   },
-  getAllData: (state, getters) => state.allData,
-  getNewRes: (state, getters) => state.newRes,
-  getNewData: (state, getters) => state.newData,
+  totalPageCount: (state, getters) => state.allData.length,
+  currentPageIndex: (state, getters) => state.curPageIdx,
+  currentPageData: (state, getters) => state.allData[state.curPageIdx - 1],
+  currentPageDataIndex: (state, getters) =>
+    state.allIndice[state.curPageIdx - 1],
+  newRes: (state, getters) => state.newRes,
+  newData: (state, getters) => state.newData,
   imageId: (state, getters) => state.imageId,
   imageParams: (state, getters) => state.parameters,
+  currentPageInfo: (state, getters) => {
+    return {
+      pageData: state.allData[state.curPageIdx - 1],
+      dataIndex: state.allIndice[state.curPageIdx - 1]
+    };
+  },
+  metaData: (state, getters) => {
+    if (state.curPageIdx == -1) {
+      return null;
+    }
+
+    const curPageData = state.allData[state.curPageIdx - 1];
+    const dataIdx = state.allIndice[state.curPageIdx - 1];
+
+    return curPageData[dataIdx].metadata.imageData;
+  },
+
   objectiveX: (state, getters) => {
     let X = 0;
     if (!state.imageInfo || !state.imageInfo.objective) return X;
@@ -137,6 +161,12 @@ const actions = {
     commit("setImageData", imageData);
 
     commit("setLoading", false);
+  },
+
+  changeCurrentPage({ commit, state }, idx) {
+    if (state.loading) return;
+
+    commit("changeCurrentPage", idx);
   },
 
   addData({ commit, state }, data) {
@@ -320,12 +350,15 @@ const mutations = {
     state.parameters = Object.assign({}, state.parameters, DEFAULT_PARAMS);
   },
 
+  changeCurrentPage(state, payload) {
+    state.curPageIdx = payload;
+  },
+
   addData(state, payload) {
     state.newData = payload;
-
-    payload.forEach(data => {
-      state.allData.push(data);
-    });
+    state.allData.push(payload);
+    state.allIndice.push(0);
+    state.curPageIdx = state.allData.length;
   },
 
   removeData(state, payload) {

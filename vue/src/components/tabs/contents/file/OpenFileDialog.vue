@@ -81,7 +81,6 @@ export default {
 
   data: () => ({
     isDragging: false,
-    allData: [],
     newFile: null,
     imageData: null
   }),
@@ -95,7 +94,7 @@ export default {
 
   created() {
     this.newResWatch = this.$store.watch(
-      (state, getters) => getters["image/getNewRes"],
+      (state, getters) => getters["image/newRes"],
       res => {
         const filteredData = [];
         for (var key in res) {
@@ -104,23 +103,19 @@ export default {
               filename: this.newFile.name,
               metadata: res[key]
             });
+
+            this.addData(filteredData);
           }
           break;
         }
-
-        this.addData(filteredData);
-
         this.newFile = null;
         this.imageData = null;
       }
     );
+  },
 
-    this.allDataWatch = this.$store.watch(
-      (state, getters) => getters["image/getCurPageData"],
-      res => {
-        this.allData = res;
-      }
-    );
+  beforeDestroy() {
+    this.newResWatch();
   },
 
   computed: {
@@ -208,20 +203,11 @@ export default {
       this.visibleDialog = false;
 
       if (this.newFile) {
-        let i = 0;
-        for (; i < this.allData.length; i++) {
-          if (this.allData[i].filename == this.newFile.name) {
-            break;
-          }
-        }
+        var formData = new FormData();
+        formData.append("file_0", this.newFile);
+        this.$store.dispatch("image/setNewFiles", formData);
 
-        if (i >= this.allData.length) {
-          var formData = new FormData();
-          formData.append("file_0", this.newFile);
-          this.$store.dispatch("image/setNewFiles", formData);
-
-          return;
-        }
+        return;
       }
 
       this.newFile = null;

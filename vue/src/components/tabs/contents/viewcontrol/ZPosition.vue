@@ -23,17 +23,17 @@
     ></v-slider>
     <v-row class="pa-0 ml-10 mr-2 my-0" justify="space-between">
       <input
-        :class="'range-field' + (z_max == 1 ? ' disabled' : '')"
+        class="range-field"
         type="number"
         :value="z_range.min"
-        :disabled="z_max == 1"
+        disabled
         @input="onChangeZmin"
       />
       <input
-        :class="'range-field' + (z_max == 1 ? ' disabled' : '')"
+        class="range-field"
         type="number"
         :value="z_range.max"
-        :disabled="z_max == 1"
+        disabled
         @input="onChangeZmax"
       />
     </v-row>
@@ -47,6 +47,7 @@ export default {
   components: {},
 
   data: () => ({
+    groupStatus: 0,
     z_value: 1,
     z_min: 1,
     z_max: 1,
@@ -60,19 +61,57 @@ export default {
     this.unwatch1 = this.$store.watch(
       (state, getters) => getters["image/sizeZ"],
       newValue => {
-        this.z_min = 1;
-        this.z_max = newValue;
+        console.log(newValue);
+        // this.z_min = 1;
+        // this.z_max = newValue;
 
-        this.z_range.min = 1;
-        this.z_range.max = this.z_max;
+        // this.z_range.min = 1;
+        // this.z_range.max = this.z_max;
       }
     );
     this.unwatch2 = this.$store.watch(
       (state, getters) => getters["image/imageParams"],
       newValue => {
-        this.z_value = newValue.Z;
+        console.log(newValue);
+        // this.z_value = newValue.Z;
       }
     );
+    this.currentPageDataWatch = this.$store.watch(
+      (state, getters) => getters["image/currentPageInfo"],
+      info => {
+        if (info.pageData.length == 1) {
+          this.groupStatus = 1;
+          this.z_max = info.pageData[0].metadata.coreMetadata.sizeZ;
+          this.z_range.max = this.z_max;
+          this.z_value = info.pageData[0].metadata.imageInfo.pixels.sizeZ;
+        } else {
+          let zMax = 0;
+          info.pageData.forEach((data, idx) => {
+            const types = data.filename.match(
+              /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+            );
+            if (types && types.length > 4) {
+              if (zMax < types[4]) {
+                zMax = types[4];
+              }
+              if (idx == info.pageData.dataIndex) {
+                this.z_value = types[4];
+              }
+            }
+          });
+
+          this.groupStatus = 0;
+          this.z_max = zMax + 1;
+          this.z_range.max = this.z_max;
+        }
+      }
+    );
+  },
+
+  beforeDestroy() {
+    this.unwatch1();
+    this.unwatch2();
+    this.currentPageDataWatch();
   },
 
   methods: {
@@ -111,11 +150,6 @@ export default {
     on3DView: function() {
       console.log("3D View");
     }
-  },
-
-  beforeDestroy() {
-    this.unwatch1();
-    this.unwatch2();
   }
 };
 </script>

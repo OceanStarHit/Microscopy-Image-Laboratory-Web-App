@@ -357,7 +357,7 @@ export default {
 
   created() {
     this.newResWatch = this.$store.watch(
-      (state, getters) => getters["image/getNewRes"],
+      (state, getters) => getters["image/newRes"],
       res => {
         const filteredData = [];
         for (var key in res) {
@@ -385,7 +385,7 @@ export default {
     );
 
     this.allDataWatch = this.$store.watch(
-      (state, getters) => getters["image/getCurPageData"],
+      (state, getters) => getters["image/currentPageData"],
       res => {
         this.allData = res;
       }

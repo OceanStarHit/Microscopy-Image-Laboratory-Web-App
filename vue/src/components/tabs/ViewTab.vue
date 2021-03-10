@@ -3,10 +3,11 @@
     <v-row justify="center">
       <v-container class="max-width pagenation">
         <v-pagination
-          v-model="page"
+          v-model="curPageIdx"
           class="my-4 pagenation"
           total-visible="5"
-          :length="1"
+          :length="totalPageCnt"
+          @input="handlePageChange"
         ></v-pagination>
       </v-container>
     </v-row>
@@ -60,8 +61,30 @@ export default {
   },
 
   data: () => ({
-    page: 1
+    totalPageCnt: 0,
+    curPageIdx: 0
   }),
+
+  created() {
+    this.totalPageCntWatch = this.$store.watch(
+      (state, getters) => getters["image/totalPageCount"],
+      res => {
+        this.totalPageCnt = res;
+      }
+    );
+
+    this.curPageIdxWatch = this.$store.watch(
+      (state, getters) => getters["image/currentPageIndex"],
+      res => {
+        this.curPageIdx = res;
+      }
+    );
+  },
+
+  beforeDestroy() {
+    this.totalPageCntWatch();
+    this.curPageIdxWatch();
+  },
 
   computed: {
     ...mapGetters("image", {
@@ -69,6 +92,12 @@ export default {
       sizeZ: "sizeZ",
       sizeT: "sizeT"
     })
+  },
+
+  methods: {
+    handlePageChange(idx) {
+      this.$store.dispatch("image/changeCurrentPage", idx);
+    }
   }
 };
 </script>
