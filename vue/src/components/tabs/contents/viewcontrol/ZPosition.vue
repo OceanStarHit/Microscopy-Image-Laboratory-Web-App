@@ -47,7 +47,6 @@ export default {
   components: {},
 
   data: () => ({
-    groupStatus: 0,
     z_value: 1,
     z_min: 1,
     z_max: 1,
@@ -76,11 +75,11 @@ export default {
         // this.z_value = newValue.Z;
       }
     );
+
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
       info => {
         if (info.pageData.length == 1) {
-          this.groupStatus = 1;
           this.z_max = info.pageData[0].metadata.coreMetadata.sizeZ;
           this.z_range.max = this.z_max;
           this.z_value = info.pageData[0].metadata.imageInfo.pixels.sizeZ;
@@ -100,7 +99,6 @@ export default {
             }
           });
 
-          this.groupStatus = 0;
           this.z_max = zMax + 1;
           this.z_range.max = this.z_max;
         }

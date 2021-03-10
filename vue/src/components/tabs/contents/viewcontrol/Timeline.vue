@@ -82,17 +82,17 @@
       justify="space-between"
     >
       <input
-        :class="'range-field' + (t_max == 1 ? ' disabled' : '')"
+        class="range-field"
         type="number"
         :value="t_range.min"
-        :disabled="t_max == 1"
+        disabled
         @input="onChangeTmin"
       />
       <input
-        :class="'range-field' + (t_max == 1 ? ' disabled' : '')"
+        class="range-field"
         type="number"
         :value="t_range.max"
-        :disabled="t_max == 1"
+        disabled
         @input="onChangeTmax"
       />
     </v-row>
@@ -119,19 +119,56 @@ export default {
     this.unwatch1 = this.$store.watch(
       (state, getters) => getters["image/sizeT"],
       newValue => {
-        this.t_min = 1;
-        this.t_max = newValue;
+        console.log(newValue);
+        // this.t_min = 1;
+        // this.t_max = newValue;
 
-        this.t_range.min = 1;
-        this.t_range.max = this.t_max;
+        // this.t_range.min = 1;
+        // this.t_range.max = this.t_max;
       }
     );
     this.unwatch2 = this.$store.watch(
       (state, getters) => getters["image/imageParams"],
       newValue => {
-        this.t_value = newValue.T;
+        console.log(newValue);
+        // this.t_value = newValue.T;
       }
     );
+
+    this.currentPageDataWatch = this.$store.watch(
+      (state, getters) => getters["image/currentPageInfo"],
+      info => {
+        if (info.pageData.length == 1) {
+          this.t_max = info.pageData[0].metadata.coreMetadata.sizeT;
+          this.t_range.max = this.t_max;
+          this.t_value = info.pageData[0].metadata.imageInfo.pixels.sizeT;
+        } else {
+          let tMax = 0;
+          info.pageData.forEach((data, idx) => {
+            const types = data.filename.match(
+              /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+            );
+            if (types && types.length > 3) {
+              if (tMax < types[3]) {
+                tMax = types[3];
+              }
+              if (idx == info.pageData.dataIndex) {
+                this.t_value = types[3];
+              }
+            }
+          });
+
+          this.t_max = tMax + 1;
+          this.t_range.max = this.t_max;
+        }
+      }
+    );
+  },
+
+  beforeDestroy() {
+    this.unwatch1();
+    this.unwatch2();
+    this.currentPageDataWatch();
   },
 
   methods: {
@@ -185,11 +222,6 @@ export default {
     onFForward: function() {
       console.log("FForward");
     }
-  },
-
-  beforeDestroy() {
-    this.unwatch1();
-    this.unwatch2();
   }
 };
 </script>
