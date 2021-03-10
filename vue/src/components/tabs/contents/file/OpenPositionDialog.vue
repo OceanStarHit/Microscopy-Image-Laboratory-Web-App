@@ -821,13 +821,13 @@ export default {
       const type = filename.match(
         /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
-      return type ? type[5] : "";
+      return type ? type[6] : "";
     },
     getRow(filename) {
       const type = filename.match(
         /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
-      return type ? type[6] : "";
+      return type ? type[5] : "";
     },
     getField(filename) {
       const type = filename.match(

@@ -225,6 +225,7 @@ export default {
     addData(data) {
       if (data.length > 0) {
         this.$store.dispatch("image/addData", data);
+        this.$store.dispatch("vessel/setVesselId", data);
       }
     }
   }

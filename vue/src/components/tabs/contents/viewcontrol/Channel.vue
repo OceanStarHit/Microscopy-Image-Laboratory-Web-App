@@ -41,9 +41,9 @@ export default {
       { id: 1, label: "B", color: "blue", disabled: false },
       { id: 2, label: "G", color: "green", disabled: false },
       { id: 3, label: "R", color: "red", disabled: false },
-      { id: 4, label: "C", color: "cyan", disabled: true },
-      { id: 5, label: "Y", color: "amber", disabled: true },
-      { id: 6, label: "M", color: "pink", disabled: true }
+      { id: 4, label: "C", color: "cyan", disabled: false },
+      { id: 5, label: "Y", color: "amber", disabled: false },
+      { id: 6, label: "M", color: "pink", disabled: false }
     ]
   }),
 
