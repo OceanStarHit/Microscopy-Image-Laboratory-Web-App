@@ -148,7 +148,7 @@ export default {
             const types = data.filename.match(
               /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
             );
-            if (types && types.length > 3) {
+            if (types) {
               if (tMax < types[3]) {
                 tMax = types[3];
               }

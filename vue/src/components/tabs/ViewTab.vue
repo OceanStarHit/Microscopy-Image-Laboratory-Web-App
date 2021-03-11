@@ -6,7 +6,7 @@
           v-model="curPageIdx"
           class="my-4 pagenation"
           total-visible="5"
-          :length="totalPageCnt"
+          :length="allData.length"
           @input="handlePageChange"
         ></v-pagination>
       </v-container>
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 import TabItem from "../custom/TabItem";
 import Vessel from "./contents/viewcontrol/Vessel";
@@ -66,13 +66,6 @@ export default {
   }),
 
   created() {
-    this.totalPageCntWatch = this.$store.watch(
-      (state, getters) => getters["image/totalPageCount"],
-      res => {
-        this.totalPageCnt = res;
-      }
-    );
-
     this.curPageIdxWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageIndex"],
       res => {
@@ -82,7 +75,6 @@ export default {
   },
 
   beforeDestroy() {
-    this.totalPageCntWatch();
     this.curPageIdxWatch();
   },
 
@@ -91,6 +83,9 @@ export default {
       seriesCount: "seriesCount",
       sizeZ: "sizeZ",
       sizeT: "sizeT"
+    }),
+    ...mapState({
+      allData: state => state.image.allData
     })
   },
 

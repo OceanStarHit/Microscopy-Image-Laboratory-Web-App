@@ -54,34 +54,34 @@ const mutations = {
   },
 
   setVesselId(state, data) {
-    let column = "";
+    let col = "";
     let row = "";
 
     // get column and row from name type
-    data.forEach(val => {
-      const filename = val.filename;
-      const type = filename.match(
-        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+    data.pageData.forEach(item => {
+      const type = item.filename.match(
+        /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
-      if (type && type.length > 6) {
+      if (type) {
         row = row > type[5] ? row : type[5];
-        column = column > type[6] ? column : type[6];
+        col = col > type[6] ? col : type[6];
       }
     });
 
     // calc the current vessel id
-    if (column != "" && row != "") {
-      let rows = row.charCodeAt(0) - "A".charCodeAt(0) + 1;
-      let cols = parseInt(column);
+    if (row != "" && col != "") {
+      let r = row.charCodeAt(0) - "A".charCodeAt(0) + 1;
+      let c = parseInt(col);
       for (let idx = 0; idx < 6; idx++) {
         const item = vessel.VESSELS[1][idx];
-        if (rows <= item.rows && cols <= item.cols) {
+        if (r <= item.rows && c <= item.cols) {
           state.currentVesselId = item.id;
           break;
         }
       }
     } else {
-      state.currentVesselId = data.length <= 2 ? data.length : 3;
+      state.currentVesselId =
+        data.pageData.length <= 2 ? data.pageData.length : 3;
     }
   }
 };

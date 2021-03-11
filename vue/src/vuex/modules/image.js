@@ -46,11 +46,7 @@ const getters = {
       isNew: state.isNew
     };
   },
-  totalPageCount: (state, getters) => state.allData.length,
-  currentPageIndex: (state, getters) => state.curPageIdx,
   currentPageData: (state, getters) => state.allData[state.curPageIdx - 1],
-  currentPageDataIndex: (state, getters) =>
-    state.allIndice[state.curPageIdx - 1],
   newRes: (state, getters) => state.newRes,
   newData: (state, getters) => state.newData,
   imageId: (state, getters) => state.imageId,
@@ -61,17 +57,12 @@ const getters = {
       dataIndex: state.allIndice[state.curPageIdx - 1]
     };
   },
-  metaData: (state, getters) => {
-    if (state.curPageIdx == -1) {
-      return null;
-    }
-
-    const curPageData = state.allData[state.curPageIdx - 1];
-    const dataIdx = state.allIndice[state.curPageIdx - 1];
-
-    return curPageData[dataIdx].metadata.imageData;
-  },
-
+  metaData: (state, getters) =>
+    state.curPageIdx == -1
+      ? null
+      : state.allData[state.curPageIdx - 1][
+          state.allIndice[state.curPageIdx - 1]
+        ].metadata.imageData,
   objectiveX: (state, getters) => {
     let X = 0;
     if (!state.imageInfo || !state.imageInfo.objective) return X;
@@ -167,6 +158,12 @@ const actions = {
     if (state.loading) return;
 
     commit("changeCurrentPage", idx);
+  },
+
+  changeCurrentData({ commit, state }, idx) {
+    if (state.loading) return;
+
+    commit("changeCurrentData", idx);
   },
 
   addData({ commit, state }, data) {
@@ -352,6 +349,12 @@ const mutations = {
 
   changeCurrentPage(state, payload) {
     state.curPageIdx = payload;
+  },
+
+  changeCurrentData(state, payload) {
+    state.allIndice = state.allIndice.map((val, idx) =>
+      idx == state.curPageIdx - 1 ? payload : val
+    );
   },
 
   addData(state, payload) {

@@ -91,7 +91,7 @@ export default {
     },
     check: {
       type: Boolean,
-      default: false
+      default: true
     },
     interaction: {
       type: Boolean,
@@ -146,6 +146,7 @@ export default {
       handler() {
         this.resize();
         this.selectedHole = -1;
+        this.setActivate();
       },
       deep: true,
       immediate: true
@@ -157,6 +158,13 @@ export default {
       deep: true,
       immediate: true
     }
+    // "$store.state.vessel.currentVesselId": {
+    //   handler() {
+    //     this.setActivate();
+    //   },
+    //   deep: true,
+    //   immediate: true
+    // }
   },
 
   methods: {
@@ -188,13 +196,67 @@ export default {
       if (this.check) {
         const pos = this.activeHoles.indexOf(index);
         if (pos > -1) {
-          this.selectedHole = this.selectedHole !== index ? index : -1;
-          this.$emit("click", { row, col });
+          this.selectedHole = index;
+          // this.$emit("click", { row, col });
+
+          const data = this.$store.getters["image/currentPageInfo"];
+          if (
+            !data ||
+            data.pageData == undefined ||
+            data.dataIndex == undefined
+          ) {
+            return;
+          }
+
+          const cnt = data.pageData.length;
+          for (let idx = 0; idx < cnt; idx++) {
+            const filename = data.pageData[idx].filename;
+            const type = filename.match(
+              /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+            );
+            if (type) {
+              const r = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
+              const c = parseInt(type[6]);
+              if (row == r && col == c) {
+                const allIndice = this.$store.state.image.allIndice;
+                const curPageIdx = this.$store.state.image.curPageIdx;
+                if (allIndice[curPageIdx] != idx) {
+                  this.$store.dispatch("image/changeCurrentData", idx);
+                }
+                break;
+              }
+            }
+          }
         }
       } else {
-        this.selectedHole = this.selectedHole !== index ? index : -1;
+        this.selectedHole = index;
         this.$emit("click", { row, col });
       }
+    },
+
+    setActivate() {
+      this.activeHoles = [];
+
+      const data = this.$store.getters["image/currentPageInfo"];
+      if (!data || data.pageData == undefined || data.dataIndex == undefined) {
+        return;
+      }
+
+      data.pageData.forEach((item, idx) => {
+        const type = item.filename.match(
+          /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        );
+        if (type) {
+          const row = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
+          const col = parseInt(type[6]);
+          const index = (row - 1) * this.cols + col - 1;
+          this.activeHoles.push(index);
+
+          if (idx == data.dataIndex) {
+            this.selectedHole = index;
+          }
+        }
+      });
     }
   }
 };

@@ -72,6 +72,19 @@ export default {
     vessels: VESSELS
   }),
 
+  created() {
+    this.currentPageDataWatch = this.$store.watch(
+      (state, getters) => getters["image/currentPageInfo"],
+      info => {
+        this.$store.dispatch("vessel/setVesselId", info);
+      }
+    );
+  },
+
+  beforeDestroy() {
+    this.currentPageDataWatch();
+  },
+
   computed: {
     ...mapGetters("vessel", {
       currentVesselId: "currentVesselId"

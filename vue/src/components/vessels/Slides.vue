@@ -105,7 +105,7 @@ export default {
     },
     check: {
       type: Boolean,
-      default: false
+      default: true
     },
     interaction: {
       type: Boolean,
@@ -133,6 +133,7 @@ export default {
       handler() {
         this.resize();
         this.selectedSlide = -1;
+        this.setActivate();
       },
       deep: true,
       immediate: true
@@ -140,6 +141,13 @@ export default {
     width: {
       handler() {
         this.resize();
+      },
+      deep: true,
+      immediate: true
+    },
+    "$store.state.vessel.currentVesselId": {
+      handler() {
+        this.setActivate();
       },
       deep: true,
       immediate: true
@@ -197,12 +205,46 @@ export default {
       if (this.check) {
         const pos = this.activeSlides.indexOf(slideNo);
         if (pos > -1) {
-          this.selectedSlide = this.selectedSlide !== slideNo ? slideNo : -1;
-          this.$emit("click", slideNo);
+          this.selectedSlide = slideNo;
+          // this.$emit("click", slideNo);
+
+          const data = this.$store.getters["image/currentPageInfo"];
+          if (
+            !data ||
+            data.pageData == undefined ||
+            data.dataIndex == undefined ||
+            data.pageData.length < slideNo
+          ) {
+            return;
+          }
+
+          const allIndice = this.$store.state.image.allIndice;
+          const curPageIdx = this.$store.state.image.curPageIdx;
+          if (allIndice[curPageIdx] != slideNo) {
+            this.$store.dispatch("image/changeCurrentData", slideNo);
+          }
         }
       } else {
-        this.selectedSlide = this.selectedSlide !== slideNo ? slideNo : -1;
+        this.selectedSlide = slideNo;
         this.$emit("click", slideNo);
+      }
+    },
+
+    setActivate() {
+      this.activeSlides = [];
+
+      const data = this.$store.getters["image/currentPageInfo"];
+      if (!data || data.pageData == undefined || data.dataIndex == undefined) {
+        return;
+      }
+
+      const cnt = data.pageData.length;
+      for (let idx = 1; idx <= cnt; idx++) {
+        this.activeSlides.push(idx);
+
+        if (idx == data.dataIndex + 1) {
+          this.selectedSlide = idx;
+        }
       }
     }
   }

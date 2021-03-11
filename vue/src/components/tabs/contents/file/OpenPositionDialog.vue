@@ -361,23 +361,25 @@ export default {
       res => {
         const filteredData = [];
         for (var key in res) {
-          if (res[key]) {
-            const from = key.split("_")[0];
-            const curFileIdx = parseInt(key.split("_")[1]);
+          const idx = parseInt(key.split("_")[1]);
+          if (
+            key.startsWith("position_") &&
+            res[key] &&
+            idx < this.newFiles.length
+          ) {
+            this.metaFiles.push(this.newFiles[idx]);
+            this.metaData.push(res[key]);
 
-            if (from == "position" && curFileIdx < this.newFiles.length) {
-              this.metaFiles.push(this.newFiles[curFileIdx]);
-              this.metaData.push(res[key]);
-
-              filteredData.push({
-                filename: this.newFiles[curFileIdx].name,
-                metadata: res[key]
-              });
-            }
+            filteredData.push({
+              filename: this.newFiles[idx].name,
+              metadata: res[key]
+            });
           }
         }
 
-        this.addData(filteredData);
+        if (filteredData.length > 0) {
+          this.$store.dispatch("image/addData", filteredData);
+        }
 
         // init new files
         this.initNewInfo();
@@ -424,7 +426,7 @@ export default {
       ) {
         if (
           this.makeNameType().match(
-            /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+            /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
           )
         ) {
           return true;
@@ -730,13 +732,6 @@ export default {
       this.visibleDialog = false;
     },
 
-    // add meta data to store
-    addData(data) {
-      if (data.length > 0) {
-        this.$store.dispatch("image/addData", data);
-      }
-    },
-
     // init
     initNewInfo() {
       this.newFiles = [];
@@ -813,43 +808,43 @@ export default {
     // regrex for name and type
     getSeries(filename) {
       const type = filename.match(
-        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[2] : "";
     },
     getColumn(filename) {
       const type = filename.match(
-        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[6] : "";
     },
     getRow(filename) {
       const type = filename.match(
-        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[5] : "";
     },
     getField(filename) {
       const type = filename.match(
-        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[7] : "";
     },
     getViewMethod(filename) {
       const type = filename.match(
-        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[8] : "";
     },
     getZPosition(filename) {
       const type = filename.match(
-        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[4] : "";
     },
     getTimepoint(filename) {
       const type = filename.match(
-        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[3] : "";
     },
@@ -940,7 +935,7 @@ export default {
     makeNameType() {
       var filename = this.allData[this.curNameIdx].filename;
       const type = filename.match(
-        /^(\w+)[_\s](\w+_\w)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       const idx = filename.lastIndexOf(".");
       const ext = filename.substring(idx + 1);

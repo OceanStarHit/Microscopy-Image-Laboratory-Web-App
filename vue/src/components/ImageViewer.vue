@@ -29,30 +29,8 @@ export default {
       ? process.env.VUE_APP_STATIC_URL
       : "../../"
   }),
+
   created() {
-    this.unwatch = this.$store.watch(
-      (state, getters) => getters["image/imageData"],
-      newValue => {
-        if (this.imageView && newValue.url) {
-          const opt = {
-            tileSource: {
-              type: "image",
-              url: newValue.url
-            }
-          };
-
-          if (!newValue.isNew) {
-            opt.index = 0;
-            opt.replace = true;
-          } else {
-            this.imageView.world.removeAll();
-          }
-
-          this.imageView.addTiledImage(opt);
-        }
-      }
-    );
-
     this.imageDataWatch = this.$store.watch(
       (state, getters) => getters["image/metaData"],
       data => {
@@ -69,6 +47,10 @@ export default {
         }
       }
     );
+  },
+
+  beforeDestroy() {
+    this.imageDataWatch();
   },
 
   mounted() {
@@ -103,14 +85,7 @@ export default {
       this.imageSource = files[0];
 
       this.isDragging = false;
-    },
-
-    onRequestUploadFiles() {}
-  },
-
-  beforeDestroy() {
-    this.unwatch();
-    this.imageDataWatch();
+    }
   }
 };
 </script>

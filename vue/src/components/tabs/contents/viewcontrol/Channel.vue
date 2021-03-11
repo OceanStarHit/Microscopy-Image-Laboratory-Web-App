@@ -55,11 +55,11 @@ export default {
           const channel = info.pageData[0].metadata.imageInfo.pixels.sizeC;
           this.setChannels(channel);
         } else {
-          const idx = info.pageData.dataIndex;
+          const idx = info.dataIndex;
           const types = info.pageData[idx].filename.match(
             /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
           );
-          if (types && types.length > 3) {
+          if (types) {
             this.setChannels(types[3]);
           }
         }

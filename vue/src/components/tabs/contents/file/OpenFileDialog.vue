@@ -103,11 +103,14 @@ export default {
               filename: this.newFile.name,
               metadata: res[key]
             });
-
-            this.addData(filteredData);
           }
           break;
         }
+
+        if (filteredData.length > 0) {
+          this.$store.dispatch("image/addData", filteredData);
+        }
+
         this.newFile = null;
         this.imageData = null;
       }
@@ -206,12 +209,7 @@ export default {
         var formData = new FormData();
         formData.append("file_0", this.newFile);
         this.$store.dispatch("image/setNewFiles", formData);
-
-        return;
       }
-
-      this.newFile = null;
-      this.imageData = null;
     },
 
     onCancel() {
@@ -219,14 +217,6 @@ export default {
       if (this.imageData) this.imageData = null;
 
       this.visibleDialog = false;
-    },
-
-    // add meta data to store
-    addData(data) {
-      if (data.length > 0) {
-        this.$store.dispatch("image/addData", data);
-        this.$store.dispatch("vessel/setVesselId", data);
-      }
     }
   }
 };
