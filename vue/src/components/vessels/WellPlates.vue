@@ -51,6 +51,8 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 const RATIO = 0.6;
 const MAX_HEIGHT = 1000;
 const MAX_FONTSIZE = 14;
@@ -113,6 +115,10 @@ export default {
   },
 
   computed: {
+    ...mapState({
+      allIndice: state => state.image.allIndice,
+      curPageIdx: state => state.image.curPageIdx
+    }),
     size() {
       const { rows, cols } = this;
       return {
@@ -218,9 +224,7 @@ export default {
               const r = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
               const c = parseInt(type[6]);
               if (row == r && col == c) {
-                const allIndice = this.$store.state.image.allIndice;
-                const curPageIdx = this.$store.state.image.curPageIdx;
-                if (allIndice[curPageIdx] != idx) {
+                if (this.allIndice[this.curPageIdx - 1] != idx) {
                   this.$store.dispatch("image/changeCurrentData", idx);
                 }
                 break;

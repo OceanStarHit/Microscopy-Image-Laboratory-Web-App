@@ -73,6 +73,8 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 const H_RATIO = 0.6;
 const V_RATIO = 0.5;
 const MAX_HEIGHT = 1000;
@@ -154,6 +156,13 @@ export default {
     }
   },
 
+  computed: {
+    ...mapState({
+      allIndice: state => state.image.allIndice,
+      curPageIdx: state => state.image.curPageIdx
+    })
+  },
+
   methods: {
     resize: function() {
       if (this.count < 3) {
@@ -218,9 +227,7 @@ export default {
             return;
           }
 
-          const allIndice = this.$store.state.image.allIndice;
-          const curPageIdx = this.$store.state.image.curPageIdx;
-          if (allIndice[curPageIdx] != slideNo) {
+          if (this.allIndice[this.curPageIdx] != slideNo) {
             this.$store.dispatch("image/changeCurrentData", slideNo);
           }
         }
