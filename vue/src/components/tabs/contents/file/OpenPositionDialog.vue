@@ -452,7 +452,7 @@ export default {
           }
         });
       } else {
-        formData.append("position_0", this.files[0]);
+        formData.append("position_0", this.allFiles[0]);
       }
 
       this.$store.dispatch("image/setNewFiles", formData);
