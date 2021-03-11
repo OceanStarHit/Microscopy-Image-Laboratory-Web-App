@@ -5,22 +5,12 @@
       <simple-dialog
         title="Position"
         okTitle="Select"
-        :newButton="true"
-        :updateButton="true"
-        :removeButton="true"
         :singleButton="false"
-        :newDisable="!newPossible"
-        :updateDisable="!newFiles.length"
-        :selectDisable="!selectPossible"
-        :removeDisable="!removePossible"
-        @new="onNew"
-        @update="onUpdate"
-        @remove="onRemove"
+        :selectDisable="!this.allFiles.length"
         @select="onSelect"
         @close="onClose"
       >
         <v-tabs v-model="selectedTab" fixed-tabs>
-          <v-tab href="#tabs-new" class="primary--text">New Files</v-tab>
           <v-tab href="#tabs-images" class="primary--text">Images</v-tab>
           <v-tab href="#tabs-tiling" class="primary--text">Tiling</v-tab>
           <v-tab href="#tabs-metadata" class="primary--text">Metadata</v-tab>
@@ -30,51 +20,6 @@
         </v-tabs>
 
         <v-tabs-items v-model="selectedTab" class="v-tab-item">
-          <!-- New File Tab -->
-          <v-tab-item value="tabs-new" class="v-tab-item">
-            <v-sheet
-              class="drop pa-5 v-sheet"
-              height="350"
-              :class="getClasses"
-              @dragover.prevent="dragOver"
-              @dragleave.prevent="dragLeave"
-              @drop.prevent="drop($event)"
-            >
-              <div
-                v-if="!newFiles.length"
-                class="d-flex align-center justify-center"
-                style="height: 200px;"
-              >
-                <p class="text-h4 grey--text text--lighten-2">
-                  Drag and Drop.
-                </p>
-              </div>
-              <v-card v-else>
-                <v-card-title class="v-card-title">
-                  <v-spacer></v-spacer>
-                  <v-text-field
-                    v-model="searchNewFile"
-                    append-icon="mdi-magnify"
-                    label="Search"
-                    single-line
-                    hide-details
-                  ></v-text-field>
-                </v-card-title>
-                <v-data-table
-                  v-model="selectedNewContents"
-                  class="new-file-table"
-                  :headers="newHeaders"
-                  :items="getNewContents"
-                  :search="searchNewFile"
-                  :single-select="false"
-                  :item-class="meta_row_highlight"
-                  item-key="no"
-                  show-select
-                >
-                </v-data-table>
-              </v-card>
-            </v-sheet>
-          </v-tab-item>
           <!-- Images Tab -->
           <v-tab-item value="tabs-images">
             <v-sheet
@@ -86,7 +31,7 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="!allData.length"
+                v-if="!allFiles.length"
                 class="d-flex align-center justify-center"
                 style="height: 200px;"
               >
@@ -97,20 +42,19 @@
               <v-row v-else class="align-center justify-center">
                 <div
                   class="img-align"
-                  v-for="(data, idx) in allData"
+                  v-for="(file, idx) in allFiles"
                   :key="idx"
                   @click="selectContent(idx)"
-                  v-bind:class="meta_row_highlight(idx)"
                 >
                   <v-img
                     class="v-img-align"
-                    :src="data.metadata.imageData"
+                    :src="getSource(file)"
                     width="150"
                     height="150"
                     fill
                   />
                   <p class="ms-5 name-center">
-                    {{ data.filename }}
+                    {{ file.name }}
                   </p>
                 </div>
               </v-row>
@@ -146,7 +90,7 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="!allData.length"
+                v-if="!allFiles.length"
                 class="d-flex align-center justify-center"
                 style="height: 200px;"
               >
@@ -172,9 +116,7 @@
                   :items="getMetaContents"
                   :search="searchMetadata"
                   :single-select="false"
-                  :item-class="meta_row_highlight"
                   item-key="no"
-                  show-select
                   @click:row="selectContent"
                 >
                 </v-data-table>
@@ -191,7 +133,7 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="allData.length == 0"
+                v-if="allFiles.length == 0"
                 class="d-flex align-center justify-center"
                 style="height: 200px;"
               >
@@ -217,7 +159,7 @@
                   ></v-text-field>
                 </div>
               </v-row>
-              <v-card v-if="allData.length > 0">
+              <v-card v-if="allFiles.length > 0">
                 <v-card-title class="v-card-title">
                   <v-btn
                     class="common"
@@ -254,9 +196,7 @@
                   :items="getNameContents"
                   :search="searchNameType"
                   :single-select="false"
-                  :item-class="meta_row_highlight"
                   item-key="no"
-                  show-select
                   @click:row="selectContent"
                 >
                 </v-data-table>
@@ -286,20 +226,11 @@ export default {
     selectedTab: null,
 
     // all data
-    allData: [],
+    allFiles: [],
 
     // meta files
     metaFiles: [],
     metaData: [],
-
-    // for all files
-    searchNewFile: "",
-    newFiles: [],
-    selectedNewContents: [],
-    newHeaders: [
-      { text: "No", value: "no", sortable: false },
-      { text: "File Name", value: "filename", sortable: false }
-    ],
 
     // for image tag
     curImgIdx: -1,
@@ -335,8 +266,8 @@ export default {
     selectedNameContents: [],
     nameTypes: [
       { name: "Series", value: "", color: "success" },
-      { name: "Column", value: "", color: "deep-orange" },
       { name: "Row", value: "", color: "primary" },
+      { name: "Column", value: "", color: "deep-orange" },
       { name: "Field", value: "", color: "warning" },
       { name: "View Method", value: "", color: "purple" },
       { name: "Z Position", value: "", color: "blue-grey" },
@@ -346,8 +277,8 @@ export default {
       { text: "No", value: "no", sortable: false },
       { text: "FileName", value: "filename", sortable: false },
       { text: "Series", value: "series", sortable: false },
-      { text: "Column", value: "column", sortable: false },
       { text: "Row", value: "row", sortable: false },
+      { text: "Column", value: "column", sortable: false },
       { text: "Field", value: "field", sortable: false },
       { text: "View Method", value: "viewMethod", sortable: false },
       { text: "Z Position", value: "zPosition", sortable: false },
@@ -365,13 +296,10 @@ export default {
           if (
             key.startsWith("position_") &&
             res[key] &&
-            idx < this.newFiles.length
+            idx < this.allFiles.length
           ) {
-            this.metaFiles.push(this.newFiles[idx]);
-            this.metaData.push(res[key]);
-
             filteredData.push({
-              filename: this.newFiles[idx].name,
+              filename: this.allFiles[idx].name,
               metadata: res[key]
             });
           }
@@ -381,22 +309,22 @@ export default {
           this.$store.dispatch("image/addData", filteredData);
         }
 
-        // init new files
-        this.initNewInfo();
+        this.newFile = null;
+        this.imageData = null;
       }
     );
 
-    this.allDataWatch = this.$store.watch(
+    this.allFilesWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageData"],
       res => {
-        this.allData = res;
+        this.allFiles = res;
       }
     );
   },
 
   beforeDestroy() {
     this.newResWatch();
-    this.allDataWatch();
+    this.allFilesWatch();
   },
 
   props: {
@@ -422,7 +350,7 @@ export default {
       if (
         this.isChangedNameType() &&
         -1 < this.curNameIdx &&
-        this.curNameIdx < this.allData.length
+        this.curNameIdx < this.allFiles.length
       ) {
         if (
           this.makeNameType().match(
@@ -438,113 +366,41 @@ export default {
     clearNameTypeDisable() {
       return !this.isChangedNameType();
     },
-    newPossible() {
-      switch (this.selectedTab) {
-        case "tabs-new":
-          return this.newFiles.length;
 
-        case "tabs-images":
-          return this.allData.length;
-
-        case "tabs-tiling":
-          break;
-
-        case "tabs-metadata":
-          return this.allData.length;
-
-        case "tabs-name-type":
-          return this.allData.length;
-      }
-
-      return false;
-    },
-    removePossible() {
-      switch (this.selectedTab) {
-        case "tabs-new":
-          return this.selectedNewContents.length;
-
-        case "tabs-images":
-          return this.selectedImgIndices.length;
-
-        case "tabs-tiling":
-          break;
-
-        case "tabs-metadata":
-          return this.selectedMetaContents.length;
-
-        case "tabs-name-type":
-          return this.selectedNameContents.length;
-      }
-
-      return false;
-    },
-    selectPossible() {
-      switch (this.selectedTab) {
-        case "tabs-new":
-          return false;
-
-        case "tabs-images":
-          return this.curImgIdx > -1;
-
-        case "tabs-tiling":
-          return false;
-
-        case "tabs-metadata":
-          return this.curMetaIdx > -1;
-
-        case "tabs-name-type":
-          return this.curNameIdx > -1;
-      }
-
-      return false;
-    },
-
-    // get contents: new file contents,
-    // meta file contents, name type contents
-    getNewContents() {
-      const contents = [];
-      this.newFiles.forEach(file => {
-        contents.push({
-          no: contents.length + 1,
-          filename: file.name
-        });
-      });
-
-      return contents;
-    },
     getNameContents() {
       const contents = [];
-      this.allData.forEach(data => {
-        contents.push({
-          no: contents.length + 1,
-          filename: data.filename,
-          series: this.getSeries(data.filename),
-          column: this.getColumn(data.filename),
-          row: this.getRow(data.filename),
-          field: this.getField(data.filename),
-          viewMethod: this.getViewMethod(data.filename),
-          zPosition: this.getZPosition(data.filename),
-          timepoint: this.getTimepoint(data.filename)
-        });
-      });
+      for (let file in this.allFiles) {
+        if (file.name) {
+          contents.push({
+            no: contents.length + 1,
+            filename: file.name,
+            series: this.getSeries(file.name),
+            row: this.getRow(file.name),
+            column: this.getColumn(file.name),
+            field: this.getField(file.name),
+            viewMethod: this.getViewMethod(file.name),
+            zPosition: this.getZPosition(file.name),
+            timepoint: this.getTimepoint(file.name)
+          });
+        }
+      }
 
       return contents;
     },
     getMetaContents() {
       const contents = [];
-      this.allData.forEach(data => {
-        const coreMetadata = data.metadata.coreMetadata;
+      this.allFiles.forEach(file => {
         contents.push({
           no: contents.length + 1,
-          filename: data.filename,
-          series: coreMetadata.seriesCount,
-          frame: coreMetadata.imageCount,
-          c: coreMetadata.currentSeries,
-          size_c: coreMetadata.sizeC,
-          size_t: coreMetadata.sizeT,
-          size_x: coreMetadata.sizeX,
-          size_y: coreMetadata.sizeY,
-          size_z: coreMetadata.sizeZ
+          filename: file.name,
+          series: "",
+          frame: "",
+          c: "",
+          size_c: "",
+          size_t: "",
+          size_x: "",
+          size_y: "",
+          size_z: ""
         });
       });
 
@@ -573,144 +429,33 @@ export default {
       const fileInput = this.$el.querySelector("#uploadFile");
 
       if (fileInput.files && fileInput.files.length > 0) {
-        for (let file of fileInput.files) {
-          this.newFiles.push(file);
-        }
+        this.allFiles = fileInput.files;
       }
     },
 
-    // the entire simple dialog
-    // new, update, remove, select, cancel
-    onNew() {
-      switch (this.selectedTab) {
-        case "tabs-new":
-          this.initNewInfo();
-          break;
-
-        case "tabs-images":
-          this.initMetaInfo();
-          this.initMetaSelectedInfo();
-          break;
-
-        case "tabs-tiling":
-          break;
-
-        case "tabs-metadata":
-          this.initMetaInfo();
-          this.initMetaSelectedInfo();
-          break;
-
-        case "tabs-name-type":
-          this.initMetaInfo();
-          this.initMetaSelectedInfo();
-          break;
-      }
-    },
-    onUpdate() {
-      if (this.newFiles.length > 0) {
-        // dispatch
-        var formData = new FormData();
-        for (var i = 0; i < this.newFiles.length; i++) {
-          formData.append("position_" + i, this.newFiles[i]);
-        }
-        this.$store.dispatch("image/setNewFiles", formData);
-      }
-    },
-    onRemove() {
-      switch (this.selectedTab) {
-        case "tabs-new":
-          {
-            const remainFiles = [];
-            const remainContents = [];
-            this.getNewContents.forEach(content => {
-              if (
-                !this.selectedNewContents.includes(content) &&
-                0 < content.no &&
-                content.no <= this.newFiles.length
-              ) {
-                remainFiles.push(this.newFiles[content.no - 1]);
-                content.no = remainContents.length + 1;
-                remainContents.push(content);
-              }
-            });
-            this.newFiles = remainFiles;
-            this.selectedNewContents = [];
-          }
-          break;
-
-        case "tabs-images":
-          {
-            const newData = [];
-            this.allData.forEach((data, idx) => {
-              if (!this.selectedImgIndices.includes(idx)) {
-                newData.push(data);
-              }
-            });
-            this.updateAllData(newData);
-          }
-          this.initMetaSelectedInfo();
-          break;
-
-        case "tabs-tiling":
-          break;
-
-        case "tabs-metadata":
-          {
-            const newData = [];
-            this.getMetaContents.forEach(content => {
-              if (
-                !this.selectedMetaContents.includes(content) &&
-                0 < content.no &&
-                content.no <= this.allData.length
-              ) {
-                newData.push(this.allData[content.no - 1]);
-              }
-            });
-            this.updateAllData(newData);
-          }
-          this.initMetaSelectedInfo();
-          break;
-
-        case "tabs-name-type":
-          {
-            const newData = [];
-            this.getNameContents.forEach(content => {
-              if (
-                !this.selectedNameContents.includes(content) &&
-                0 < content.no &&
-                content.no <= this.allData.length
-              ) {
-                newData.push(this.allData[content.no - 1]);
-              }
-            });
-            this.updateAllData(newData);
-          }
-          this.initMetaSelectedInfo();
-          break;
-      }
-    },
     onSelect() {
-      switch (this.selectedTab) {
-        case "tabs-new":
-          break;
+      this.visibleDialog = false;
 
-        case "tabs-images":
-          this.showMetaData(this.curImgIdx);
-          break;
-
-        case "tabs-tiling":
-          break;
-
-        case "tabs-metadata":
-          this.showMetaData(this.curMetaIdx);
-          break;
-
-        case "tabs-name-type":
-          this.showMetaData(this.curNameIdx);
-          break;
+      if (!this.allFiles) {
+        return "";
       }
 
-      this.visibleDialog = false;
+      let formData = new FormData();
+      const name = this.getMainName();
+      if (name) {
+        this.allFiles.forEach((file, idx) => {
+          const type = file.name.match(
+            /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+          );
+          if (type && type[1] == name) {
+            formData.append("position_" + idx, file);
+          }
+        });
+      } else {
+        formData.append("position_0", this.files[0]);
+      }
+
+      this.$store.dispatch("image/setNewFiles", formData);
     },
     showImageData(idx) {
       if (-1 < idx && idx < this.imgData.length) {
@@ -732,32 +477,62 @@ export default {
       this.visibleDialog = false;
     },
 
-    // init
-    initNewInfo() {
-      this.newFiles = [];
-      this.searchNewFile = "";
-      this.selectedNewIndices = [];
+    getMainName() {
+      if (!this.allFiles) {
+        return "";
+      }
+
+      let num = {};
+      const cnt = this.allFiles.length;
+      for (let idx = 0; idx < cnt; idx++) {
+        const type = this.allFiles[idx].name.match(
+          /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        );
+        if (type) {
+          const name = type[1];
+          if (num[name]) {
+            num[name] += 1;
+          } else {
+            num[name] = 1;
+          }
+        }
+      }
+
+      let maxN = 1;
+      let maxKey = "";
+      for (var key in num) {
+        if (maxN < num[key]) {
+          maxN = num[key];
+          maxKey = key;
+        }
+      }
+
+      return maxKey;
     },
-    initMetaInfo() {
-      this.metaFiles = [];
-      this.metaData = [];
-      this.searchMetadata = "";
-      this.searchNameType = "";
-    },
-    initMetaSelectedInfo() {
-      this.curImgIdx = -1;
-      this.curMetaIdx = -1;
-      this.curNameIdx = -1;
-      this.selectedImgIndices = [];
-      this.selectedMetaContents = [];
-      this.selectedNameContents = [];
+    getSource(file) {
+      if (
+        file &&
+        file.type &&
+        file.type.startsWith("image/") &&
+        !file.type.startsWith("image/tif") &&
+        file.size < 2 * 1024 * 1024
+      ) {
+        const reader = new FileReader();
+        reader.onload = function() {
+          if (file.type.startsWith("image/tif")) {
+            return require("../../../../assets/images/no-preview.png");
+          } else {
+            return reader.result;
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+
+      return require("../../../../assets/images/no-preview.png");
     },
 
     selectContent(content) {
       switch (this.selectedTab) {
-        case "tabs-new":
-          break;
-
         case "tabs-images":
           {
             this.curImgIdx = content;
@@ -785,17 +560,12 @@ export default {
 
     // update
     updateNameType() {
-      const filename = this.makeNameType();
-      const nameType = this.getNameContents[this.curNameIdx];
-      nameType.filename = filename;
-      switch (nameType.classes) {
-        case "image":
-          this.imgFiles.name = filename;
-          break;
-        case "metadata":
-          this.metaFiles.name = filename;
-          break;
-      }
+      // const filename = this.makeNameType();
+      // const file = this.allFiles[this.curNameIdx];
+      // file.name = filename;
+      // this.allFiles = this.allFiles.map((val, idx) =>
+      //   idx == this.curNameIdx ? file : val
+      // );
     },
 
     // clear
@@ -812,17 +582,17 @@ export default {
       );
       return type ? type[2] : "";
     },
-    getColumn(filename) {
-      const type = filename.match(
-        /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-      );
-      return type ? type[6] : "";
-    },
     getRow(filename) {
       const type = filename.match(
         /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
       return type ? type[5] : "";
+    },
+    getColumn(filename) {
+      const type = filename.match(
+        /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+      );
+      return type ? type[6] : "";
     },
     getField(filename) {
       const type = filename.match(
@@ -852,14 +622,14 @@ export default {
       if (this.curNameIdx == -1) {
         return "";
       } else {
-        const filename = this.allData[this.curNameIdx].filename;
+        const filename = this.allFiles[this.curNameIdx].name;
         switch (idx) {
           case 0:
             return this.getSeries(filename);
           case 1:
-            return this.getColumn(filename);
-          case 2:
             return this.getRow(filename);
+          case 2:
+            return this.getColumn(filename);
           case 3:
             return this.getField(filename);
           case 4:
@@ -874,55 +644,7 @@ export default {
       return "";
     },
 
-    // styles
-    meta_row_highlight(item) {
-      let rowClass = "";
-
-      switch (this.selectedTab) {
-        case "tabs-new":
-          if (this.selectedNewContents.includes(item)) {
-            rowClass = "row_remove";
-          }
-          break;
-
-        case "tabs-images":
-          if (item == this.curImgIdx) {
-            rowClass = "success lighten-3 ";
-          }
-          if (this.selectedImgIndices.includes(item)) {
-            rowClass += "row_remove";
-          }
-          break;
-
-        case "tabs-tiling":
-          break;
-
-        case "tabs-metadata":
-          if (item.no - 1 == this.curMetaIdx) {
-            rowClass = "success lighten-3 ";
-          }
-          if (this.selectedMetaContents.includes(item)) {
-            rowClass += "row_remove";
-          }
-          break;
-
-        case "tabs-name-type":
-          if (item.no - 1 == this.curNameIdx) {
-            rowClass = "success lighten-3 ";
-          }
-          if (this.selectedNameContents.includes(item)) {
-            rowClass += "row_remove";
-          }
-          break;
-      }
-
-      return rowClass;
-    },
-
     // utils
-    updateAllData(updatedData) {
-      this.$store.dispatch("image/updateAllData", updatedData);
-    },
     isChangedNameType() {
       for (var i = 0; i < this.nameTypes.length; i++) {
         if (this.nameTypes[i].value != "") {
@@ -933,7 +655,7 @@ export default {
       return false;
     },
     makeNameType() {
-      var filename = this.allData[this.curNameIdx].filename;
+      var filename = this.allFiles[this.curNameIdx].name;
       const type = filename.match(
         /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
       );
@@ -956,10 +678,10 @@ export default {
         "_" +
         (this.nameTypes[1].value
           ? this.nameTypes[1].value
-          : this.getColumn(filename)) +
+          : this.getRow(filename)) +
         (this.nameTypes[2].value
           ? this.nameTypes[2].value
-          : this.getRow(filename)) +
+          : this.getColumn(filename)) +
         (this.nameTypes[3].value
           ? this.nameTypes[3].value
           : this.getField(filename)) +
@@ -1037,19 +759,12 @@ export default {
 .common {
   width: 80px;
 }
-.new-file-table >>> tr th:nth-child(2),
-.new-file-table >>> tr td:nth-child(2) {
-  width: 60px !important;
-}
-.meta-file-table >>> tr th:nth-child(3),
-.meta-file-table >>> tr td:nth-child(3) {
+.meta-file-table >>> tr th:nth-child(2),
+.meta-file-table >>> tr td:nth-child(2) {
   width: 295px !important;
 }
-.name-type-table >>> tr th:nth-child(3),
-.name-type-table >>> tr td:nth-child(3) {
+.name-type-table >>> tr th:nth-child(2),
+.name-type-table >>> tr td:nth-child(2) {
   width: 295px !important;
-}
-::v-deep .row_remove {
-  color: #c36a0a;
 }
 </style>

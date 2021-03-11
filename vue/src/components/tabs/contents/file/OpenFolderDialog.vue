@@ -39,11 +39,11 @@
           >
             <p
               class="text-h4 grey--text text--lighten-2"
-              :style="files.length ? { color: 'black !important' } : {}"
+              :style="allFiles.length ? { color: 'black !important' } : {}"
             >
               {{
-                files.length
-                  ? files.length + " files are imported"
+                allFiles.length
+                  ? allFiles.length + " files are imported"
                   : "Please Open Folder"
               }}
             </p>
@@ -66,7 +66,7 @@ export default {
 
   data: () => ({
     imageSource: null,
-    files: []
+    allFiles: []
   }),
 
   props: {
@@ -86,10 +86,10 @@ export default {
           if (
             key.startsWith("folder_") &&
             res[key] &&
-            idx < this.files.length
+            idx < this.allFiles.length
           ) {
             filteredData.push({
-              filename: this.files[idx].name,
+              filename: this.allFiles[idx].name,
               metadata: res[key]
             });
           }
@@ -128,21 +128,21 @@ export default {
     requestUploadFolder() {
       const fileInput = this.$el.querySelector("#uploadFolder");
       if (fileInput.files && fileInput.files.length > 0) {
-        this.files = fileInput.files;
+        this.allFiles = fileInput.files;
       }
     },
 
     onSelect() {
       this.visibleDialog = false;
 
-      if (!this.files) {
+      if (!this.allFiles) {
         return "";
       }
 
       let formData = new FormData();
-      const name = this.getNameType();
+      const name = this.getMainName();
       if (name) {
-        this.files.forEach((file, idx) => {
+        this.allFiles.forEach((file, idx) => {
           const type = file.name.match(
             /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
           );
@@ -151,26 +151,26 @@ export default {
           }
         });
       } else {
-        formData.append("folder_0", this.files[0]);
+        formData.append("folder_0", this.allFiles[0]);
       }
 
       this.$store.dispatch("image/setNewFiles", formData);
     },
 
     onCancel() {
-      this.files = null;
+      this.allFiles = null;
       this.visibleDialog = false;
     },
 
-    getNameType() {
-      if (!this.files) {
+    getMainName() {
+      if (!this.allFiles) {
         return "";
       }
 
       let num = {};
-      const cnt = this.files.length;
+      const cnt = this.allFiles.length;
       for (let idx = 0; idx < cnt; idx++) {
-        const type = this.files[idx].name.match(
+        const type = this.allFiles[idx].name.match(
           /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
         );
         if (type) {

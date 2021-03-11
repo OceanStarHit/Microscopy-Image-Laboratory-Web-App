@@ -355,7 +355,6 @@ const mutations = {
     state.allIndice = state.allIndice.map((val, idx) =>
       idx == state.curPageIdx - 1 ? payload : val
     );
-    console.log(state.allIndice);
   },
 
   addData(state, payload) {
