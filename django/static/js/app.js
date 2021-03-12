@@ -137,7 +137,7 @@
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "/";
+/******/ 	__webpack_require__.p = "static/";
 /******/
 /******/ 	var jsonpArray = window["webpackJsonp"] = window["webpackJsonp"] || [];
 /******/ 	var oldJsonpFunction = jsonpArray.push.bind(jsonpArray);
@@ -223,8 +223,13 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var openseadragon__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! openseadragon */ "./node_modules/openseadragon/build/openseadragon/openseadragon.js");
-/* harmony import */ var openseadragon__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(openseadragon__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var core_js_modules_es_array_join_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.array.join.js */ "./node_modules/core-js/modules/es.array.join.js");
+/* harmony import */ var core_js_modules_es_array_join_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_array_join_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var openseadragon__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! openseadragon */ "./node_modules/openseadragon/build/openseadragon/openseadragon.js");
+/* harmony import */ var openseadragon__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(openseadragon__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _vue_config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../vue.config */ "./vue.config.js");
+/* harmony import */ var _vue_config__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_vue_config__WEBPACK_IMPORTED_MODULE_2__);
+
 //
 //
 //
@@ -242,6 +247,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /* eslint-disable no-unused-vars */
 
+
+
+var path = __webpack_require__(/*! path */ "./node_modules/path-browserify/index.js");
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "ImageViewer",
   components: {},
@@ -250,7 +259,7 @@ __webpack_require__.r(__webpack_exports__);
       isDragging: false,
       imageView: null,
       imageSource: null,
-      publicPath: Object({"NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_STATIC_URL ? Object({"NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_STATIC_URL : "../static/"
+      publicPath: path.join("../", _vue_config__WEBPACK_IMPORTED_MODULE_2___default.a.publicPath)
     };
   },
   created: function created() {
@@ -277,9 +286,9 @@ __webpack_require__.r(__webpack_exports__);
     this.imageDataWatch();
   },
   mounted: function mounted() {
-    this.imageView = openseadragon__WEBPACK_IMPORTED_MODULE_0___default()({
+    this.imageView = openseadragon__WEBPACK_IMPORTED_MODULE_1___default()({
       id: "openseadragon",
-      prefixUrl: "".concat(this.publicPath, "openseadragon/images/"),
+      prefixUrl: "".concat(this.publicPath, "/openseadragon/images/"),
       visibilityRatio: 1.0,
       constrainDuringPan: true,
       defaultZoomLevel: 1,
@@ -6904,7 +6913,7 @@ var render = function() {
             attrs: {
               width: "32",
               height: "32",
-              src: __webpack_require__(/*! @/assets/images/object.png */ "./src/assets/images/object.png")
+              src: __webpack_require__(/*! ../../assets/images/object.png */ "./src/assets/images/object.png")
             }
           }),
           _c(
@@ -18274,6 +18283,29 @@ var mutations = {
   actions: actions,
   mutations: mutations
 });
+
+/***/ }),
+
+/***/ "./vue.config.js":
+/*!***********************!*\
+  !*** ./vue.config.js ***!
+  \***********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+__webpack_require__(/*! core-js/modules/es.array.join.js */ "./node_modules/core-js/modules/es.array.join.js");
+
+var path = __webpack_require__(/*! path */ "./node_modules/path-browserify/index.js");
+
+module.exports = {
+  configureWebpack: {
+    devtool: "source-map"
+  },
+  publicPath: "./static",
+  //publicPath: "../",
+  indexPath: path.join("../templates", "index.html"),
+  outputDir: path.join("../Django", "static")
+};
 
 /***/ }),
 

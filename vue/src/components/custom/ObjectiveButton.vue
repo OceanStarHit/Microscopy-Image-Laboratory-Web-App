@@ -13,7 +13,7 @@
         style="margin: 0 auto;"
         width="32"
         height="32"
-        src="@/assets/images/object.png"
+        src="../../assets/images/object.png"
       />
       <div class="caption" :class="active ? 'font-weight-bold' : ''">
         {{ label }}

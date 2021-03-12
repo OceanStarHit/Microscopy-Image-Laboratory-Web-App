@@ -15,6 +15,8 @@
 <script>
 /* eslint-disable no-unused-vars */
 import OpenSeadragon from "openseadragon";
+import config from "../../vue.config";
+var path = require("path");
 
 export default {
   name: "ImageViewer",
@@ -25,9 +27,7 @@ export default {
     isDragging: false,
     imageView: null,
     imageSource: null,
-    publicPath: process.env.VUE_APP_STATIC_URL
-      ? process.env.VUE_APP_STATIC_URL
-      : "../../"
+    publicPath: path.join("../", config.publicPath)
   }),
 
   created() {
@@ -56,7 +56,7 @@ export default {
   mounted() {
     this.imageView = OpenSeadragon({
       id: "openseadragon",
-      prefixUrl: `${this.publicPath}openseadragon/images/`,
+      prefixUrl: `${this.publicPath}/openseadragon/images/`,
       visibilityRatio: 1.0,
       constrainDuringPan: true,
       defaultZoomLevel: 1,
