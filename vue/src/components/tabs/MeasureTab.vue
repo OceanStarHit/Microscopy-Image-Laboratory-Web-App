@@ -23,11 +23,11 @@ export default {
     TabItem,
     FirstPage,
     SecondPage,
-    ThirdPage
+    ThirdPage,
   },
 
   data: () => ({
-    page: 1
-  })
+    page: 1,
+  }),
 };
 </script>

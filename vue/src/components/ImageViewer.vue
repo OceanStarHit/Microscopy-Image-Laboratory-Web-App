@@ -1,10 +1,10 @@
 <template>
-  <v-container class="pa-0" style="width: 100%; height: 100%;" fluid>
+  <v-container class="pa-0" style="width: 100%; height: 100%" fluid>
     <div
       id="openseadragon"
       class="drop"
       :class="getClasses"
-      style="width: 100%; height: 100%;"
+      style="width: 100%; height: 100%"
       @dragover.prevent="dragOver"
       @dragleave.prevent="dragLeave"
       @drop.prevent="drop($event)"
@@ -27,19 +27,19 @@ export default {
     isDragging: false,
     imageView: null,
     imageSource: null,
-    publicPath: path.join("../", config.publicPath)
+    publicPath: path.join("../", config.publicPath),
   }),
 
   created() {
     this.imageDataWatch = this.$store.watch(
       (state, getters) => getters["image/metaData"],
-      data => {
+      (data) => {
         if (this.imageView && data) {
           const opt = {
             tileSource: {
               type: "image",
-              url: data
-            }
+              url: data,
+            },
           };
 
           this.imageView.world.removeAll();
@@ -63,14 +63,14 @@ export default {
       minZoomLevel: 0.1,
       maxZoomLevel: 10,
       minZoomPixelRatio: 0.1,
-      maxZoomPixelRatio: 10
+      maxZoomPixelRatio: 10,
     });
   },
 
   computed: {
     getClasses() {
       return { isDragging: this.isDragging };
-    }
+    },
   },
 
   methods: {
@@ -85,8 +85,8 @@ export default {
       this.imageSource = files[0];
 
       this.isDragging = false;
-    }
-  }
+    },
+  },
 };
 </script>
 

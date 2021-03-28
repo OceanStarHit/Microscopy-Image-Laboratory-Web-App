@@ -49,24 +49,24 @@ export default {
     Slide,
     Dish,
     Wafer,
-    WellPlate
+    WellPlate,
   },
 
   data: () => ({
     vessels: VESSELS,
-    width: 800
+    width: 800,
   }),
 
   props: {
     value: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   computed: {
     ...mapGetters("vessel", {
-      currentVesselId: "currentVesselId"
+      currentVesselId: "currentVesselId",
     }),
     currentVessel() {
       return getVesselById(this.currentVesselId);
@@ -77,18 +77,18 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      }
-    }
+      },
+    },
   },
 
   methods: {
-    onSelectVessel: function(v_idx, idx) {
+    onSelectVessel: function (v_idx, idx) {
       const vesselId = this.vessels[v_idx - 1][idx - 1].id;
       if (this.currentVesselId !== vesselId) {
         this.$store.dispatch("vessel/selectVessel", vesselId);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

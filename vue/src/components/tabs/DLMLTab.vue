@@ -65,20 +65,20 @@ export default {
     ObjectSelect2,
     Count,
     ObjectClass2,
-    ClassObjectStatus2
+    ClassObjectStatus2,
   },
 
   data: () => ({
-    panel: 0
+    panel: 0,
   }),
 
   methods: {
-    refresh: function() {
+    refresh: function () {
       console.log("Refresh");
     },
-    help: function() {
+    help: function () {
       console.log("Help");
-    }
-  }
+    },
+  },
 };
 </script>

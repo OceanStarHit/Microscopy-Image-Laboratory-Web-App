@@ -1,23 +1,36 @@
+"""
+Script file: settings.py
+Created on: Feb 25, 2021
+Last modified on: Mar 28, 2021
+
+Comments:
+    Django's backend setting
+
+Backlog:
+    [GCP credential]
+        Email: daisukekubota0823@gmail.com
+        Password: 5063b202
+"""
+
 import os
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
+"""
+Quick-start development settings - unsuitable for production
+See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
+"""
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'mm@5idu^5j3f!q^l+yzpis%3a-l8o%#0r+7iqo-5*uzuruhcus'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
 
-
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,10 +53,9 @@ MIDDLEWARE = [
 ]
 
 # Allow all for development 
-CORS_ORIGIN_ALLOW_ALL=True 
+CORS_ORIGIN_ALLOW_ALL = True 
 
 ROOT_URLCONF = 'backend.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -61,23 +73,28 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+"""
+Database
+https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+"""
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'myproject',
+        'USER': 'myprojectuser',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
+"""
+Password validation
+https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
+"""
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -94,26 +111,22 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.0/topics/i18n/
+"""
+Internationalization
+https://docs.djangoproject.com/en/3.0/topics/i18n/
+"""
 
 LANGUAGE_CODE = 'ja'
-
 TIME_ZONE = 'Asia/Tokyo'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.0/howto/static-files/
-
+"""
+Static files (CSS, JavaScript, Images)
+https://docs.djangoproject.com/en/3.0/howto/static-files/
+"""
 STATIC_URL = '/static/'
-
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]

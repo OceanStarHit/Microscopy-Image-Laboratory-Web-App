@@ -1,5 +1,5 @@
 <template>
-  <div style="display:none;">
+  <div style="display: none">
     <input type="file" id="uploadFile" @change="requestUploadFile" />
     <v-dialog v-model="visibleDialog" max-width="980">
       <simple-dialog
@@ -18,9 +18,7 @@
           @drop.prevent="drop($event)"
         >
           <v-btn class="d-block text-none" color="primary" text>
-            <v-icon class="mr-3">
-              mdi-folder
-            </v-icon>
+            <v-icon class="mr-3"> mdi-folder </v-icon>
             Use f for closed files
           </v-btn>
           <v-btn
@@ -29,15 +27,10 @@
             text
             @click="openFile"
           >
-            <v-icon class="mr-3">
-              mdi-folder-open
-            </v-icon>
+            <v-icon class="mr-3"> mdi-folder-open </v-icon>
             Use F for opened files
           </v-btn>
-          <div
-            class="d-flex align-center justify-center"
-            style="height: 250px;"
-          >
+          <div class="d-flex align-center justify-center" style="height: 250px">
             <p v-if="!newFile" class="text-h4 grey--text text--lighten-2">
               Open or drop your file.
             </p>
@@ -48,7 +41,7 @@
                   imageURL.startsWith('data:')
                     ? {}
                     : {
-                        border: '1px solid grey'
+                        border: '1px solid grey',
                       }
                 "
                 max-width="150"
@@ -82,26 +75,26 @@ export default {
   data: () => ({
     isDragging: false,
     newFile: null,
-    imageData: null
+    imageData: null,
   }),
 
   props: {
     value: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   created() {
     this.newResWatch = this.$store.watch(
       (state, getters) => getters["image/newRes"],
-      res => {
+      (res) => {
         const filteredData = [];
         for (var key in res) {
           if (key == "file_0" && res[key]) {
             filteredData.push({
               filename: this.newFile.name,
-              metadata: res[key]
+              metadata: res[key],
             });
           }
           break;
@@ -128,7 +121,7 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      }
+      },
     },
     getClasses() {
       return { isDragging: this.isDragging };
@@ -137,7 +130,7 @@ export default {
       return this.imageData
         ? this.imageData
         : require("../../../../assets/images/no-preview.png");
-    }
+    },
   },
 
   methods: {
@@ -186,7 +179,7 @@ export default {
         ) {
           var self = this;
           const reader = new FileReader();
-          reader.onload = function() {
+          reader.onload = function () {
             if (self.newFile.type.startsWith("image/tif")) {
               const buffer = self.base64ToArrayBuffer(
                 reader.result.substring(23)
@@ -217,8 +210,8 @@ export default {
       if (this.imageData) this.imageData = null;
 
       this.visibleDialog = false;
-    }
-  }
+    },
+  },
 };
 </script>
 

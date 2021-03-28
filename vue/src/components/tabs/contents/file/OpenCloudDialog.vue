@@ -42,7 +42,7 @@ export default {
     initiallyOpen: ["public"],
     files: {
       image: "mdi-file-image",
-      other: "mdi-file-document-outline"
+      other: "mdi-file-document-outline",
     },
     tree: [],
     items: [
@@ -51,49 +51,49 @@ export default {
         children: [
           {
             name: "gradient-512x512x10.tif",
-            file: "image"
+            file: "image",
           },
           {
             name: "MR-MONO2-8-16x-heart.dcm",
-            file: "other"
-          }
-        ]
+            file: "other",
+          },
+        ],
       },
       {
         name: "name holder 2019-05-17",
         children: [
           {
             name: "20041103 1049_01_REF-1049-03 - EvoTec_0_H5_0.png",
-            file: "image"
+            file: "image",
           },
           {
             name: "SmallMontage0008.tif",
-            file: "image"
-          }
-        ]
+            file: "image",
+          },
+        ],
       },
       {
         name: "name holder 2018-04-11",
         children: [
           {
             name: "Convallaria_3C_1T_confocal.ims",
-            file: "other"
+            file: "other",
           },
           {
             name:
               "170912-FISH-Hela cell FISH-DAPI-GFP-TxRed-4735-40X FL OIL.tif",
-            file: "image"
-          }
-        ]
-      }
-    ]
+            file: "image",
+          },
+        ],
+      },
+    ],
   }),
 
   props: {
     value: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   computed: {
@@ -103,15 +103,15 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      }
-    }
+      },
+    },
   },
 
   methods: {
-    onClick: function() {
+    onClick: function () {
       //
-    }
-  }
+    },
+  },
 };
 </script>
 

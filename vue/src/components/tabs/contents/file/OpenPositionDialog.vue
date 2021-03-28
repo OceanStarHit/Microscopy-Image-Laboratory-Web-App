@@ -1,5 +1,5 @@
 <template>
-  <div style="display:none;">
+  <div style="display: none">
     <input type="file" id="uploadFile" @change="requestUploadFile" />
     <v-dialog v-model="visibleDialog" max-width="980">
       <simple-dialog
@@ -33,11 +33,9 @@
               <div
                 v-if="!allFiles.length"
                 class="d-flex align-center justify-center"
-                style="height: 200px;"
+                style="height: 200px"
               >
-                <p class="text-h4 grey--text text--lighten-2">
-                  Drag and Drop.
-                </p>
+                <p class="text-h4 grey--text text--lighten-2">Drag and Drop.</p>
               </div>
               <v-row v-else class="align-center justify-center">
                 <div
@@ -72,11 +70,9 @@
               <div
                 v-if="!tilingFiles.length"
                 class="d-flex align-center justify-center"
-                style="height: 200px;"
+                style="height: 200px"
               >
-                <p class="text-h4 grey--text text--lighten-2">
-                  Drag and Drop.
-                </p>
+                <p class="text-h4 grey--text text--lighten-2">Drag and Drop.</p>
               </div>
             </v-sheet>
           </v-tab-item>
@@ -92,11 +88,9 @@
               <div
                 v-if="!allFiles.length"
                 class="d-flex align-center justify-center"
-                style="height: 200px;"
+                style="height: 200px"
               >
-                <p class="text-h4 grey--text text--lighten-2">
-                  Drag and Drop.
-                </p>
+                <p class="text-h4 grey--text text--lighten-2">Drag and Drop.</p>
               </div>
               <v-card v-else>
                 <v-card-title class="v-card-title">
@@ -135,11 +129,9 @@
               <div
                 v-if="allFiles.length == 0"
                 class="d-flex align-center justify-center"
-                style="height: 200px;"
+                style="height: 200px"
               >
-                <p class="text-h4 grey--text text--lighten-2">
-                  Drag and Drop.
-                </p>
+                <p class="text-h4 grey--text text--lighten-2">Drag and Drop.</p>
               </div>
               <v-row v-else class="align-center justify-center name-type-input">
                 <div
@@ -257,7 +249,7 @@ export default {
       { text: "SizeT", value: "size_t", sortable: false },
       { text: "SizeX", value: "size_x", sortable: false },
       { text: "SizeY", value: "size_y", sortable: false },
-      { text: "SizeZ", value: "size_z", sortable: false }
+      { text: "SizeZ", value: "size_z", sortable: false },
     ],
 
     // for filename type
@@ -271,7 +263,7 @@ export default {
       { name: "Field", value: "", color: "warning" },
       { name: "View Method", value: "", color: "purple" },
       { name: "Z Position", value: "", color: "blue-grey" },
-      { name: "Time Point", value: "", color: "error" }
+      { name: "Time Point", value: "", color: "error" },
     ],
     nameHeaders: [
       { text: "No", value: "no", sortable: false },
@@ -282,14 +274,14 @@ export default {
       { text: "Field", value: "field", sortable: false },
       { text: "View Method", value: "viewMethod", sortable: false },
       { text: "Z Position", value: "zPosition", sortable: false },
-      { text: "Time Point", value: "timepoint", sortable: false }
-    ]
+      { text: "Time Point", value: "timepoint", sortable: false },
+    ],
   }),
 
   created() {
     this.newResWatch = this.$store.watch(
       (state, getters) => getters["image/newRes"],
-      res => {
+      (res) => {
         const filteredData = [];
         for (var key in res) {
           const idx = parseInt(key.split("_")[1]);
@@ -300,7 +292,7 @@ export default {
           ) {
             filteredData.push({
               filename: this.allFiles[idx].name,
-              metadata: res[key]
+              metadata: res[key],
             });
           }
         }
@@ -316,7 +308,7 @@ export default {
 
     this.allFilesWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageData"],
-      res => {
+      (res) => {
         this.allFiles = res;
       }
     );
@@ -330,8 +322,8 @@ export default {
   props: {
     value: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   computed: {
@@ -341,7 +333,7 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      }
+      },
     },
     getClasses() {
       return { isDragging: this.isDragging };
@@ -380,7 +372,7 @@ export default {
             field: this.getField(file.name),
             viewMethod: this.getViewMethod(file.name),
             zPosition: this.getZPosition(file.name),
-            timepoint: this.getTimepoint(file.name)
+            timepoint: this.getTimepoint(file.name),
           });
         }
       }
@@ -389,7 +381,7 @@ export default {
     },
     getMetaContents() {
       const contents = [];
-      this.allFiles.forEach(file => {
+      this.allFiles.forEach((file) => {
         contents.push({
           no: contents.length + 1,
           filename: file.name,
@@ -400,12 +392,12 @@ export default {
           size_t: "",
           size_x: "",
           size_y: "",
-          size_z: ""
+          size_z: "",
         });
       });
 
       return contents;
-    }
+    },
   },
 
   methods: {
@@ -518,7 +510,7 @@ export default {
         file.size < 2 * 1024 * 1024
       ) {
         const reader = new FileReader();
-        reader.onload = function() {
+        reader.onload = function () {
           if (file.type.startsWith("image/tif")) {
             return require("../../../../assets/images/no-preview.png");
           } else {
@@ -692,8 +684,8 @@ export default {
         ext;
 
       return filename;
-    }
-  }
+    },
+  },
 };
 </script>
 

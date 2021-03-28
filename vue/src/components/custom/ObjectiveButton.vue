@@ -10,7 +10,7 @@
   >
     <div class="my-2">
       <v-img
-        style="margin: 0 auto;"
+        style="margin: 0 auto"
         width="32"
         height="32"
         src="../../assets/images/object.png"
@@ -31,9 +31,9 @@ export default {
   props: ["label", "active"],
 
   methods: {
-    clicked: function() {
+    clicked: function () {
       this.$emit("click");
-    }
-  }
+    },
+  },
 };
 </script>

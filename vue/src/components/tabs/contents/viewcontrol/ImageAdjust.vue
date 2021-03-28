@@ -1,7 +1,7 @@
 <template>
   <v-card class="pa-1" flat>
     <div
-      style="display:flex; justify-content: space-between; align-items: center"
+      style="display: flex; justify-content: space-between; align-items: center"
     >
       <h5>Image Adjust</h5>
       <div>
@@ -98,19 +98,19 @@ export default {
   data: () => ({
     brightness: 0,
     contrast: 0,
-    gamma: 0
+    gamma: 0,
   }),
 
   computed: {
     ...mapGetters("image", {
-      imageData: "imageData"
-    })
+      imageData: "imageData",
+    }),
   },
 
   created() {
     this.unwatch = this.$store.watch(
       (state, getters) => getters["image/imageParams"],
-      newValue => {
+      (newValue) => {
         this.brightness = newValue.brightness;
         this.contrast = newValue.contrast;
         this.gamma = newValue.gamma;
@@ -119,26 +119,26 @@ export default {
   },
 
   methods: {
-    onChangeB: function(b) {
+    onChangeB: function (b) {
       if (b !== this.$store.state.image.parameters.brightness)
         this.$store.dispatch("image/adjustImageByBrightness", b);
     },
-    onChangeC: function(c) {
+    onChangeC: function (c) {
       if (c !== this.$store.state.image.parameters.contrast)
         this.$store.dispatch("image/adjustImageByContrast", c);
     },
-    onChangeG: function(g) {
+    onChangeG: function (g) {
       if (g !== this.$store.state.image.parameters.gamma)
         this.$store.dispatch("image/adjustImageByGamma", g);
     },
-    onReset: function() {
+    onReset: function () {
       this.$store.dispatch("image/resetAdjust");
-    }
+    },
   },
 
   beforeDestroy() {
     this.unwatch();
-  }
+  },
 };
 </script>
 

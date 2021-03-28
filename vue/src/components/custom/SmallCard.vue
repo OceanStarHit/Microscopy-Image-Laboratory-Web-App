@@ -2,7 +2,7 @@
   <v-card class="pa-1" flat>
     <h5
       :style="{
-        'font-weight': child ? 'normal' : 'bold'
+        'font-weight': child ? 'normal' : 'bold',
       }"
     >
       {{ title }}
@@ -21,6 +21,6 @@ export default {
 
   props: ["title", "child"],
 
-  data: () => ({})
+  data: () => ({}),
 };
 </script>

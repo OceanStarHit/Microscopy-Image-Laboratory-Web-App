@@ -9,7 +9,7 @@
   >
     <div class="ma-0">
       <div v-if="image" class="pa-1">
-        <v-img style="margin: 0 auto;" width="12" height="12" :src="imageUrl" />
+        <v-img style="margin: 0 auto" width="12" height="12" :src="imageUrl" />
       </div>
       <v-icon v-if="icon" class="ma-0" :dense="true">mdi-{{ icon }}</v-icon>
       <div class="label-text caption">{{ label }}</div>
@@ -28,14 +28,14 @@ export default {
   computed: {
     imageUrl() {
       return require("../../assets/images/" + this.image + ".png");
-    }
+    },
   },
 
   methods: {
-    clicked: function() {
+    clicked: function () {
       this.$emit("click");
-    }
-  }
+    },
+  },
 };
 </script>
 

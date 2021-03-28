@@ -21,7 +21,7 @@ export default {
 
   components: {
     SmallCard,
-    ObjectiveButton
+    ObjectiveButton,
   },
 
   data: () => ({
@@ -30,8 +30,8 @@ export default {
       { id: 1, m: 10, active: false },
       { id: 2, m: 20, active: false },
       { id: 3, m: 40, active: false },
-      { id: 4, m: 100, active: false }
-    ]
+      { id: 4, m: 100, active: false },
+    ],
   }),
 
   methods: {
@@ -51,7 +51,7 @@ export default {
           objs[id].active = true;
         }
       }
-    }
-  }
+    },
+  },
 };
 </script>

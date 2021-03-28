@@ -1,17 +1,27 @@
-from django.views.decorators.csrf import csrf_exempt
-from django.http.response import HttpResponse, JsonResponse
+"""
+Script file: apis.py
+Created on: Feb 25, 2021
+Last modified on: Mar 28, 2021
+
+Comments:
+    Django API endpoint definition
+"""
+
+import json
+import cv2
+import numpy as np
+
 from http import HTTPStatus
 from pathlib import Path
 from base64 import b64encode, b64decode
 from uuid import uuid4
 from subprocess import call
 from traceback import print_exc
-import json
-
-import cv2
-import numpy as np
+from django.views.decorators.csrf import csrf_exempt
+from django.http.response import HttpResponse, JsonResponse
 
 from .custom_bioformats import ImageInfo, utils
+
 
 current_data = None
 

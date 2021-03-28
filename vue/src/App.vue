@@ -40,11 +40,11 @@ export default {
   name: "App",
 
   components: {
-    MainFrame
+    MainFrame,
   },
 
   data: () => ({
     //
-  })
+  }),
 };
 </script>

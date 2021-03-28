@@ -20,7 +20,7 @@
           :key="v_idx"
           :value="`tabs-${v_idx}`"
         >
-          <v-row class="d-flex align-center px-5" style="height: 220px;">
+          <v-row class="d-flex align-center px-5" style="height: 220px">
             <v-btn
               v-for="i in vessels[v_idx - 1].length"
               :key="i"
@@ -80,7 +80,7 @@
           </v-row>
         </v-tab-item>
         <v-tab-item :value="`tabs-${vesselTypes.length + 1}`">
-          <v-row class="pa-5" style="height: 220px;"></v-row>
+          <v-row class="pa-5" style="height: 220px"></v-row>
         </v-tab-item>
       </v-tabs-items>
     </simple-dialog>
@@ -106,25 +106,25 @@ export default {
     Slide,
     Dish,
     Wafer,
-    WellPlate
+    WellPlate,
   },
 
   data: () => ({
     vesselTypes: VESSEL_TYPES,
     vessels: VESSELS,
-    selectedTab: null
+    selectedTab: null,
   }),
 
   props: {
     value: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   computed: {
     ...mapGetters("vessel", {
-      currentVesselId: "currentVesselId"
+      currentVesselId: "currentVesselId",
     }),
     visibleDialog: {
       get() {
@@ -132,18 +132,18 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      }
-    }
+      },
+    },
   },
 
   methods: {
-    onSelectVessel: function(v_idx, idx) {
+    onSelectVessel: function (v_idx, idx) {
       const vesselId = this.vessels[v_idx - 1][idx - 1].id;
       if (this.currentVesselId !== vesselId) {
         this.$store.dispatch("vessel/selectVessel", vesselId);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -1,10 +1,22 @@
-#!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""
+Script file: manage.py
+Created on: Feb 25, 2021
+Last modified on: Mar 28, 2021
+
+Comments:
+    Django's command-line utility for administrative tasks.
+"""
+
 import os
 import sys
 
 
 def main():
+    """
+    Main method to start Django administrative tasks
+    :param: none
+    :return: none
+    """
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
     try:
         from django.core.management import execute_from_command_line

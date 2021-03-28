@@ -1,5 +1,5 @@
 <template>
-  <div style="display:none;">
+  <div style="display: none">
     <input
       type="file"
       id="uploadFolder"
@@ -17,9 +17,7 @@
       >
         <v-sheet class="drop pa-5" height="400">
           <v-btn class="d-block text-none" color="primary" text>
-            <v-icon class="mr-3">
-              mdi-folder
-            </v-icon>
+            <v-icon class="mr-3"> mdi-folder </v-icon>
             Use f for closed folders
           </v-btn>
           <v-btn
@@ -28,15 +26,10 @@
             text
             @click="openFolder"
           >
-            <v-icon class="mr-3">
-              mdi-folder-open
-            </v-icon>
+            <v-icon class="mr-3"> mdi-folder-open </v-icon>
             Use F for opened folders
           </v-btn>
-          <div
-            class="d-flex align-center justify-center"
-            style="height: 200px;"
-          >
+          <div class="d-flex align-center justify-center" style="height: 200px">
             <p
               class="text-h4 grey--text text--lighten-2"
               :style="allFiles.length ? { color: 'black !important' } : {}"
@@ -66,20 +59,20 @@ export default {
 
   data: () => ({
     imageSource: null,
-    allFiles: []
+    allFiles: [],
   }),
 
   props: {
     value: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   created() {
     this.newResWatch = this.$store.watch(
       (state, getters) => getters["image/newRes"],
-      res => {
+      (res) => {
         const filteredData = [];
         for (var key in res) {
           const idx = parseInt(key.split("_")[1]);
@@ -90,7 +83,7 @@ export default {
           ) {
             filteredData.push({
               filename: this.allFiles[idx].name,
-              metadata: res[key]
+              metadata: res[key],
             });
           }
         }
@@ -116,8 +109,8 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      }
-    }
+      },
+    },
   },
 
   methods: {
@@ -193,8 +186,8 @@ export default {
       }
 
       return maxKey;
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -3,8 +3,8 @@
     <v-sheet class="plate-box" :width="rect.width" :height="rect.height">
       <v-row
         v-if="showName"
-        class="d-inline-flex  align-center justify-space-around pa-0 ma-0"
-        style="overflow: hidden;"
+        class="d-inline-flex align-center justify-space-around pa-0 ma-0"
+        style="overflow: hidden"
       >
         <div
           v-for="c in showName ? cols + 1 : cols"
@@ -65,65 +65,65 @@ export default {
   props: {
     width: {
       type: Number,
-      default: 0
+      default: 0,
     },
     showName: {
       type: Boolean,
-      default: true
+      default: true,
     },
     showNumber: {
       type: Boolean,
-      default: false
+      default: false,
     },
     rows: {
       type: Number,
-      default: 1
+      default: 1,
     },
     cols: {
       type: Number,
-      default: 1
+      default: 1,
     },
     actives: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     selected: {
       type: Number,
-      default: -1
+      default: -1,
     },
     check: {
       type: Boolean,
-      default: true
+      default: true,
     },
     interaction: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
 
-  data: function() {
+  data: function () {
     return {
       rect: {
         width: 0,
-        height: 0
+        height: 0,
       },
       radius: 0,
       fontSize: 5,
       selectedHole: this.selected,
-      activeHoles: this.actives
+      activeHoles: this.actives,
     };
   },
 
   computed: {
     ...mapState({
-      allIndice: state => state.image.allIndice,
-      curPageIdx: state => state.image.curPageIdx
+      allIndice: (state) => state.image.allIndice,
+      curPageIdx: (state) => state.image.curPageIdx,
     }),
     size() {
       const { rows, cols } = this;
       return {
         rows,
-        cols
+        cols,
       };
     },
     checkActive() {
@@ -144,7 +144,7 @@ export default {
       return (row, col) => {
         return (row - 1) * this.cols + col;
       };
-    }
+    },
   },
 
   watch: {
@@ -155,15 +155,15 @@ export default {
         this.setActivate();
       },
       deep: true,
-      immediate: true
+      immediate: true,
     },
     width: {
       handler() {
         this.resize();
       },
       deep: true,
-      immediate: true
-    }
+      immediate: true,
+    },
     // "$store.state.vessel.currentVesselId": {
     //   handler() {
     //     this.setActivate();
@@ -174,7 +174,7 @@ export default {
   },
 
   methods: {
-    resize: function() {
+    resize: function () {
       if (this.width * RATIO > MAX_HEIGHT) {
         this.rect.height = MAX_HEIGHT;
         this.rect.width = this.rect.height / RATIO;
@@ -194,7 +194,7 @@ export default {
       this.fontSize = radius / 2 > MAX_FONTSIZE ? MAX_FONTSIZE : radius / 2;
     },
 
-    clicked: function(row, col) {
+    clicked: function (row, col) {
       if (!this.interaction) return;
 
       const index = (row - 1) * this.cols + col - 1;
@@ -261,8 +261,8 @@ export default {
           }
         }
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

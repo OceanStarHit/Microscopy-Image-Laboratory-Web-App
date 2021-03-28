@@ -15,7 +15,7 @@ export default {
 
   components: {
     SmallCard,
-    CustomButton
+    CustomButton,
   },
 
   data: () => ({}),
@@ -29,7 +29,7 @@ export default {
     },
     onErase: () => {
       console.log("Erase");
-    }
-  }
+    },
+  },
 };
 </script>

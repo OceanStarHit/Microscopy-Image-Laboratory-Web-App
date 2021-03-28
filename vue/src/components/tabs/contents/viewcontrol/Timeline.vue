@@ -1,7 +1,7 @@
 <template>
   <v-card class="pa-1" flat>
     <div
-      style="display:flex; justify-content: space-between; align-items: center"
+      style="display: flex; justify-content: space-between; align-items: center"
     >
       <h5>Timeline</h5>
       <div>
@@ -34,7 +34,7 @@
       </v-btn>
       <v-btn
         color="primary"
-        style="margin-left: -6px;"
+        style="margin-left: -6px"
         width="30"
         height="30"
         icon
@@ -45,7 +45,7 @@
       </v-btn>
       <v-btn
         color="primary"
-        style="margin-left: -6px;"
+        style="margin-left: -6px"
         width="30"
         height="30"
         icon
@@ -56,7 +56,7 @@
       </v-btn>
       <v-btn
         color="primary"
-        style="margin-left: -6px;"
+        style="margin-left: -6px"
         width="30"
         height="30"
         icon
@@ -78,7 +78,7 @@
     </v-row>
     <v-row
       class="pa-0 mr-2 my-0"
-      style="margin-left: 120px;"
+      style="margin-left: 120px"
       justify="space-between"
     >
       <input
@@ -111,14 +111,14 @@ export default {
     t_max: 1,
     t_range: {
       min: 1,
-      max: 1
-    }
+      max: 1,
+    },
   }),
 
   created() {
     this.unwatch1 = this.$store.watch(
       (state, getters) => getters["image/sizeT"],
-      newValue => {
+      (newValue) => {
         console.log(newValue);
         // this.t_min = 1;
         // this.t_max = newValue;
@@ -129,7 +129,7 @@ export default {
     );
     this.unwatch2 = this.$store.watch(
       (state, getters) => getters["image/imageParams"],
-      newValue => {
+      (newValue) => {
         console.log(newValue);
         // this.t_value = newValue.T;
       }
@@ -137,7 +137,7 @@ export default {
 
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
-      info => {
+      (info) => {
         if (info.pageData.length == 1) {
           this.t_max = info.pageData[0].metadata.coreMetadata.sizeT;
           this.t_range.max = this.t_max;
@@ -172,11 +172,11 @@ export default {
   },
 
   methods: {
-    onChangeT: function(t) {
+    onChangeT: function (t) {
       if (t !== this.$store.state.image.parameters.T)
         this.$store.dispatch("image/changeParameterByT", t);
     },
-    onChangeTmin: function(event) {
+    onChangeTmin: function (event) {
       const t_min = event.target.value;
 
       if (!(t_min < 1 || t_min > this.t_range.max)) {
@@ -190,7 +190,7 @@ export default {
 
       this.$forceUpdate();
     },
-    onChangeTmax: function(event) {
+    onChangeTmax: function (event) {
       const t_max = event.target.value;
 
       if (!(t_max > this.t_max || t_max < this.t_range.min)) {
@@ -204,25 +204,25 @@ export default {
 
       this.$forceUpdate();
     },
-    onRefresh: function() {
+    onRefresh: function () {
       console.log("Refresh");
     },
-    onSetting: function() {
+    onSetting: function () {
       console.log("Setting");
     },
-    onPlay: function() {
+    onPlay: function () {
       console.log("Play");
     },
-    onStop: function() {
+    onStop: function () {
       console.log("Stop");
     },
-    onRewind: function() {
+    onRewind: function () {
       console.log("Rewind");
     },
-    onFForward: function() {
+    onFForward: function () {
       console.log("FForward");
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -19,7 +19,7 @@ export default {
 
   components: {
     SmallCard,
-    CustomButton
+    CustomButton,
   },
 
   data: () => ({}),
@@ -33,7 +33,7 @@ export default {
     },
     onSplit: () => {
       console.log("Split");
-    }
-  }
+    },
+  },
 };
 </script>

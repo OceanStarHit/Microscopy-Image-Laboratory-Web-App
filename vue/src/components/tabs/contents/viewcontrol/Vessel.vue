@@ -28,7 +28,7 @@
       <v-row
         class="mt-1"
         justify="space-around"
-        style="border-top: 1px solid #F2F2F2;"
+        style="border-top: 1px solid #f2f2f2"
       >
         <CustomButton icon="swap-horizontal" @click="selectDialog = true" />
         <CustomButton icon="focus-field" @click="expansionDialog = true" />
@@ -62,20 +62,20 @@ export default {
     Slide,
     Dish,
     Wafer,
-    WellPlate
+    WellPlate,
   },
 
   data: () => ({
     width: 0,
     selectDialog: false,
     expansionDialog: false,
-    vessels: VESSELS
+    vessels: VESSELS,
   }),
 
   created() {
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
-      info => {
+      (info) => {
         this.$store.dispatch("vessel/setVesselId", info);
       }
     );
@@ -87,7 +87,7 @@ export default {
 
   computed: {
     ...mapGetters("vessel", {
-      currentVesselId: "currentVesselId"
+      currentVesselId: "currentVesselId",
       // activeHoles: "activeHoles",
       // activeHole: "activeHole"
     }),
@@ -97,32 +97,32 @@ export default {
     vesselTitle() {
       const vessel = this.currentVessel;
       return `${vessel.title} - ${vessel.type}`;
-    }
+    },
   },
 
   mounted() {
-    this.$nextTick(function() {
+    this.$nextTick(function () {
       this.width = this.getWidth();
     });
   },
 
   methods: {
-    getWidth: function() {
+    getWidth: function () {
       const frame = this.$refs.frame;
       const frameSize = frame.$el.getBoundingClientRect();
       const width = Math.trunc(frameSize.width);
 
       return width;
     },
-    onResize: function() {
+    onResize: function () {
       this.width = this.getWidth();
     },
-    select2: function() {
+    select2: function () {
       console.log("Select-2");
     },
-    select3: function() {
+    select3: function () {
       console.log("Select-3");
-    }
-  }
+    },
+  },
 };
 </script>

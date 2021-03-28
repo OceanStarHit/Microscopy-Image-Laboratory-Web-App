@@ -1,7 +1,17 @@
+"""
+Script file: urls.py
+Created on: Feb 25, 2021
+Last modified on: Mar 28, 2021
+
+Comments:
+    URL Configuration
+"""
+
 from django.contrib import admin
 from django.urls import path, include
 from . import views
 from . import apis
+
 
 urlpatterns = [
     path('set-image', apis.set_image),
