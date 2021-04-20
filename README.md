@@ -2,6 +2,7 @@
 Image Analysis web application
 
 Backend - Django
+
 Frontend - Vue
 
 ## Environment Setup
@@ -95,24 +96,24 @@ $ python manage.py runserver
 ### Frontend
 Install some dependencies
 ```
-cd vue
-yarn install
+$ cd vue
+$ yarn install
 ```
 
 Compiles and hot-reloads for development
 ```
-yarn serve
+$ yarn serve
 ```
 You will see the app at `http://127.0.0.1:8080` on your browser.
 
 Compiles and minifies for production
 ```
-yarn build
+$ yarn build
 ```
 
 Lints and fixes files
 ```
-yarn lint
+$ yarn lint
 ```
 
 ---
