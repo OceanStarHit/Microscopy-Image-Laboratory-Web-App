@@ -1,0 +1,29 @@
+# python
+myenv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+pip-log.txt
+*.log
+db.sqlite3
+
+# vue
+dist
+node_modules
+templates
+static
+.env.production
+
+# git
+.git
+.gitignore
+.github/*
+README.md
+
+# docker
+docker
+.dockerignore
+docker-compose.yml
+
+.DS_Store
