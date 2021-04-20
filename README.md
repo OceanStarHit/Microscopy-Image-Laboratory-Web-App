@@ -1,16 +1,118 @@
-### Check Project
+# IAS-project
+Image Analysis web application
 
-### 1. Open Github app
-### Please type "test" on left bottom side, if "Commit to main" button is visible. And click the button.
-### Go to "Repository" menu and click "Pull".
-### Please wait some seconds.
+Backend - Django
+Frontend - Vue
 
-### 2. Open Command Prompt in the "IAS-project/django" directory.
+## Environment Setup
+### Linux
+Install `python3` and some tools
+```sh
+$ sudo apt-get update
+$ sudo apt-get install python3.6
+```
+Along with python 3, these commands will install **pip**, **setuptools** and **wheel**
+Make sure if python3 and pip3 was installed successfully
+```sh
+$ python3 --version
+$ pip3 --version
+```
 
-### 3. Run a command line below:
-python manage.py runserver
-### Copy and Paste, and Press Enter Key
+Install `node`
+```
+$ curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+$ sudo apt update
+$ sudo apt install nodejs
+```
+Make sure if node was installed successfully
+```sh
+$ node -v
+$ npm -v
+```
 
-### 4. Open chrome browser and link to "http://127.0.0.1:8000/".
+Install `vue-cli`
+```
+$ npm install -g @vue/cli @vue/cli-service-global
+```
+Make sure if vue-cli was installed successfully
+```sh
+$ vue --version
+```
 
-### End.
+### MacOS
+Install `python3` and some tools
+```sh
+$ brew update
+$ brew install python3
+```
+Along with python 3, these commands will install **pip**, **setuptools** and **wheel**
+Make sure if python3 and pip3 was installed successfully
+```sh
+$ python3 --version
+$ pip3 --version
+```
+
+Install `node`
+```
+$ brew install node
+```
+Make sure if node was installed successfully
+```sh
+$ node -v
+$ npm -v
+```
+
+Install `vue-cli`
+```
+$ npm install -g @vue/cli @vue/cli-service-global
+```
+Make sure if vue-cli was installed successfully
+```sh
+$ vue --version
+```
+
+## Run the application
+Go to `IAS-project` directory in Terminal
+```sh
+$ ...
+$ cd IAS-project
+```
+### Backend
+Create a Virtual Environment in the directory and install some dependencies
+```sh
+$ cd django
+$ python3 -m venv myenv
+$ source myenv/bin/activate
+$ pip install -r requirement.txt
+```
+
+Run the project
+```sh
+$ python manage.py migrate
+$ python manage.py runserver
+```
+
+### Frontend
+Install some dependencies
+```
+cd vue
+yarn install
+```
+
+Compiles and hot-reloads for development
+```
+yarn serve
+```
+You will see the app at `http://127.0.0.1:8080` on your browser.
+
+Compiles and minifies for production
+```
+yarn build
+```
+
+Lints and fixes files
+```
+yarn lint
+```
+
+---
