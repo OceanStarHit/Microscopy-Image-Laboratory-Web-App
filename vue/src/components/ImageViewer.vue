@@ -27,7 +27,9 @@ export default {
     isDragging: false,
     imageView: null,
     imageSource: null,
-    publicPath: path.join("../", config.publicPath),
+    publicPath: process.env.VUE_APP_STATIC_URL
+      ? process.env.VUE_APP_STATIC_URL
+      : "../../"
   }),
 
   created() {
