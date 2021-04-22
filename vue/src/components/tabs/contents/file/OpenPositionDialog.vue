@@ -14,9 +14,7 @@
           <v-tab href="#tabs-images" class="primary--text">Images</v-tab>
           <v-tab href="#tabs-tiling" class="primary--text">Tiling</v-tab>
           <v-tab href="#tabs-metadata" class="primary--text">Metadata</v-tab>
-          <v-tab href="#tabs-name-type" class="primary--text"
-            >Names &amp; Types</v-tab
-          >
+          <v-tab href="#tabs-name-type" class="primary--text">Names &amp; Types</v-tab>
         </v-tabs>
 
         <v-tabs-items v-model="selectedTab" class="v-tab-item">
@@ -31,22 +29,22 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="!allFiles.length"
+                v-if="!files.length"
                 class="d-flex align-center justify-center"
                 style="height: 200px"
               >
                 <p class="text-h4 grey--text text--lighten-2">Drag and Drop.</p>
               </div>
-              <v-row v-else class="align-center justify-center">
+              <v-row v-else class="align-center">
                 <div
                   class="img-align"
-                  v-for="(file, idx) in allFiles"
+                  v-for="(file, idx) in files"
                   :key="idx"
                   @click="selectContent(idx)"
                 >
                   <v-img
                     class="v-img-align"
-                    :src="getSource(file)"
+                    :src="file.imageData"
                     width="150"
                     height="150"
                     fill
@@ -202,11 +200,11 @@
 </template>
 
 <script>
-// import { mapGetters } from "vuex";
-// import tiff from "tiff.js";
-// import atob from "atob";
-
+import { createNamespacedHelpers } from 'vuex';
+import { checkFileType } from "../../../../utils/utils-func";
 import SimpleDialog from "../../../custom/SimpleDialog";
+
+const { mapState, mapActions } = createNamespacedHelpers('files');
 
 export default {
   name: "OpenPositionDialog",
@@ -216,6 +214,9 @@ export default {
   data: () => ({
     isDragging: false,
     selectedTab: null,
+
+    // dropped files
+    droppedFiles: [],
 
     // all data
     allFiles: [],
@@ -398,6 +399,9 @@ export default {
 
       return contents;
     },
+    ...mapState({
+      files: state => state.position.files,
+    }),
   },
 
   methods: {
@@ -409,19 +413,46 @@ export default {
     },
     drop(e) {
       this.isDragging = false;
-
-      const fileInput = this.$el.querySelector("#uploadFile");
-      fileInput.files = e.dataTransfer.files;
-
-      this.requestUploadFile();
-
       e.preventDefault();
+
+      this.clearFiles();
+
+      let items = e.dataTransfer.items;
+      for (let i = 0; i < items.length; i++) {
+        let item = items[i].webkitGetAsEntry();
+        if (item) {
+          this.traverseFileTree(item);
+        }
+      }
     },
+
+    traverseFileTree(item, path) {
+      let self = this;
+      path = path || "";
+
+      if (item.isFile) {
+        item.file(function (file) {
+          console.log(file.name);
+          if (checkFileType(file.name)) {
+            self.addFile(file);
+          }
+        });
+      } else if (item.isDirectory) {
+        let dirReader = item.createReader();
+        dirReader.readEntries(function(entries) {
+          for (let i = 0; i < entries.length; i++) {
+            self.traverseFileTree(entries[i], path + item.name + "/");
+          }
+        });
+      }
+    },
+
     requestUploadFile() {
       const fileInput = this.$el.querySelector("#uploadFile");
 
       if (fileInput.files && fileInput.files.length > 0) {
         this.allFiles = fileInput.files;
+        this.setFiles(fileInput.files);
       }
     },
 
@@ -685,6 +716,11 @@ export default {
 
       return filename;
     },
+    ...mapActions([
+      'setFiles',
+      'clearFiles',
+      'addFile'
+    ]),
   },
 };
 </script>
