@@ -10,7 +10,7 @@ Frontend - Vue
 Install `python3` and some tools
 ```sh
 $ sudo apt-get update
-$ sudo apt-get install python3.6
+$ sudo apt-get install python
 ```
 Along with python 3, these commands will install **pip**, **setuptools** and **wheel**
 Make sure if python3 and pip3 was installed successfully
@@ -85,6 +85,7 @@ $ cd django
 $ python3 -m venv myenv
 $ source myenv/bin/activate
 $ pip install -r requirement.txt
+$ pip install python-bioformats==4.0.4
 ```
 
 Run the project
