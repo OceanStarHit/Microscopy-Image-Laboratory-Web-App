@@ -1,6 +1,6 @@
 <template>
-  <div style="display: none">
-    <input type="file" id="uploadFile" @change="requestUploadFile" />
+  <div class="d-none">
+    <input type="file" id="uploadFile" class="d-none" @change="requestUploadFile" />
     <v-dialog v-model="visibleDialog" max-width="980">
       <simple-dialog
         title="Position"
@@ -21,8 +21,8 @@
           <!-- Images Tab -->
           <v-tab-item value="tabs-images">
             <v-sheet
-              class="drop pa-5 v-sheet"
-              height="350"
+              class="drop pa-5 overflow-y-auto"
+              height="450"
               :class="getClasses"
               @dragover.prevent="dragOver"
               @dragleave.prevent="dragLeave"
@@ -30,54 +30,203 @@
             >
               <div
                 v-if="!files.length"
-                class="d-flex align-center justify-center"
-                style="height: 200px"
+                class="d-flex align-center justify-center fill-height"
               >
-                <p class="text-h4 grey--text text--lighten-2">Drag and Drop.</p>
+                <p v-if="!files.length" class="text-h4 grey--text text--lighten-2">Drag and Drop.</p>
               </div>
               <v-row v-else class="align-center">
-                <div
-                  class="img-align"
+                <v-col
                   v-for="(file, idx) in files"
                   :key="idx"
-                  @click="selectContent(idx)"
+                  cols="3"
+                  class="px-4"
                 >
                   <v-img
-                    class="v-img-align"
                     :src="file.imageData"
-                    width="150"
-                    height="150"
+                    class="mx-auto"
                     fill
                   />
-                  <p class="ms-5 name-center">
+                  <p class="ma-2 text-center text-caption">
                     {{ file.name }}
                   </p>
-                </div>
+                </v-col>
               </v-row>
             </v-sheet>
           </v-tab-item>
           <v-tab-item value="tabs-tiling" class="v-tab-item">
-            <v-sheet
-              class="drop pa-5 v-sheet"
-              height="350"
-              :class="getClasses"
-              @dragover.prevent="dragOver"
-              @dragleave.prevent="dragLeave"
-              @drop.prevent="drop($event)"
-            >
-              <div
-                v-if="!tilingFiles.length"
-                class="d-flex align-center justify-center"
-                style="height: 200px"
-              >
-                <p class="text-h4 grey--text text--lighten-2">Drag and Drop.</p>
-              </div>
+            <v-sheet class="drop pa-5" height="450">
+              <v-row no-gutters>
+                <v-col cols="2">
+                  <v-card class="pa-1">
+                    <v-list shaped>
+                      <v-list-item-group v-model="activeMenuItem" color="primary">
+                        <v-list-item v-for="(menuTitle, idx) in tilingMenus" :key="idx">
+                          <v-list-item-content>
+                            <v-list-item-title v-text="menuTitle"></v-list-item-title>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </v-list-item-group>
+                    </v-list>
+                  </v-card>
+                </v-col>
+                <v-col cols="10" class="pa-2">
+                  <!-- Editing -->
+                  <v-card v-if="activeMenuItem==0" flat>
+                    <v-card-title class="pa-1">Editing</v-card-title>
+                    <div class="d-flex">
+                      <div class="control-panel">
+                        <v-list class="overflow-y-auto fill-height mx-4" max-height="350" outlined>
+                          <v-list-item v-for="(file, idx) in files" :key="idx">
+                            <v-list-item-content>
+                              <v-list-item-title v-text="file.name"></v-list-item-title>
+                            </v-list-item-content>
+                          </v-list-item>
+                        </v-list>
+                      </div>
+                      <v-img
+                        src=""
+                        class="black-border"
+                        width="350"
+                        height="350"
+                        fill
+                      />
+                    </div>
+                  </v-card>
+
+                  <!-- Alignment -->
+                  <v-card v-else-if="activeMenuItem==1" flat>
+                    <v-card-title class="pa-1">Alignment</v-card-title>
+                    <div class="d-flex ma-4">
+                      <div class="control-panel">
+                        <v-btn-toggle v-model="activeAlignMode">
+                          <v-btn v-for="n in 6" :key="n">
+                            <v-img
+                              src="../../../../assets/images/pos_align_0.png"
+                              aspect-ratio="1"
+                            />
+                          </v-btn>
+                        </v-btn-toggle>
+
+                        <v-checkbox
+                          v-model="alignOrder"
+                          label="Left-Right"
+                          color="primary"
+                          value="left-right"
+                          hide-details
+                        ></v-checkbox>
+                        <v-checkbox
+                          v-model="alignOrder"
+                          label="Up-Down"
+                          color="primary"
+                          value="up-down"
+                          hide-details
+                        ></v-checkbox>
+                        <v-checkbox
+                          v-model="alignOrder"
+                          label="Descending Order"
+                          color="primary"
+                          value="descending-order"
+                          hide-details
+                        ></v-checkbox>
+
+                        <v-select
+                          v-model="activeAlignDirection"
+                          :items="alignDirections"
+                          class="my-4"
+                          dense
+                          solo
+                          style="max-width: 60% !important"
+                        ></v-select>
+
+                        <v-row class="mr-4">
+                          <v-col cols="6">
+                            <v-text-field
+                              class="range-field"
+                              label="Row"
+                              type="number"
+                              outlined
+                              dense
+                            />
+                          </v-col>
+                          <v-col cols="6">
+                            <v-text-field
+                              class="range-field"
+                              label="Column"
+                              type="number"
+                              outlined
+                              dense
+                            />
+                          </v-col>
+                        </v-row>
+                      </div>
+                      <v-img
+                        src=""
+                        class="black-border"
+                        width="350"
+                        height="350"
+                        fill
+                      />
+                    </div>
+                  </v-card>
+
+                  <!-- Bonding -->
+                  <v-card v-else-if="activeMenuItem==2" flat>
+                    <v-card-title class="pa-1">Bonding</v-card-title>
+                    <div class="d-flex">
+                      <div class="control-panel">
+
+                      </div>
+                      <v-img
+                        src=""
+                        class="black-border"
+                        width="350"
+                        height="350"
+                        fill
+                      />
+                    </div>
+                  </v-card>
+
+                  <!-- Shading -->
+                  <v-card v-else-if="activeMenuItem==3" flat>
+                    <v-card-title class="pa-1">Shading</v-card-title>
+                    <div class="d-flex">
+                      <div class="control-panel">
+
+                      </div>
+                      <v-img
+                        src=""
+                        class="black-border"
+                        width="350"
+                        height="350"
+                        fill
+                      />
+                    </div>
+                  </v-card>
+
+                  <!-- Display -->
+                  <v-card v-else-if="activeMenuItem==4" flat>
+                    <v-card-title class="pa-1">Display</v-card-title>
+                    <div class="d-flex">
+                      <div class="control-panel">
+
+                      </div>
+                      <v-img
+                        src=""
+                        class="black-border"
+                        width="350"
+                        height="350"
+                        fill
+                      />
+                    </div>
+                  </v-card>
+                </v-col>
+              </v-row>
             </v-sheet>
           </v-tab-item>
           <v-tab-item value="tabs-metadata" class="v-tab-item">
             <v-sheet
-              class="drop pa-5 v-sheet"
-              height="350"
+              class="drop pa-5"
+              height="450"
               :class="getClasses"
               @dragover.prevent="dragOver"
               @dragleave.prevent="dragLeave"
@@ -118,7 +267,7 @@
           <v-tab-item value="tabs-name-type" class="v-tab-item">
             <v-sheet
               class="drop pa-5 v-sheet"
-              height="350"
+              height="450"
               :class="getClasses"
               @dragover.prevent="dragOver"
               @dragleave.prevent="dragLeave"
@@ -215,8 +364,21 @@ export default {
     isDragging: false,
     selectedTab: null,
 
-    // dropped files
-    droppedFiles: [],
+    tilingMenus: [
+      'Edit',
+      'Alignment',
+      'Bonding',
+      'Shading',
+      'Display',
+      'Result',
+      'Option',
+    ],
+    activeMenuItem: 0,
+
+    activeAlignMode: null,
+    alignOrder: [],
+    alignDirections: ['Clockwise', 'Counter-Clockwise'],
+    activeAlignDirection: 'Counter-Clockwise',
 
     // all data
     allFiles: [],
@@ -730,6 +892,20 @@ export default {
   background-color: #e0f2f1;
   border-color: #fff;
 }
+
+.control-panel {
+  width: calc(100% - 350px);
+}
+
+.black-border {
+  width: calc(100% - 350px);
+  border: 1px solid #333;
+}
+
+/* .isDragging {
+  background-color: #e0f2f1;
+  border-color: #fff;
+}
 .name-center {
   text-align: center;
 }
@@ -794,5 +970,5 @@ export default {
 .name-type-table >>> tr th:nth-child(2),
 .name-type-table >>> tr td:nth-child(2) {
   width: 295px !important;
-}
+} */
 </style>
