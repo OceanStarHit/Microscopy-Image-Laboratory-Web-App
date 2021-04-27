@@ -7,9 +7,9 @@ cache/
 
 # vue project
 node_modules/
-dist/
-static/
-templates/
+# dist/
+# static/
+# templates/
 
 # local env files
 .env.local
