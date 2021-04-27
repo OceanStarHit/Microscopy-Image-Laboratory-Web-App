@@ -73,9 +73,9 @@
                   <!-- Editing -->
                   <v-card v-if="activeMenuItem==0" flat>
                     <v-card-title class="pa-1">Editing</v-card-title>
-                    <div class="d-flex">
+                    <div class="d-flex ma-4">
                       <div class="control-panel">
-                        <v-list class="overflow-y-auto fill-height mx-4" max-height="350" outlined>
+                        <v-list class="overflow-y-auto fill-height mr-4" max-height="350" outlined>
                           <v-list-item v-for="(file, idx) in files" :key="idx">
                             <v-list-item-content>
                               <v-list-item-title v-text="file.name"></v-list-item-title>
