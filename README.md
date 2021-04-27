@@ -10,7 +10,7 @@ Frontend - Vue
 - To download Python 3.9.x, go to [Download Python](https://www.python.org/downloads/) page and then click on the button to download the latest version of Python
 - Next, run the installation file that you just downloaded
 - You can now start the installation of Python by clicking on **Install Now** ( You have to also check the box to `Add Python to the Path` in this step)
-- After a short period of time, your setup would be completed
+- After a short period of time, your setup would be completed  
   [See more detail](https://datatofish.com/install-python/)
 
 **Install `MySQL`**
@@ -24,9 +24,10 @@ Frontend - Vue
   | Host | localhost |
   | Role | DB Admin |
   | Password | Password1 |
-- Finish the installation by completing the next steps
+- Finish the installation by completing the next steps  
   [See more detail](https://www.onlinetutorialspoint.com/mysql/install-mysql-on-windows-10-step-by-step.html)
-- Next, create a new database(database name: **myproject**) in `MySQL Workbench`
+
+Next, create a new database(database name: **myproject**) in `MySQL Workbench`
 
 ### MacOS
 **Install `python3` and some tools**
