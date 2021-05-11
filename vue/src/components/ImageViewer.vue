@@ -58,7 +58,7 @@ export default {
   mounted() {
     this.imageView = OpenSeadragon({
       id: "openseadragon",
-      prefixUrl: `${this.publicPath}/openseadragon/images/`,
+      prefixUrl: `${this.publicPath}openseadragon/images/`,
       visibilityRatio: 1.0,
       constrainDuringPan: true,
       defaultZoomLevel: 1,
