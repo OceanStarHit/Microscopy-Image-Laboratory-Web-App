@@ -25,29 +25,29 @@ export default {
 
   components: {
     SmallCard,
-    CustomButton,
+    CustomButton
   },
 
   data: () => ({
-    imageSource: null,
+    imageSource: null
   }),
 
   computed: {},
 
   methods: {
-    onCloud: function () {
+    onCloud: function() {
       console.log("Cloud");
     },
-    onFile: function () {
+    onFile: function() {
       this.$el.querySelector("#uploadFile").click();
     },
-    onFolder: function () {
+    onFolder: function() {
       console.log("Folder");
     },
-    onPosition: function () {
+    onPosition: function() {
       console.log("Position");
-    },
-  },
+    }
+  }
 };
 </script>
 

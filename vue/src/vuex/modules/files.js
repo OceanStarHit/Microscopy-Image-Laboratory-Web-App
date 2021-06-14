@@ -4,23 +4,24 @@ const noPreviewImage = require("../../assets/images/no-preview.png");
 
 const position = {
   state: () => ({
-    files: [],
+    files: []
   }),
-  getters: {
-
-  },
+  getters: {},
   actions: {
     setFiles({ commit }, files) {
       commit("clearFiles");
 
-      files.forEach(function (file, index) {
+      files.forEach(function(file, index) {
         commit("addFile", file);
 
         const reader = new FileReader();
         reader.onload = function() {
           let imageData = reader.result;
 
-          if (file.type.startsWith("image/tif") || file.type.startsWith("image/tiff")) {
+          if (
+            file.type.startsWith("image/tif") ||
+            file.type.startsWith("image/tiff")
+          ) {
             try {
               imageData = tiffImage(reader.result.substring(23));
             } catch (err) {
@@ -47,7 +48,10 @@ const position = {
       reader.onload = function() {
         let imageData = reader.result;
 
-        if (file.type.startsWith("image/tif") || file.type.startsWith("image/tiff")) {
+        if (
+          file.type.startsWith("image/tif") ||
+          file.type.startsWith("image/tiff")
+        ) {
           try {
             imageData = tiffImage(reader.result.substring(23));
           } catch (err) {
@@ -60,7 +64,7 @@ const position = {
         }
       };
       reader.readAsDataURL(file);
-    },
+    }
   },
   mutations: {
     clearFiles(state) {
@@ -77,14 +81,14 @@ const position = {
       });
     },
     addImageData(state, payload) {
-      Vue.set(state.files[payload.index], 'imageData', payload.imageData);
-    },
-  },
+      Vue.set(state.files[payload.index], "imageData", payload.imageData);
+    }
+  }
 };
 
 export default {
   namespaced: true,
   modules: {
-    position,
-  },
+    position
+  }
 };

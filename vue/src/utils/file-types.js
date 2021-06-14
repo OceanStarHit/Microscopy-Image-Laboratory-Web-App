@@ -179,5 +179,5 @@ export const FILE_TYPES = [
   ".xys",
   ".zfp",
   ".zfr",
-  ".zvi",
+  ".zvi"
 ];

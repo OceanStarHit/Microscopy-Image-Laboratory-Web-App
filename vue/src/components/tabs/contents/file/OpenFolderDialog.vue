@@ -59,20 +59,20 @@ export default {
 
   data: () => ({
     imageSource: null,
-    allFiles: [],
+    allFiles: []
   }),
 
   props: {
     value: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
 
   created() {
     this.newResWatch = this.$store.watch(
       (state, getters) => getters["image/newRes"],
-      (res) => {
+      res => {
         const filteredData = [];
         for (var key in res) {
           const idx = parseInt(key.split("_")[1]);
@@ -83,7 +83,7 @@ export default {
           ) {
             filteredData.push({
               filename: this.allFiles[idx].name,
-              metadata: res[key],
+              metadata: res[key]
             });
           }
         }
@@ -109,8 +109,8 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      },
-    },
+      }
+    }
   },
 
   methods: {
@@ -186,8 +186,8 @@ export default {
       }
 
       return maxKey;
-    },
-  },
+    }
+  }
 };
 </script>
 

@@ -8,21 +8,21 @@ import { api } from "./base";
 // GRAY: `${API_URL}gray`,
 
 export const setImage = params => {
-    return api.post("set-image", params);
+  return api.post("set-image", params);
 };
 
 export const setMetadata = params => {
-    return api.post("set-metadata", params);
+  return api.post("set-metadata", params);
 };
 
 export const changeImage = params => {
-    return api.post("change-image", params);
+  return api.post("change-image", params);
 };
 
 export const changeParameter = params => {
-    return api.post("change-parameter", params);
+  return api.post("change-parameter", params);
 };
 
 export const adjustImage = params => {
-    return api.post("adjust-image", params);
+  return api.post("adjust-image", params);
 };

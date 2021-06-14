@@ -103,80 +103,80 @@ export default {
     OpenCloudDialog,
     OpenFileDialog,
     OpenFolderDialog,
-    OpenPositionDialog,
+    OpenPositionDialog
   },
 
   data: () => ({
     cloudDialog: false,
     fileDialog: false,
     folderDialog: false,
-    positionDialog: false,
+    positionDialog: false
   }),
 
   methods: {
-    refresh: function () {
+    refresh: function() {
       console.log("Refresh");
     },
-    help: function () {
+    help: function() {
       console.log("Help");
     },
-    onPosition: function () {
+    onPosition: function() {
       console.log("Position");
     },
-    onSave: function () {
+    onSave: function() {
       console.log("Save");
     },
-    onSaveAs: function () {
+    onSaveAs: function() {
       console.log("SaveAs");
     },
-    onExport: function () {
+    onExport: function() {
       console.log("Export");
     },
-    onLoad: function () {
+    onLoad: function() {
       console.log("Load");
     },
-    onCut: function () {
+    onCut: function() {
       console.log("Cut");
     },
-    onCopy: function () {
+    onCopy: function() {
       console.log("Copy");
     },
-    onPaste: function () {
+    onPaste: function() {
       console.log("Paste");
     },
-    onNew: function () {
+    onNew: function() {
       console.log("New");
     },
-    onSelect1: function () {
+    onSelect1: function() {
       console.log("Select-1");
     },
-    onSelect2: function () {
+    onSelect2: function() {
       console.log("Select-2");
     },
-    onSelect3: function () {
+    onSelect3: function() {
       console.log("Select-3");
     },
-    onSelect4: function () {
+    onSelect4: function() {
       console.log("Select-4");
     },
-    onSelect5: function () {
+    onSelect5: function() {
       console.log("Select-5");
     },
-    onSelect6: function () {
+    onSelect6: function() {
       console.log("Select-6");
     },
-    onSelect7: function () {
+    onSelect7: function() {
       console.log("Select-7");
     },
-    onSelect8: function () {
+    onSelect8: function() {
       console.log("Select-8");
     },
-    onSelect9: function () {
+    onSelect9: function() {
       console.log("Select-9");
     },
-    onSelect10: function () {
+    onSelect10: function() {
       console.log("Select-10");
-    },
-  },
+    }
+  }
 };
 </script>

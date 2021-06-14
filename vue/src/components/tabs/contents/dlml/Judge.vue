@@ -16,7 +16,7 @@ export default {
 
   components: {
     SmallCard,
-    CustomButton,
+    CustomButton
   },
 
   data: () => ({}),
@@ -33,7 +33,7 @@ export default {
     },
     onReturn: () => {
       console.log("Return");
-    },
-  },
+    }
+  }
 };
 </script>

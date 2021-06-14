@@ -35,13 +35,13 @@ export default {
   data: () => ({}),
 
   methods: {
-    onRefresh: function () {
+    onRefresh: function() {
       this.$emit("refresh");
     },
-    onHelp: function () {
+    onHelp: function() {
       this.$emit("help");
-    },
-  },
+    }
+  }
 };
 </script>
 

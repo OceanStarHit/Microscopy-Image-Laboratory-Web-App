@@ -33,18 +33,18 @@ export default {
     LightSet,
     // Binarization,
     Scale,
-    FVO,
+    FVO
   },
 
   data: () => ({}),
 
   methods: {
-    refresh: function () {
+    refresh: function() {
       console.log("Refresh");
     },
-    help: function () {
+    help: function() {
       console.log("Help");
-    },
-  },
+    }
+  }
 };
 </script>

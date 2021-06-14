@@ -52,14 +52,14 @@ export default {
     z_max: 1,
     z_range: {
       min: 1,
-      max: 1,
-    },
+      max: 1
+    }
   }),
 
   created() {
     this.unwatch1 = this.$store.watch(
       (state, getters) => getters["image/sizeZ"],
-      (newValue) => {
+      newValue => {
         console.log(newValue);
         // this.z_min = 1;
         // this.z_max = newValue;
@@ -70,7 +70,7 @@ export default {
     );
     this.unwatch2 = this.$store.watch(
       (state, getters) => getters["image/imageParams"],
-      (newValue) => {
+      newValue => {
         console.log(newValue);
         // this.z_value = newValue.Z;
       }
@@ -78,7 +78,7 @@ export default {
 
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
-      (info) => {
+      info => {
         if (info.pageData.length == 1) {
           this.z_max = info.pageData[0].metadata.coreMetadata.sizeZ;
           this.z_range.max = this.z_max;
@@ -113,11 +113,11 @@ export default {
   },
 
   methods: {
-    onChangeZ: function (z) {
+    onChangeZ: function(z) {
       if (z !== this.$store.state.image.parameters.Z)
         this.$store.dispatch("image/changeParameterByZ", z);
     },
-    onChangeZmin: function (event) {
+    onChangeZmin: function(event) {
       const z_min = event.target.value;
 
       if (!(z_min < 1 || z_min > this.z_range.max)) {
@@ -131,7 +131,7 @@ export default {
 
       this.$forceUpdate();
     },
-    onChangeZmax: function (event) {
+    onChangeZmax: function(event) {
       const z_max = event.target.value;
 
       if (!(z_max > this.z_max || z_max < this.z_range.min)) {
@@ -145,10 +145,10 @@ export default {
 
       this.$forceUpdate();
     },
-    on3DView: function () {
+    on3DView: function() {
       console.log("3D View");
-    },
-  },
+    }
+  }
 };
 </script>
 

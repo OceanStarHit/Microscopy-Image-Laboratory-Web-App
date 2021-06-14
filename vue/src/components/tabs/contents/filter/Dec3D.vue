@@ -14,18 +14,18 @@ export default {
 
   components: {
     SmallCard,
-    CustomButton,
+    CustomButton
   },
 
   data: () => ({}),
 
   methods: {
-    select1: function () {
+    select1: function() {
       console.log("Select-1");
     },
-    select2: function () {
+    select2: function() {
       console.log("Select-2");
-    },
-  },
+    }
+  }
 };
 </script>

@@ -35,13 +35,13 @@ export default {
   created() {
     this.imageDataWatch = this.$store.watch(
       (state, getters) => getters["image/metaData"],
-      (data) => {
+      data => {
         if (this.imageView && data) {
           const opt = {
             tileSource: {
               type: "image",
-              url: data,
-            },
+              url: data
+            }
           };
 
           this.imageView.world.removeAll();
@@ -65,14 +65,14 @@ export default {
       minZoomLevel: 0.1,
       maxZoomLevel: 10,
       minZoomPixelRatio: 0.1,
-      maxZoomPixelRatio: 10,
+      maxZoomPixelRatio: 10
     });
   },
 
   computed: {
     getClasses() {
       return { isDragging: this.isDragging };
-    },
+    }
   },
 
   methods: {
@@ -87,8 +87,8 @@ export default {
       this.imageSource = files[0];
 
       this.isDragging = false;
-    },
-  },
+    }
+  }
 };
 </script>
 

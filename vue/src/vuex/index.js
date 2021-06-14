@@ -10,11 +10,11 @@ Vue.use(Vuex);
 const debug = process.env.NODE_ENV !== "production";
 
 export default new Vuex.Store({
-    modules: {
-        files,
-        image,
-        vessel
-    },
-    strict: debug,
-    plugins: debug ? [createLogger()] : []
+  modules: {
+    files,
+    image,
+    vessel
+  },
+  strict: debug,
+  plugins: debug ? [createLogger()] : []
 });

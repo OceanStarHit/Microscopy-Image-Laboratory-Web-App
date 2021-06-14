@@ -25,31 +25,31 @@ export default {
   components: {},
 
   data: () => ({
-    s_value: 1,
+    s_value: 1
   }),
 
   computed: {
     ...mapGetters("image", {
-      s_max: "seriesCount",
-    }),
+      s_max: "seriesCount"
+    })
   },
 
   created() {
     this.unwatch = this.$store.watch(
       (state, getters) => getters["image/imageId"],
-      (newValue) => (this.s_value = newValue + 1)
+      newValue => (this.s_value = newValue + 1)
     );
   },
 
   methods: {
-    onChange: function (s) {
+    onChange: function(s) {
       if (s !== this.$store.state.image.imageId + 1)
         this.$store.dispatch("image/changeImage", s);
-    },
+    }
   },
 
   beforeDestroy() {
     this.unwatch();
-  },
+  }
 };
 </script>

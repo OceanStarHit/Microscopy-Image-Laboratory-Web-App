@@ -1,6 +1,11 @@
 <template>
   <div class="d-none">
-    <input type="file" id="uploadFile" class="d-none" @change="requestUploadFile" />
+    <input
+      type="file"
+      id="uploadFile"
+      class="d-none"
+      @change="requestUploadFile"
+    />
     <v-dialog v-model="visibleDialog" max-width="980">
       <simple-dialog
         title="Position"
@@ -14,7 +19,9 @@
           <v-tab href="#tabs-images" class="primary--text">Images</v-tab>
           <v-tab href="#tabs-tiling" class="primary--text">Tiling</v-tab>
           <v-tab href="#tabs-metadata" class="primary--text">Metadata</v-tab>
-          <v-tab href="#tabs-name-type" class="primary--text">Names &amp; Types</v-tab>
+          <v-tab href="#tabs-name-type" class="primary--text"
+            >Names &amp; Types</v-tab
+          >
         </v-tabs>
 
         <v-tabs-items v-model="selectedTab" class="v-tab-item">
@@ -32,7 +39,12 @@
                 v-if="!files.length"
                 class="d-flex align-center justify-center fill-height"
               >
-                <p v-if="!files.length" class="text-h4 grey--text text--lighten-2">Drag and Drop.</p>
+                <p
+                  v-if="!files.length"
+                  class="text-h4 grey--text text--lighten-2"
+                >
+                  Drag and Drop.
+                </p>
               </div>
               <v-row v-else class="align-center">
                 <v-col
@@ -41,11 +53,7 @@
                   cols="3"
                   class="px-4"
                 >
-                  <v-img
-                    :src="file.imageData"
-                    class="mx-auto"
-                    fill
-                  />
+                  <v-img :src="file.imageData" class="mx-auto" fill />
                   <p class="ma-2 text-center text-caption">
                     {{ file.name }}
                   </p>
@@ -59,10 +67,18 @@
                 <v-col cols="2">
                   <v-card class="pa-1">
                     <v-list shaped>
-                      <v-list-item-group v-model="activeMenuItem" color="primary">
-                        <v-list-item v-for="(menuTitle, idx) in tilingMenus" :key="idx">
+                      <v-list-item-group
+                        v-model="activeMenuItem"
+                        color="primary"
+                      >
+                        <v-list-item
+                          v-for="(menuTitle, idx) in tilingMenus"
+                          :key="idx"
+                        >
                           <v-list-item-content>
-                            <v-list-item-title v-text="menuTitle"></v-list-item-title>
+                            <v-list-item-title
+                              v-text="menuTitle"
+                            ></v-list-item-title>
                           </v-list-item-content>
                         </v-list-item>
                       </v-list-item-group>
@@ -71,14 +87,20 @@
                 </v-col>
                 <v-col cols="10" class="pa-2">
                   <!-- Editing -->
-                  <v-card v-if="activeMenuItem==0" flat>
+                  <v-card v-if="activeMenuItem == 0" flat>
                     <v-card-title class="pa-1">Editing</v-card-title>
                     <div class="d-flex ma-4">
                       <div class="control-panel">
-                        <v-list class="overflow-y-auto fill-height mr-4" max-height="350" outlined>
+                        <v-list
+                          class="overflow-y-auto fill-height mr-4"
+                          max-height="350"
+                          outlined
+                        >
                           <v-list-item v-for="(file, idx) in files" :key="idx">
                             <v-list-item-content>
-                              <v-list-item-title v-text="file.name"></v-list-item-title>
+                              <v-list-item-title
+                                v-text="file.name"
+                              ></v-list-item-title>
                             </v-list-item-content>
                           </v-list-item>
                         </v-list>
@@ -94,7 +116,7 @@
                   </v-card>
 
                   <!-- Alignment -->
-                  <v-card v-else-if="activeMenuItem==1" flat>
+                  <v-card v-else-if="activeMenuItem == 1" flat>
                     <v-card-title class="pa-1">Alignment</v-card-title>
                     <div class="d-flex ma-4">
                       <div class="control-panel">
@@ -170,12 +192,10 @@
                   </v-card>
 
                   <!-- Bonding -->
-                  <v-card v-else-if="activeMenuItem==2" flat>
+                  <v-card v-else-if="activeMenuItem == 2" flat>
                     <v-card-title class="pa-1">Bonding</v-card-title>
                     <div class="d-flex">
-                      <div class="control-panel">
-
-                      </div>
+                      <div class="control-panel"></div>
                       <v-img
                         src=""
                         class="black-border"
@@ -187,12 +207,10 @@
                   </v-card>
 
                   <!-- Shading -->
-                  <v-card v-else-if="activeMenuItem==3" flat>
+                  <v-card v-else-if="activeMenuItem == 3" flat>
                     <v-card-title class="pa-1">Shading</v-card-title>
                     <div class="d-flex">
-                      <div class="control-panel">
-
-                      </div>
+                      <div class="control-panel"></div>
                       <v-img
                         src=""
                         class="black-border"
@@ -204,12 +222,10 @@
                   </v-card>
 
                   <!-- Display -->
-                  <v-card v-else-if="activeMenuItem==4" flat>
+                  <v-card v-else-if="activeMenuItem == 4" flat>
                     <v-card-title class="pa-1">Display</v-card-title>
                     <div class="d-flex">
-                      <div class="control-panel">
-
-                      </div>
+                      <div class="control-panel"></div>
                       <v-img
                         src=""
                         class="black-border"
@@ -349,11 +365,11 @@
 </template>
 
 <script>
-import { createNamespacedHelpers } from 'vuex';
+import { createNamespacedHelpers } from "vuex";
 import { checkFileType } from "../../../../utils/utils-func";
 import SimpleDialog from "../../../custom/SimpleDialog";
 
-const { mapState, mapActions } = createNamespacedHelpers('files');
+const { mapState, mapActions } = createNamespacedHelpers("files");
 
 export default {
   name: "OpenPositionDialog",
@@ -365,20 +381,20 @@ export default {
     selectedTab: null,
 
     tilingMenus: [
-      'Edit',
-      'Alignment',
-      'Bonding',
-      'Shading',
-      'Display',
-      'Result',
-      'Option',
+      "Edit",
+      "Alignment",
+      "Bonding",
+      "Shading",
+      "Display",
+      "Result",
+      "Option"
     ],
     activeMenuItem: 0,
 
     activeAlignMode: null,
     alignOrder: [],
-    alignDirections: ['Clockwise', 'Counter-Clockwise'],
-    activeAlignDirection: 'Counter-Clockwise',
+    alignDirections: ["Clockwise", "Counter-Clockwise"],
+    activeAlignDirection: "Counter-Clockwise",
 
     // all data
     allFiles: [],
@@ -412,7 +428,7 @@ export default {
       { text: "SizeT", value: "size_t", sortable: false },
       { text: "SizeX", value: "size_x", sortable: false },
       { text: "SizeY", value: "size_y", sortable: false },
-      { text: "SizeZ", value: "size_z", sortable: false },
+      { text: "SizeZ", value: "size_z", sortable: false }
     ],
 
     // for filename type
@@ -426,7 +442,7 @@ export default {
       { name: "Field", value: "", color: "warning" },
       { name: "View Method", value: "", color: "purple" },
       { name: "Z Position", value: "", color: "blue-grey" },
-      { name: "Time Point", value: "", color: "error" },
+      { name: "Time Point", value: "", color: "error" }
     ],
     nameHeaders: [
       { text: "No", value: "no", sortable: false },
@@ -437,14 +453,14 @@ export default {
       { text: "Field", value: "field", sortable: false },
       { text: "View Method", value: "viewMethod", sortable: false },
       { text: "Z Position", value: "zPosition", sortable: false },
-      { text: "Time Point", value: "timepoint", sortable: false },
-    ],
+      { text: "Time Point", value: "timepoint", sortable: false }
+    ]
   }),
 
   created() {
     this.newResWatch = this.$store.watch(
       (state, getters) => getters["image/newRes"],
-      (res) => {
+      res => {
         const filteredData = [];
         for (var key in res) {
           const idx = parseInt(key.split("_")[1]);
@@ -455,7 +471,7 @@ export default {
           ) {
             filteredData.push({
               filename: this.allFiles[idx].name,
-              metadata: res[key],
+              metadata: res[key]
             });
           }
         }
@@ -471,7 +487,7 @@ export default {
 
     this.allFilesWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageData"],
-      (res) => {
+      res => {
         this.allFiles = res;
       }
     );
@@ -485,8 +501,8 @@ export default {
   props: {
     value: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
 
   computed: {
@@ -496,7 +512,7 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      },
+      }
     },
     getClasses() {
       return { isDragging: this.isDragging };
@@ -535,7 +551,7 @@ export default {
             field: this.getField(file.name),
             viewMethod: this.getViewMethod(file.name),
             zPosition: this.getZPosition(file.name),
-            timepoint: this.getTimepoint(file.name),
+            timepoint: this.getTimepoint(file.name)
           });
         }
       }
@@ -544,7 +560,7 @@ export default {
     },
     getMetaContents() {
       const contents = [];
-      this.allFiles.forEach((file) => {
+      this.allFiles.forEach(file => {
         contents.push({
           no: contents.length + 1,
           filename: file.name,
@@ -555,15 +571,15 @@ export default {
           size_t: "",
           size_x: "",
           size_y: "",
-          size_z: "",
+          size_z: ""
         });
       });
 
       return contents;
     },
     ...mapState({
-      files: state => state.position.files,
-    }),
+      files: state => state.position.files
+    })
   },
 
   methods: {
@@ -593,7 +609,7 @@ export default {
       path = path || "";
 
       if (item.isFile) {
-        item.file(function (file) {
+        item.file(function(file) {
           console.log(file.name);
           if (checkFileType(file.name)) {
             self.addFile(file);
@@ -703,7 +719,7 @@ export default {
         file.size < 2 * 1024 * 1024
       ) {
         const reader = new FileReader();
-        reader.onload = function () {
+        reader.onload = function() {
           if (file.type.startsWith("image/tif")) {
             return require("../../../../assets/images/no-preview.png");
           } else {
@@ -878,12 +894,8 @@ export default {
 
       return filename;
     },
-    ...mapActions([
-      'setFiles',
-      'clearFiles',
-      'addFile'
-    ]),
-  },
+    ...mapActions(["setFiles", "clearFiles", "addFile"])
+  }
 };
 </script>
 

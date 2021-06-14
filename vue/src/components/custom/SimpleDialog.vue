@@ -53,89 +53,89 @@ export default {
   props: {
     title: {
       type: String,
-      default: "",
+      default: ""
     },
 
     // new button
     newTitle: {
       type: String,
-      default: "New",
+      default: "New"
     },
     newButton: {
       type: Boolean,
-      default: false,
+      default: false
     },
     newDisable: {
       type: Boolean,
-      default: false,
+      default: false
     },
 
     // update button
     updateTitle: {
       type: String,
-      default: "Update",
+      default: "Update"
     },
     updateButton: {
       type: Boolean,
-      default: false,
+      default: false
     },
     updateDisable: {
       type: Boolean,
-      default: false,
+      default: false
     },
 
     // remove button
     removeTitle: {
       type: String,
-      default: "remove",
+      default: "remove"
     },
     removeButton: {
       type: Boolean,
-      default: false,
+      default: false
     },
     removeDisable: {
       type: Boolean,
-      default: false,
+      default: false
     },
 
     // ok button
     okTitle: {
       type: String,
-      default: "OK",
+      default: "OK"
     },
     selectDisable: {
       type: Boolean,
-      default: false,
+      default: false
     },
 
     // close button
     closeTitle: {
       type: String,
-      default: "Cancel",
+      default: "Cancel"
     },
     singleButton: {
       type: Boolean,
-      default: true,
-    },
+      default: true
+    }
   },
 
   methods: {
-    newed: function () {
+    newed: function() {
       this.$emit("new");
     },
-    updated: function () {
+    updated: function() {
       this.$emit("update");
     },
-    removed: function () {
+    removed: function() {
       this.$emit("remove");
     },
-    selected: function () {
+    selected: function() {
       this.$emit("select");
     },
-    closed: function () {
+    closed: function() {
       this.$emit("close");
-    },
-  },
+    }
+  }
 };
 </script>
 <style scoped>

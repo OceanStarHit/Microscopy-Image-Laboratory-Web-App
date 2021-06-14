@@ -8,13 +8,13 @@ const getFileExtension = filename => {
   let extension = regex.exec(filename)[1];
 
   return extension ? "." + extension : "";
-}
+};
 
 const checkFileType = filename => {
   const extension = getFileExtension(filename);
 
   return FILE_TYPES.includes(extension.toLowerCase());
-}
+};
 
 const base64ToArrayBuffer = base64 => {
   var binary_string = atob(base64);
@@ -24,13 +24,13 @@ const base64ToArrayBuffer = base64 => {
     bytes[i] = binary_string.charCodeAt(i);
   }
   return bytes.buffer;
-}
+};
 
 const tiffImage = base64 => {
   const buffer = base64ToArrayBuffer(base64);
   const tiff_data = new tiff({ buffer });
 
   return tiff_data.toDataURL();
-}
+};
 
 export { checkFileType, tiffImage };

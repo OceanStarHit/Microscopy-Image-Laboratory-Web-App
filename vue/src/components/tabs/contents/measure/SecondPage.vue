@@ -31,11 +31,11 @@ export default {
     Channel,
     ImageAdjust,
     ZPosition,
-    Timeline,
+    Timeline
   },
 
   data: () => ({}),
 
-  computed: {},
+  computed: {}
 };
 </script>
