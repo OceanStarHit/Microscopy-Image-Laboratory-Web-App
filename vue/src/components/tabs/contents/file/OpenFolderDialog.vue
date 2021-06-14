@@ -151,7 +151,7 @@ export default {
     },
 
     onCancel() {
-      this.allFiles = null;
+      this.allFiles = [];
       this.visibleDialog = false;
     },
 
