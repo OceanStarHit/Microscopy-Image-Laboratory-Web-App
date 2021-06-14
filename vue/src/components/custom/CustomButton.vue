@@ -28,14 +28,14 @@ export default {
   computed: {
     imageUrl() {
       return require("../../assets/images/" + this.image + ".png");
-    },
+    }
   },
 
   methods: {
-    clicked: function () {
+    clicked: function() {
       this.$emit("click");
-    },
-  },
+    }
+  }
 };
 </script>
 

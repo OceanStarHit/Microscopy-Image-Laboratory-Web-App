@@ -19,7 +19,7 @@ export default {
 
   components: {
     SmallCard,
-    CustomButton,
+    CustomButton
   },
 
   data: () => ({}),
@@ -45,7 +45,7 @@ export default {
     },
     select7: () => {
       console.log("Select-7");
-    },
-  },
+    }
+  }
 };
 </script>

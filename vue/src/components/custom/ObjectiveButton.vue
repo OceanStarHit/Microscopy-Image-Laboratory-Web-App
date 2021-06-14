@@ -31,9 +31,9 @@ export default {
   props: ["label", "active"],
 
   methods: {
-    clicked: function () {
+    clicked: function() {
       this.$emit("click");
-    },
-  },
+    }
+  }
 };
 </script>

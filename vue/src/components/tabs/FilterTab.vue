@@ -32,19 +32,19 @@ export default {
     AddSub,
     Dec2D,
     Dec3D,
-    FocusStack,
+    FocusStack
     // DPC
   },
 
   data: () => ({}),
 
   methods: {
-    refresh: function () {
+    refresh: function() {
       console.log("Refresh");
     },
-    help: function () {
+    help: function() {
       console.log("Help");
-    },
-  },
+    }
+  }
 };
 </script>

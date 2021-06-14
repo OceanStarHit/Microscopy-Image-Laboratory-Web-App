@@ -57,18 +57,18 @@ export default {
     ImageAdjust,
     // ImageSeries,
     ZPosition,
-    Timeline,
+    Timeline
   },
 
   data: () => ({
     totalPageCnt: 0,
-    curPageIdx: 0,
+    curPageIdx: 0
   }),
 
   created() {
     this.curPageIdxWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageIndex"],
-      (res) => {
+      res => {
         this.curPageIdx = res;
       }
     );
@@ -82,18 +82,18 @@ export default {
     ...mapGetters("image", {
       seriesCount: "seriesCount",
       sizeZ: "sizeZ",
-      sizeT: "sizeT",
+      sizeT: "sizeT"
     }),
     ...mapState({
-      allData: (state) => state.image.allData,
-    }),
+      allData: state => state.image.allData
+    })
   },
 
   methods: {
     handlePageChange(idx) {
       this.$store.dispatch("image/changeCurrentPage", idx);
-    },
-  },
+    }
+  }
 };
 </script>
 

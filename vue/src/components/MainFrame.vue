@@ -6,7 +6,7 @@
         <v-container
           class="px-3 py-0 auto-scroll d-flex flex-column justify-space-between"
           :style="{
-            height: windowHeight + 'px',
+            height: windowHeight + 'px'
           }"
         >
           <div>
@@ -59,7 +59,7 @@
         class="grey lighten-3"
         cols="8"
         :style="{
-          height: windowHeight + 'px',
+          height: windowHeight + 'px'
         }"
         style="border-left: 1px dotted gray; border-right: 1px dotted gray"
       >
@@ -71,7 +71,7 @@
         <v-container
           class="px-1 py-0 auto-scroll"
           :style="{
-            height: windowHeight + 'px',
+            height: windowHeight + 'px'
           }"
         >
           <v-tabs v-model="selectedTab2" grow>
@@ -156,7 +156,7 @@ export default {
     ViewTab,
     MeasureTab,
     ReportTab,
-    SettingsTab,
+    SettingsTab
   },
 
   data() {
@@ -164,14 +164,14 @@ export default {
     return {
       selectedTab1: "tabs-1-4",
       selectedTab2: null,
-      windowHeight: self.getWindowHeight(),
+      windowHeight: self.getWindowHeight()
     };
   },
 
   computed: {
     ...mapState({
-      loading: (state) => state.image.loading,
-    }),
+      loading: state => state.image.loading
+    })
   },
 
   mounted() {
@@ -181,7 +181,7 @@ export default {
   },
 
   methods: {
-    getWindowHeight: function () {
+    getWindowHeight: function() {
       try {
         return (
           window.innerHeight -
@@ -190,8 +190,8 @@ export default {
       } catch (err) {
         return window.innerHeight - 64;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

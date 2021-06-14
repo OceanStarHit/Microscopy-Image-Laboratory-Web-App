@@ -43,24 +43,24 @@ export default {
   data: () => ({}),
 
   methods: {
-    onClick1: function () {
+    onClick1: function() {
       console.log("Click1");
     },
-    onClick2: function () {
+    onClick2: function() {
       console.log("Click2");
     },
-    onClick3: function () {
+    onClick3: function() {
       console.log("Click3");
     },
-    onClick4: function () {
+    onClick4: function() {
       console.log("Click4");
     },
-    onClick5: function () {
+    onClick5: function() {
       console.log("Click5");
     },
-    onClick6: function () {
+    onClick6: function() {
       console.log("Click6");
-    },
-  },
+    }
+  }
 };
 </script>

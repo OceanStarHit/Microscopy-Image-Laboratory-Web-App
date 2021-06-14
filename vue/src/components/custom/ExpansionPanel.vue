@@ -16,6 +16,6 @@ export default {
 
   props: ["title"],
 
-  data: () => ({}),
+  data: () => ({})
 };
 </script>

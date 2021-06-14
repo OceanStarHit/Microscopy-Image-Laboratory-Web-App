@@ -41,7 +41,7 @@
                   imageURL.startsWith('data:')
                     ? {}
                     : {
-                        border: '1px solid grey',
+                        border: '1px solid grey'
                       }
                 "
                 max-width="150"
@@ -75,26 +75,26 @@ export default {
   data: () => ({
     isDragging: false,
     newFile: null,
-    imageData: null,
+    imageData: null
   }),
 
   props: {
     value: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
 
   created() {
     this.newResWatch = this.$store.watch(
       (state, getters) => getters["image/newRes"],
-      (res) => {
+      res => {
         const filteredData = [];
         for (var key in res) {
           if (key == "file_0" && res[key]) {
             filteredData.push({
               filename: this.newFile.name,
-              metadata: res[key],
+              metadata: res[key]
             });
           }
           break;
@@ -121,7 +121,7 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      },
+      }
     },
     getClasses() {
       return { isDragging: this.isDragging };
@@ -130,7 +130,7 @@ export default {
       return this.imageData
         ? this.imageData
         : require("../../../../assets/images/no-preview.png");
-    },
+    }
   },
 
   methods: {
@@ -179,7 +179,7 @@ export default {
         ) {
           var self = this;
           const reader = new FileReader();
-          reader.onload = function () {
+          reader.onload = function() {
             if (self.newFile.type.startsWith("image/tif")) {
               const buffer = self.base64ToArrayBuffer(
                 reader.result.substring(23)
@@ -210,8 +210,8 @@ export default {
       if (this.imageData) this.imageData = null;
 
       this.visibleDialog = false;
-    },
-  },
+    }
+  }
 };
 </script>
 

@@ -43,14 +43,14 @@ export default {
       { id: 3, label: "R", color: "red", disabled: false },
       { id: 4, label: "C", color: "cyan", disabled: false },
       { id: 5, label: "Y", color: "amber", disabled: false },
-      { id: 6, label: "M", color: "pink", disabled: false },
-    ],
+      { id: 6, label: "M", color: "pink", disabled: false }
+    ]
   }),
 
   created() {
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
-      (info) => {
+      info => {
         if (info.pageData.length == 1) {
           const channel = info.pageData[0].metadata.imageInfo.pixels.sizeC;
           this.setChannels(channel);
@@ -69,12 +69,12 @@ export default {
 
   computed: {
     ...mapGetters("image", {
-      chInfo: "channelInfo",
-    }),
+      chInfo: "channelInfo"
+    })
   },
 
   methods: {
-    onChange: function () {
+    onChange: function() {
       if (this.currentChannel !== this.$store.state.image.parameters.C)
         this.$store.dispatch("image/changeParameterByC", this.currentChannel);
     },
@@ -90,8 +90,8 @@ export default {
         default:
           this.selected = ["B", "G", "R"];
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
