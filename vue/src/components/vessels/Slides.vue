@@ -4,7 +4,7 @@
     class="flex-column justify-space-around px-3 my-1"
     :width="rect.width"
     :style="{
-      height: rect.height + 'px'
+      height: rect.height + 'px',
     }"
   >
     <div
@@ -73,6 +73,8 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 const H_RATIO = 0.6;
 const V_RATIO = 0.5;
 const MAX_HEIGHT = 1000;
@@ -85,46 +87,46 @@ export default {
   props: {
     count: {
       type: Number,
-      default: 1
+      default: 1,
     },
     width: {
       type: Number,
-      default: 0
+      default: 0,
     },
     showNumber: {
       type: Boolean,
-      default: false
+      default: false,
     },
     actives: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     selected: {
       type: Number,
-      default: -1
+      default: -1,
     },
     check: {
       type: Boolean,
-      default: false
+      default: true,
     },
     interaction: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
 
-  data: function() {
+  data: function () {
     return {
       rect: {
         width: 0,
-        height: 0
+        height: 0,
       },
       slide: {
         width: 0,
-        height: 0
+        height: 0,
       },
       selectedSlide: this.selected,
-      activeSlides: this.actives
+      activeSlides: this.actives,
     };
   },
 
@@ -133,21 +135,36 @@ export default {
       handler() {
         this.resize();
         this.selectedSlide = -1;
+        this.setActivate();
       },
       deep: true,
-      immediate: true
+      immediate: true,
     },
     width: {
       handler() {
         this.resize();
       },
       deep: true,
-      immediate: true
-    }
+      immediate: true,
+    },
+    "$store.state.vessel.currentVesselId": {
+      handler() {
+        this.setActivate();
+      },
+      deep: true,
+      immediate: true,
+    },
+  },
+
+  computed: {
+    ...mapState({
+      allIndice: (state) => state.image.allIndice,
+      curPageIdx: (state) => state.image.curPageIdx,
+    }),
   },
 
   methods: {
-    resize: function() {
+    resize: function () {
       if (this.count < 3) {
         if (this.width * H_RATIO > MAX_HEIGHT) {
           this.rect.height = MAX_HEIGHT;
@@ -191,21 +208,53 @@ export default {
       }
     },
 
-    clicked: function(slideNo) {
+    clicked: function (slideNo) {
       if (!this.interaction) return;
 
       if (this.check) {
         const pos = this.activeSlides.indexOf(slideNo);
         if (pos > -1) {
-          this.selectedSlide = this.selectedSlide !== slideNo ? slideNo : -1;
-          this.$emit("click", slideNo);
+          this.selectedSlide = slideNo;
+          // this.$emit("click", slideNo);
+
+          const data = this.$store.getters["image/currentPageInfo"];
+          if (
+            !data ||
+            data.pageData == undefined ||
+            data.dataIndex == undefined ||
+            data.pageData.length < slideNo
+          ) {
+            return;
+          }
+
+          if (this.allIndice[this.curPageIdx] != slideNo) {
+            this.$store.dispatch("image/changeCurrentData", slideNo);
+          }
         }
       } else {
-        this.selectedSlide = this.selectedSlide !== slideNo ? slideNo : -1;
+        this.selectedSlide = slideNo;
         this.$emit("click", slideNo);
       }
-    }
-  }
+    },
+
+    setActivate() {
+      this.activeSlides = [];
+
+      const data = this.$store.getters["image/currentPageInfo"];
+      if (!data || data.pageData == undefined || data.dataIndex == undefined) {
+        return;
+      }
+
+      const cnt = data.pageData.length;
+      for (let idx = 1; idx <= cnt; idx++) {
+        this.activeSlides.push(idx);
+
+        if (idx == data.dataIndex + 1) {
+          this.selectedSlide = idx;
+        }
+      }
+    },
+  },
 };
 </script>
 

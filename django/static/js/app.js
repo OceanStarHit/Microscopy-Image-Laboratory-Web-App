@@ -3484,9 +3484,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
-
+ // const noPreviewImage = require("../../../../assets/images/no-preview.png");
 
 var _createNamespacedHelp = Object(vuex__WEBPACK_IMPORTED_MODULE_8__["createNamespacedHelpers"])("files"),
     mapState = _createNamespacedHelp.mapState,
@@ -3759,17 +3760,17 @@ var _createNamespacedHelp = Object(vuex__WEBPACK_IMPORTED_MODULE_8__["createName
     },
     drop: function drop(e) {
       this.isDragging = false;
-      e.preventDefault();
-      this.clearFiles();
-      var items = e.dataTransfer.items;
-
-      for (var i = 0; i < items.length; i++) {
-        var item = items[i].webkitGetAsEntry();
-
-        if (item) {
-          this.traverseFileTree(item);
-        }
-      }
+      var fileInput = this.$el.querySelector("#uploadFile");
+      fileInput.files = e.dataTransfer.files;
+      this.requestUploadFile();
+      e.preventDefault(); // this.clearFiles();
+      // let items = e.dataTransfer.items;
+      // for (let i = 0; i < items.length; i++) {
+      //   let item = items[i].webkitGetAsEntry();
+      //   if (item) {
+      //     this.traverseFileTree(item);
+      //   }
+      // }
     },
     traverseFileTree: function traverseFileTree(item, path) {
       var self = this;
@@ -3794,10 +3795,10 @@ var _createNamespacedHelp = Object(vuex__WEBPACK_IMPORTED_MODULE_8__["createName
     },
     requestUploadFile: function requestUploadFile() {
       var fileInput = this.$el.querySelector("#uploadFile");
+      console.log(fileInput.files);
 
       if (fileInput.files && fileInput.files.length > 0) {
-        this.allFiles = fileInput.files;
-        this.setFiles(fileInput.files);
+        this.allFiles = fileInput.files; // this.setFiles(fileInput.files);
       }
     },
     onSelect: function onSelect() {
@@ -3894,7 +3895,20 @@ var _createNamespacedHelp = Object(vuex__WEBPACK_IMPORTED_MODULE_8__["createName
         reader.readAsDataURL(file);
       }
 
-      return __webpack_require__(/*! ../../../../assets/images/no-preview.png */ "./src/assets/images/no-preview.png");
+      return __webpack_require__(/*! ../../../../assets/images/no-preview.png */ "./src/assets/images/no-preview.png"); // const reader = new FileReader();
+      //   reader.onload = function() {
+      //     let imageData = reader.result;
+      //     if (file.type.startsWith("image/tif") || file.type.startsWith("image/tiff")) {
+      //       try {
+      //         imageData = tiffImage(reader.result.substring(23));
+      //       } catch (err) {
+      //         console.error(err);
+      //       }
+      //     }
+      //     return imageData.startsWith("data:image") ? imageData : noPreviewImage;
+      //   };
+      //   reader.readAsDataURL(file);
+      //   return noPreviewImage;
     },
     selectContent: function selectContent(content) {
       switch (this.selectedTab) {
@@ -5801,8 +5815,11 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var core_js_modules_es_number_constructor_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.number.constructor.js */ "./node_modules/core-js/modules/es.number.constructor.js");
-/* harmony import */ var core_js_modules_es_number_constructor_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_number_constructor_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _Volumes_MAC_DATA_Workspaces_Daisuke_LifeAnalytics_IAS_project_vue_node_modules_babel_runtime_helpers_esm_objectSpread2__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "./node_modules/@babel/runtime/helpers/esm/objectSpread2.js");
+/* harmony import */ var core_js_modules_es_number_constructor_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! core-js/modules/es.number.constructor.js */ "./node_modules/core-js/modules/es.number.constructor.js");
+/* harmony import */ var core_js_modules_es_number_constructor_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_number_constructor_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+
 
 //
 //
@@ -5878,6 +5895,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 var H_RATIO = 0.6;
 var V_RATIO = 0.5;
 var MAX_HEIGHT = 1000;
@@ -5909,7 +5927,7 @@ var MAX_HEIGHT = 1000;
     },
     check: {
       type: Boolean,
-      default: false
+      default: true
     },
     interaction: {
       type: Boolean,
@@ -5935,6 +5953,7 @@ var MAX_HEIGHT = 1000;
       handler: function handler() {
         this.resize();
         this.selectedSlide = -1;
+        this.setActivate();
       },
       deep: true,
       immediate: true
@@ -5945,8 +5964,23 @@ var MAX_HEIGHT = 1000;
       },
       deep: true,
       immediate: true
+    },
+    "$store.state.vessel.currentVesselId": {
+      handler: function handler() {
+        this.setActivate();
+      },
+      deep: true,
+      immediate: true
     }
   },
+  computed: Object(_Volumes_MAC_DATA_Workspaces_Daisuke_LifeAnalytics_IAS_project_vue_node_modules_babel_runtime_helpers_esm_objectSpread2__WEBPACK_IMPORTED_MODULE_0__["default"])({}, Object(vuex__WEBPACK_IMPORTED_MODULE_2__["mapState"])({
+    allIndice: function allIndice(state) {
+      return state.image.allIndice;
+    },
+    curPageIdx: function curPageIdx(state) {
+      return state.image.curPageIdx;
+    }
+  })),
   methods: {
     resize: function resize() {
       if (this.count < 3) {
@@ -5996,12 +6030,39 @@ var MAX_HEIGHT = 1000;
         var pos = this.activeSlides.indexOf(slideNo);
 
         if (pos > -1) {
-          this.selectedSlide = this.selectedSlide !== slideNo ? slideNo : -1;
-          this.$emit("click", slideNo);
+          this.selectedSlide = slideNo; // this.$emit("click", slideNo);
+
+          var data = this.$store.getters["image/currentPageInfo"];
+
+          if (!data || data.pageData == undefined || data.dataIndex == undefined || data.pageData.length < slideNo) {
+            return;
+          }
+
+          if (this.allIndice[this.curPageIdx] != slideNo) {
+            this.$store.dispatch("image/changeCurrentData", slideNo);
+          }
         }
       } else {
-        this.selectedSlide = this.selectedSlide !== slideNo ? slideNo : -1;
+        this.selectedSlide = slideNo;
         this.$emit("click", slideNo);
+      }
+    },
+    setActivate: function setActivate() {
+      this.activeSlides = [];
+      var data = this.$store.getters["image/currentPageInfo"];
+
+      if (!data || data.pageData == undefined || data.dataIndex == undefined) {
+        return;
+      }
+
+      var cnt = data.pageData.length;
+
+      for (var idx = 1; idx <= cnt; idx++) {
+        this.activeSlides.push(idx);
+
+        if (idx == data.dataIndex + 1) {
+          this.selectedSlide = idx;
+        }
       }
     }
   }
@@ -6147,8 +6208,20 @@ var MAX_SIZE = 300;
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var core_js_modules_es_number_constructor_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! core-js/modules/es.number.constructor.js */ "./node_modules/core-js/modules/es.number.constructor.js");
-/* harmony import */ var core_js_modules_es_number_constructor_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_number_constructor_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _Volumes_MAC_DATA_Workspaces_Daisuke_LifeAnalytics_IAS_project_vue_node_modules_babel_runtime_helpers_esm_objectSpread2__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./node_modules/@babel/runtime/helpers/esm/objectSpread2 */ "./node_modules/@babel/runtime/helpers/esm/objectSpread2.js");
+/* harmony import */ var core_js_modules_es_number_constructor_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! core-js/modules/es.number.constructor.js */ "./node_modules/core-js/modules/es.number.constructor.js");
+/* harmony import */ var core_js_modules_es_number_constructor_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_number_constructor_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! core-js/modules/es.regexp.exec.js */ "./node_modules/core-js/modules/es.regexp.exec.js");
+/* harmony import */ var core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_regexp_exec_js__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var core_js_modules_es_string_match_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! core-js/modules/es.string.match.js */ "./node_modules/core-js/modules/es.string.match.js");
+/* harmony import */ var core_js_modules_es_string_match_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_es_string_match_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var core_js_modules_web_dom_collections_for_each_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! core-js/modules/web.dom-collections.for-each.js */ "./node_modules/core-js/modules/web.dom-collections.for-each.js");
+/* harmony import */ var core_js_modules_web_dom_collections_for_each_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(core_js_modules_web_dom_collections_for_each_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+
+
+
+
 
 //
 //
@@ -6202,6 +6275,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 var RATIO = 0.6;
 var MAX_HEIGHT = 1000;
 var MAX_FONTSIZE = 14;
@@ -6241,7 +6315,7 @@ var MAX_FONTSIZE = 14;
     },
     check: {
       type: Boolean,
-      default: false
+      default: true
     },
     interaction: {
       type: Boolean,
@@ -6260,7 +6334,14 @@ var MAX_FONTSIZE = 14;
       activeHoles: this.actives
     };
   },
-  computed: {
+  computed: Object(_Volumes_MAC_DATA_Workspaces_Daisuke_LifeAnalytics_IAS_project_vue_node_modules_babel_runtime_helpers_esm_objectSpread2__WEBPACK_IMPORTED_MODULE_0__["default"])(Object(_Volumes_MAC_DATA_Workspaces_Daisuke_LifeAnalytics_IAS_project_vue_node_modules_babel_runtime_helpers_esm_objectSpread2__WEBPACK_IMPORTED_MODULE_0__["default"])({}, Object(vuex__WEBPACK_IMPORTED_MODULE_5__["mapState"])({
+    allIndice: function allIndice(state) {
+      return state.image.allIndice;
+    },
+    curPageIdx: function curPageIdx(state) {
+      return state.image.curPageIdx;
+    }
+  })), {}, {
     size: function size() {
       var rows = this.rows,
           cols = this.cols;
@@ -6284,12 +6365,13 @@ var MAX_FONTSIZE = 14;
         return (row - 1) * _this2.cols + col;
       };
     }
-  },
+  }),
   watch: {
     size: {
       handler: function handler() {
         this.resize();
         this.selectedHole = -1;
+        this.setActivate();
       },
       deep: true,
       immediate: true
@@ -6300,7 +6382,14 @@ var MAX_FONTSIZE = 14;
       },
       deep: true,
       immediate: true
-    }
+    } // "$store.state.vessel.currentVesselId": {
+    //   handler() {
+    //     this.setActivate();
+    //   },
+    //   deep: true,
+    //   immediate: true
+    // }
+
   },
   methods: {
     resize: function resize() {
@@ -6326,19 +6415,67 @@ var MAX_FONTSIZE = 14;
         var pos = this.activeHoles.indexOf(index);
 
         if (pos > -1) {
-          this.selectedHole = this.selectedHole !== index ? index : -1;
-          this.$emit("click", {
-            row: row,
-            col: col
-          });
+          this.selectedHole = index; // this.$emit("click", { row, col });
+
+          var data = this.$store.getters["image/currentPageInfo"];
+
+          if (!data || data.pageData == undefined || data.dataIndex == undefined) {
+            return;
+          }
+
+          var cnt = data.pageData.length;
+
+          for (var idx = 0; idx < cnt; idx++) {
+            var filename = data.pageData[idx].filename;
+            var type = filename.match(/^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
+
+            if (type) {
+              var r = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
+              var c = parseInt(type[6]);
+
+              if (row == r && col == c) {
+                if (this.allIndice[this.curPageIdx - 1] != idx) {
+                  this.$store.dispatch("image/changeCurrentData", idx);
+                }
+
+                break;
+              }
+            }
+          }
         }
       } else {
-        this.selectedHole = this.selectedHole !== index ? index : -1;
+        this.selectedHole = index;
         this.$emit("click", {
           row: row,
           col: col
         });
       }
+    },
+    setActivate: function setActivate() {
+      var _this3 = this;
+
+      this.activeHoles = [];
+      var data = this.$store.getters["image/currentPageInfo"];
+
+      if (!data || data.pageData == undefined || data.dataIndex == undefined) {
+        return;
+      }
+
+      data.pageData.forEach(function (item, idx) {
+        var type = item.filename.match(/^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/);
+
+        if (type) {
+          var row = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
+          var col = parseInt(type[6]);
+          var index = (row - 1) * _this3.cols + col - 1;
+
+          _this3.activeHoles.push(index);
+
+          if (idx == data.dataIndex) {
+            _this3.selectedHole = index;
+          }
+        }
+      });
     }
   }
 });
@@ -9125,7 +9262,7 @@ var render = function() {
                           }
                         },
                         [
-                          !_vm.files.length
+                          !_vm.allFiles.length
                             ? _c(
                                 "div",
                                 {
@@ -9133,7 +9270,7 @@ var render = function() {
                                     "d-flex align-center justify-center fill-height"
                                 },
                                 [
-                                  !_vm.files.length
+                                  !_vm.allFiles.length
                                     ? _c(
                                         "p",
                                         {
@@ -9148,18 +9285,26 @@ var render = function() {
                             : _c(
                                 "v-row",
                                 { staticClass: "align-center" },
-                                _vm._l(_vm.files, function(file, idx) {
+                                _vm._l(_vm.allFiles, function(file, idx) {
                                   return _c(
                                     "v-col",
                                     {
                                       key: idx,
                                       staticClass: "px-4",
-                                      attrs: { cols: "3" }
+                                      attrs: { cols: "3" },
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.selectContent(idx)
+                                        }
+                                      }
                                     },
                                     [
                                       _c("v-img", {
                                         staticClass: "mx-auto",
-                                        attrs: { src: file.imageData, fill: "" }
+                                        attrs: {
+                                          src: _vm.getSource(file),
+                                          fill: ""
+                                        }
                                       }),
                                       _c(
                                         "p",
@@ -11756,7 +11901,7 @@ var render = function() {
                 "v-row",
                 {
                   staticClass:
-                    "d-inline-flex  align-center justify-space-around pa-0 ma-0",
+                    "d-inline-flex align-center justify-space-around pa-0 ma-0",
                   staticStyle: { overflow: "hidden" }
                 },
                 _vm._l(_vm.showName ? _vm.cols + 1 : _vm.cols, function(c) {
@@ -12008,7 +12153,7 @@ module.exports = exports;
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.i, "\n.isDragging[data-v-cd7ea02c] {\n  background-color: #e0f2f1;\n  border-color: #fff;\n}\n.control-panel[data-v-cd7ea02c] {\n  width: calc(100% - 350px);\n}\n.black-border[data-v-cd7ea02c] {\n  width: calc(100% - 350px);\n  border: 1px solid #333;\n}\n\n/* .isDragging {\n  background-color: #e0f2f1;\n  border-color: #fff;\n}\n.name-center {\n  text-align: center;\n}\n.img-align {\n  width: 23%;\n  padding: 10px;\n  margin: 1%;\n}\n.img-align > p {\n  margin: 0px !important;\n}\n.v-img-align {\n  margin: auto;\n}\n#uploadFile {\n  display: none;\n}\n.v-sheet {\n  overflow: auto;\n  padding: 15px !important;\n}\n.v-tab-item {\n  padding-top: 10px;\n}\n.v-card-title {\n  padding-top: 0px;\n}\n.type-align {\n  width: 14.2%;\n  padding: 5px;\n}\n.type-btn {\n  width: 100%;\n  text-transform: none;\n}\n.type-btn >>> input {\n  width: 100%;\n  text-align: center;\n}\n.type-btn >>> label {\n  width: 100%;\n  text-align: center;\n}\n.type-btn >>> .v-input__control {\n  min-height: 30px !important;\n}\n.name-type-input {\n  margin-left: -5px;\n  margin-right: -5px;\n  margin-bottom: -30px;\n}\n.type-spacer {\n  flex-grow: 0.1 !important;\n}\n.common {\n  width: 80px;\n}\n.meta-file-table >>> tr th:nth-child(2),\n.meta-file-table >>> tr td:nth-child(2) {\n  width: 295px !important;\n}\n.name-type-table >>> tr th:nth-child(2),\n.name-type-table >>> tr td:nth-child(2) {\n  width: 295px !important;\n} */\n", ""]);
+exports.push([module.i, "\n.isDragging[data-v-cd7ea02c] {\n  background-color: #e0f2f1;\n  border-color: #fff;\n}\n.control-panel[data-v-cd7ea02c] {\n  width: calc(100% - 350px);\n}\n.black-border[data-v-cd7ea02c] {\n  width: calc(100% - 350px);\n  border: 1px solid #333;\n}\n\n/* .isDragging {\n  background-color: #e0f2f1;\n  border-color: #fff;\n}\n.name-center {\n  text-align: center;\n}\n.img-align {\n  width: 23%;\n  padding: 10px;\n  margin: 1%;\n}\n.img-align > p {\n  margin: 0px !important;\n}\n.v-img-align {\n  margin: auto;\n}\n#uploadFile {\n  display: none;\n}\n.v-sheet {\n  overflow: auto;\n  padding: 15px !important;\n}\n.v-tab-item {\n  padding-top: 10px;\n}\n.v-card-title {\n  padding-top: 0px;\n}\n*/\n.type-align[data-v-cd7ea02c] {\n  width: 14.2%;\n  padding: 5px;\n}\n.type-btn[data-v-cd7ea02c] {\n  width: 100%;\n  text-transform: none;\n}\n.type-btn[data-v-cd7ea02c] input {\n  width: 100%;\n  text-align: center;\n}\n.type-btn[data-v-cd7ea02c] label {\n  width: 100%;\n  text-align: center;\n}\n.type-btn[data-v-cd7ea02c] .v-input__control {\n  min-height: 30px !important;\n}\n.name-type-input[data-v-cd7ea02c] {\n  margin-left: -5px;\n  margin-right: -5px;\n  margin-bottom: -30px;\n}\n.type-spacer[data-v-cd7ea02c] {\n  flex-grow: 0.1 !important;\n}\n.common[data-v-cd7ea02c] {\n  width: 80px;\n}\n.meta-file-table[data-v-cd7ea02c] tr th:nth-child(2),\n.meta-file-table[data-v-cd7ea02c] tr td:nth-child(2) {\n  width: 295px !important;\n}\n.name-type-table[data-v-cd7ea02c] tr th:nth-child(2),\n.name-type-table[data-v-cd7ea02c] tr td:nth-child(2) {\n  width: 295px !important;\n}\n", ""]);
 // Exports
 module.exports = exports;
 

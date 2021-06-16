@@ -36,11 +36,11 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="!files.length"
+                v-if="!allFiles.length"
                 class="d-flex align-center justify-center fill-height"
               >
                 <p
-                  v-if="!files.length"
+                  v-if="!allFiles.length"
                   class="text-h4 grey--text text--lighten-2"
                 >
                   Drag and Drop.
@@ -48,12 +48,13 @@
               </div>
               <v-row v-else class="align-center">
                 <v-col
-                  v-for="(file, idx) in files"
+                  v-for="(file, idx) in allFiles"
                   :key="idx"
                   cols="3"
                   class="px-4"
+                  @click="selectContent(idx)"
                 >
-                  <v-img :src="file.imageData" class="mx-auto" fill />
+                  <v-img :src="getSource(file)" class="mx-auto" fill />
                   <p class="ma-2 text-center text-caption">
                     {{ file.name }}
                   </p>
@@ -366,8 +367,9 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-import { checkFileType } from "../../../../utils/utils-func";
+import { checkFileType/*, tiffImage*/ } from "../../../../utils/utils-func";
 import SimpleDialog from "../../../custom/SimpleDialog";
+// const noPreviewImage = require("../../../../assets/images/no-preview.png");
 
 const { mapState, mapActions } = createNamespacedHelpers("files");
 
@@ -591,17 +593,22 @@ export default {
     },
     drop(e) {
       this.isDragging = false;
+
+      const fileInput = this.$el.querySelector("#uploadFile");
+      fileInput.files = e.dataTransfer.files;
+      this.requestUploadFile();
+
       e.preventDefault();
 
-      this.clearFiles();
+      // this.clearFiles();
 
-      let items = e.dataTransfer.items;
-      for (let i = 0; i < items.length; i++) {
-        let item = items[i].webkitGetAsEntry();
-        if (item) {
-          this.traverseFileTree(item);
-        }
-      }
+      // let items = e.dataTransfer.items;
+      // for (let i = 0; i < items.length; i++) {
+      //   let item = items[i].webkitGetAsEntry();
+      //   if (item) {
+      //     this.traverseFileTree(item);
+      //   }
+      // }
     },
 
     traverseFileTree(item, path) {
@@ -628,9 +635,11 @@ export default {
     requestUploadFile() {
       const fileInput = this.$el.querySelector("#uploadFile");
 
+      console.log(fileInput.files);
+
       if (fileInput.files && fileInput.files.length > 0) {
         this.allFiles = fileInput.files;
-        this.setFiles(fileInput.files);
+        // this.setFiles(fileInput.files);
       }
     },
 
@@ -730,6 +739,24 @@ export default {
       }
 
       return require("../../../../assets/images/no-preview.png");
+
+      // const reader = new FileReader();
+      //   reader.onload = function() {
+      //     let imageData = reader.result;
+
+      //     if (file.type.startsWith("image/tif") || file.type.startsWith("image/tiff")) {
+      //       try {
+      //         imageData = tiffImage(reader.result.substring(23));
+      //       } catch (err) {
+      //         console.error(err);
+      //       }
+      //     }
+
+      //     return imageData.startsWith("data:image") ? imageData : noPreviewImage;
+      //   };
+      //   reader.readAsDataURL(file);
+
+      //   return noPreviewImage;
     },
 
     selectContent(content) {
@@ -945,6 +972,7 @@ export default {
 .v-card-title {
   padding-top: 0px;
 }
+*/
 .type-align {
   width: 14.2%;
   padding: 5px;
@@ -982,5 +1010,5 @@ export default {
 .name-type-table >>> tr th:nth-child(2),
 .name-type-table >>> tr td:nth-child(2) {
   width: 295px !important;
-} */
+}
 </style>
