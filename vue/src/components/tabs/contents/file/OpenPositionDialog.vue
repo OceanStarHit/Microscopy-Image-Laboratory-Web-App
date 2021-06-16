@@ -36,11 +36,11 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="!files.length"
+                v-if="!allFiles.length"
                 class="d-flex align-center justify-center fill-height"
               >
                 <p
-                  v-if="!files.length"
+                  v-if="!allFiles.length"
                   class="text-h4 grey--text text--lighten-2"
                 >
                   Drag and Drop.
@@ -48,12 +48,13 @@
               </div>
               <v-row v-else class="align-center">
                 <v-col
-                  v-for="(file, idx) in files"
+                  v-for="(file, idx) in allFiles"
                   :key="idx"
                   cols="3"
                   class="px-4"
+                  @click="selectContent(idx)"
                 >
-                  <v-img :src="file.imageData" class="mx-auto" fill />
+                  <v-img :src="getSource(file)" class="mx-auto" fill />
                   <p class="ma-2 text-center text-caption">
                     {{ file.name }}
                   </p>
@@ -591,17 +592,22 @@ export default {
     },
     drop(e) {
       this.isDragging = false;
+
+      // const fileInput = this.$el.querySelector("#uploadFile");
+      // fileInput.files = e.dataTransfer.files;
+      this.requestUploadFile();
+
       e.preventDefault();
 
-      this.clearFiles();
+      // this.clearFiles();
 
-      let items = e.dataTransfer.items;
-      for (let i = 0; i < items.length; i++) {
-        let item = items[i].webkitGetAsEntry();
-        if (item) {
-          this.traverseFileTree(item);
-        }
-      }
+      // let items = e.dataTransfer.items;
+      // for (let i = 0; i < items.length; i++) {
+      //   let item = items[i].webkitGetAsEntry();
+      //   if (item) {
+      //     this.traverseFileTree(item);
+      //   }
+      // }
     },
 
     traverseFileTree(item, path) {
@@ -630,7 +636,7 @@ export default {
 
       if (fileInput.files && fileInput.files.length > 0) {
         this.allFiles = fileInput.files;
-        this.setFiles(fileInput.files);
+        // this.setFiles(fileInput.files);
       }
     },
 
