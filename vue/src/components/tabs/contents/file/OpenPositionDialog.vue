@@ -367,8 +367,9 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-import { checkFileType } from "../../../../utils/utils-func";
+import { checkFileType/*, tiffImage*/ } from "../../../../utils/utils-func";
 import SimpleDialog from "../../../custom/SimpleDialog";
+// const noPreviewImage = require("../../../../assets/images/no-preview.png");
 
 const { mapState, mapActions } = createNamespacedHelpers("files");
 
@@ -593,8 +594,8 @@ export default {
     drop(e) {
       this.isDragging = false;
 
-      // const fileInput = this.$el.querySelector("#uploadFile");
-      // fileInput.files = e.dataTransfer.files;
+      const fileInput = this.$el.querySelector("#uploadFile");
+      fileInput.files = e.dataTransfer.files;
       this.requestUploadFile();
 
       e.preventDefault();
@@ -633,6 +634,8 @@ export default {
 
     requestUploadFile() {
       const fileInput = this.$el.querySelector("#uploadFile");
+
+      console.log(fileInput.files);
 
       if (fileInput.files && fileInput.files.length > 0) {
         this.allFiles = fileInput.files;
@@ -736,6 +739,24 @@ export default {
       }
 
       return require("../../../../assets/images/no-preview.png");
+
+      // const reader = new FileReader();
+      //   reader.onload = function() {
+      //     let imageData = reader.result;
+
+      //     if (file.type.startsWith("image/tif") || file.type.startsWith("image/tiff")) {
+      //       try {
+      //         imageData = tiffImage(reader.result.substring(23));
+      //       } catch (err) {
+      //         console.error(err);
+      //       }
+      //     }
+
+      //     return imageData.startsWith("data:image") ? imageData : noPreviewImage;
+      //   };
+      //   reader.readAsDataURL(file);
+
+      //   return noPreviewImage;
     },
 
     selectContent(content) {
@@ -951,6 +972,7 @@ export default {
 .v-card-title {
   padding-top: 0px;
 }
+*/
 .type-align {
   width: 14.2%;
   padding: 5px;
@@ -988,5 +1010,5 @@ export default {
 .name-type-table >>> tr th:nth-child(2),
 .name-type-table >>> tr td:nth-child(2) {
   width: 295px !important;
-} */
+}
 </style>
