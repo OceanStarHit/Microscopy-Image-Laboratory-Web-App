@@ -1,0 +1,9 @@
+# python
+myenv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+pip-log.txt
+*.log
+db.sqlite3
