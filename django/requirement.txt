@@ -2,10 +2,12 @@ asgiref
 astroid
 Django
 django-cors-headers
+gunicorn
 imageio
 isort
 lazy-object-proxy
 mccabe
+mysqlclient
 numpy
 opencv-python
 Pillow
@@ -16,4 +18,3 @@ sqlparse
 toml
 typed-ast
 wrapt
-mysqlclient
