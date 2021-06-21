@@ -31,6 +31,7 @@ COPY . .
 
 EXPOSE 8000
 
-# ENTRYPOINT ["./scripts/entrypoint.sh"]
+RUN chmod +x ./scripts/entrypoint.sh
+RUN ./scripts/entrypoint.sh
 
-CMD ["gunicorn", "--bind", ":8000", "backend.wsgi:application"]
+# CMD ["gunicorn", "--bind", ":8000", "backend.wsgi:application"]
