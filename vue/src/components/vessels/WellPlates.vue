@@ -23,7 +23,7 @@
         <div
           v-if="showName"
           class="pa-0 ma-0 text-center"
-          :style="{ 'font-size': fontSize + 'px', width: radius + 'px' }"
+          :style="{ 'font-size': fontSize + 'px', width: radius + 'px', height: radius + 'px' }"
         >
           {{ String.fromCharCode(64 + r) }}
         </div>

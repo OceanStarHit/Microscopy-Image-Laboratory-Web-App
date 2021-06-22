@@ -35,6 +35,8 @@ services:
       - 8000
     depends_on:
       - db
+    networks:
+      - custom_network
 
   ui:
     build: ./vue
@@ -45,6 +47,8 @@ services:
       - 80
     depends_on:
       - api
+    networks:
+    - custom_network
 
   nginx:
     build: ./docker/nginx
@@ -53,6 +57,8 @@ services:
     ports:
       - 81:80
       - 8000:8000
+    networks:
+      - custom_network
     environment:
       TZ: Asia/Tokyo
       CLIENT_MAX_BODY_SIZE: 64M
@@ -73,3 +79,7 @@ services:
 
 volumes:
   db-data:
+
+networks:
+  custom_network:
+    driver: bridge
