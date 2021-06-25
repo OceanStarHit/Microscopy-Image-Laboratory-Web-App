@@ -27,9 +27,11 @@ export default {
     isDragging: false,
     imageView: null,
     imageSource: null,
-    publicPath: process.env.VUE_APP_STATIC_URL === undefined || process.env.VUE_APP_STATIC_URL === null 
-      ? "../../"
-      : process.env.VUE_APP_STATIC_URL
+    publicPath:
+      process.env.VUE_APP_STATIC_URL === undefined ||
+      process.env.VUE_APP_STATIC_URL === null
+        ? "../../"
+        : process.env.VUE_APP_STATIC_URL
   }),
 
   created() {

@@ -2,12 +2,18 @@ import tiff from "tiff.js";
 import atob from "atob";
 import { FILE_TYPES } from "./file-types";
 
+const getFileName = fname => {
+  const regex = /(.*)\.[^\.]+/g;/* eslint-disable-line */
+  let filename = regex.exec(fname);
+
+  return filename ? filename[1] : "";
+};
+
 const getFileExtension = filename => {
   const regex = /(?:\.([^.]+))?$/;
+  let extension = regex.exec(filename);
 
-  let extension = regex.exec(filename)[1];
-
-  return extension ? "." + extension : "";
+  return extension ? "." + extension[1] : "";
 };
 
 const checkFileType = filename => {
@@ -33,4 +39,4 @@ const tiffImage = base64 => {
   return tiff_data.toDataURL();
 };
 
-export { checkFileType, tiffImage };
+export { getFileName, getFileExtension, checkFileType, tiffImage };
