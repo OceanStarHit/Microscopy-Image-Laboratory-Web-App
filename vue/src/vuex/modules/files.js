@@ -3,10 +3,14 @@ import { tiffImage } from "../../utils/utils-func";
 const noPreviewImage = require("../../assets/images/no-preview.png");
 
 const position = {
+  namespaced: true,
+
   state: () => ({
     files: []
   }),
-  getters: {},
+  getters: {
+    getFiles: state => state.files
+  },
   actions: {
     setFiles({ commit }, files) {
       commit("clearFiles");
