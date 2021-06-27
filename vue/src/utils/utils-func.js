@@ -40,9 +40,10 @@ const tiffImage = base64 => {
 };
 
 const isOverlapped = (a, b) => {
-  console.log(a, b);
-  return Math.max(a[1], b[1]) - Math.min(a[0], b[0]) < (a[1] - a[0]) + (b[1] - b[0]);
-}
+  return (
+    Math.max(a[1], b[1]) - Math.min(a[0], b[0]) < a[1] - a[0] + (b[1] - b[0])
+  );
+};
 
 export {
   getFileName,
