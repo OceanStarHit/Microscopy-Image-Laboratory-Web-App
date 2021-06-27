@@ -403,7 +403,11 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-import { getFileName, checkFileType, isOverlapped } from "../../../../utils/utils-func";
+import {
+  getFileName,
+  checkFileType,
+  isOverlapped
+} from "../../../../utils/utils-func";
 import SimpleDialog from "../../../custom/SimpleDialog";
 
 const positionModule = createNamespacedHelpers("files/position");
@@ -469,7 +473,7 @@ export default {
     selectionRange: {
       text: "",
       startOffset: -1,
-      endOffset: -1,
+      endOffset: -1
     },
     namePatterns: [
       { label: "Series", text: "", start: -1, end: -1, color: "success" },
@@ -576,9 +580,13 @@ export default {
 
     exampleFileName() {
       let fileNameOnly = getFileName(this.selectedFileName);
-      var html = "", start = 0, str = "";
+      var html = "",
+        start = 0,
+        str = "";
 
-      const patterns = this.namePatterns.filter(n => n.start > -1).map(n => Object.assign({}, n));
+      const patterns = this.namePatterns
+        .filter(n => n.start > -1)
+        .map(n => Object.assign({}, n));
       for (var i = 0; i < patterns.length; i++) {
         for (var j = i + 1; j < patterns.length; j++) {
           if (patterns[i].start > patterns[j].start) {
@@ -595,7 +603,7 @@ export default {
         str = fileNameOnly.substring(patterns[i].start, patterns[i].end);
         html += `<pre class="${patterns[i].color}--text">${str}</pre>`;
 
-        start = patterns[i].end
+        start = patterns[i].end;
       }
 
       str = fileNameOnly.substring(start, fileNameOnly.length);
@@ -669,14 +677,20 @@ export default {
     },
     selectExampleString(e) {
       console.log(e);
-      if (typeof window.getSelection != 'undefined') {
-        let sel = window.getSelection(), range = sel.getRangeAt(0);
-        let selectionRect = range.getBoundingClientRect(), fullRect = this.$refs.exampleBox.getBoundingClientRect();
+      if (typeof window.getSelection != "undefined") {
+        let sel = window.getSelection(),
+          range = sel.getRangeAt(0);
+        let selectionRect = range.getBoundingClientRect(),
+          fullRect = this.$refs.exampleBox.getBoundingClientRect();
 
         this.selectionRange.text = range.toString();
 
-        this.selectionRange.startOffset = Math.round((selectionRect.left - fullRect.left) / selectionRect.width * range.toString().length);
-        this.selectionRange.endOffset = this.selectionRange.startOffset + range.toString().length;
+        this.selectionRange.startOffset = Math.round(
+          ((selectionRect.left - fullRect.left) / selectionRect.width) *
+            range.toString().length
+        );
+        this.selectionRange.endOffset =
+          this.selectionRange.startOffset + range.toString().length;
       }
     },
     traverseFileTree(item, path) {
@@ -748,16 +762,21 @@ export default {
     },
 
     clickNamePattern(index) {
-      const {text, startOffset, endOffset} = this.selectionRange;
+      const { text, startOffset, endOffset } = this.selectionRange;
       let selectedText = this.getSelectionText();
 
       if (text != "" && selectedText != "") {
         if (text == selectedText) {
           if (startOffset > -1 && endOffset > -1) {
-
             const patterns = this.namePatterns.filter(n => n.start > -1);
             for (var i = 0; i < patterns.length; i++) {
-              if (isOverlapped([patterns[i].start, patterns[i].end], [startOffset, endOffset])) break;
+              if (
+                isOverlapped(
+                  [patterns[i].start, patterns[i].end],
+                  [startOffset, endOffset]
+                )
+              )
+                break;
             }
 
             if (i == patterns.length) {
@@ -774,9 +793,9 @@ export default {
     getSelectionText() {
       var text = "";
       if (window.getSelection) {
-          text = window.getSelection().toString();
+        text = window.getSelection().toString();
       } else if (document.selection && document.selection.type != "Control") {
-          text = document.selection.createRange().text;
+        text = document.selection.createRange().text;
       }
       return text.replaceAll("\n", "");
     },
@@ -877,7 +896,9 @@ export default {
 
     getPatternValue(index, filename) {
       const pattern = this.namePatterns[index];
-      return pattern.start == -1 ? "" : filename.substring(pattern.start, pattern.end);
+      return pattern.start == -1
+        ? ""
+        : filename.substring(pattern.start, pattern.end);
     }
   }
 };
