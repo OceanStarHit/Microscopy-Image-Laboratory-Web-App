@@ -675,7 +675,7 @@ export default {
         }
       }
     },
-    selectExampleString(e) {
+    selectExampleString(e) {/* eslint-disable-line */
       if (typeof window.getSelection != "undefined") {
         let sel = window.getSelection(),
           range = sel.getRangeAt(0);
