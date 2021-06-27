@@ -676,7 +676,6 @@ export default {
       }
     },
     selectExampleString(e) {
-      console.log(e);
       if (typeof window.getSelection != "undefined") {
         let sel = window.getSelection(),
           range = sel.getRangeAt(0);
@@ -787,7 +786,6 @@ export default {
           }
         }
       }
-      console.log(this.namePatterns.filter(n => n.start > -1));
     },
 
     getSelectionText() {
