@@ -295,6 +295,7 @@
               @dragover.prevent="dragOver"
               @dragleave.prevent="dragLeave"
               @drop.prevent="drop($event)"
+              v-on:mouseup="selectExampleString"
             >
               <div
                 v-if="files.length == 0"
@@ -311,7 +312,12 @@
                   >
                     <v-row class="align-center justify-center">
                       <p class="mb-0 mr-8">Example</p>
-                      <div ref="exampleBox" class="d-flex example-string" v-html="exampleFileName" v-on:mouseup="selectExampleString"></div>
+                      <div
+                        ref="exampleBox"
+                        class="d-flex example-string"
+                        v-html="exampleFileName"
+                        v-on:mouseup="selectExampleString"
+                      ></div>
                     </v-row>
                   </div>
                   <v-select
@@ -772,7 +778,7 @@ export default {
       } else if (document.selection && document.selection.type != "Control") {
           text = document.selection.createRange().text;
       }
-      return text;
+      return text.replaceAll("\n", "");
     },
 
     getMainName() {
