@@ -311,7 +311,7 @@
                   >
                     <v-row class="align-center justify-center">
                       <p class="mb-0 mr-8">Example</p>
-                      <div class="d-flex example-string" v-html="exampleFileName"></div>
+                      <div ref="exampleBox" class="d-flex example-string" v-html="exampleFileName" v-on:mouseup="selectExampleString"></div>
                     </v-row>
                   </div>
                   <v-select
@@ -397,7 +397,7 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-import { getFileName, checkFileType } from "../../../../utils/utils-func";
+import { getFileName, checkFileType, isOverlapped } from "../../../../utils/utils-func";
 import SimpleDialog from "../../../custom/SimpleDialog";
 
 const positionModule = createNamespacedHelpers("files/position");
@@ -460,6 +460,11 @@ export default {
     searchNameType: "",
     selectedNameContents: [],
     selectedFileName: "",
+    selectionRange: {
+      text: "",
+      startOffset: -1,
+      endOffset: -1,
+    },
     namePatterns: [
       { label: "Series", text: "", start: -1, end: -1, color: "success" },
       { label: "Row", text: "", start: -1, end: -1, color: "primary" },
@@ -615,7 +620,7 @@ export default {
       }
       return contents;
     },
-    
+
     getMetaContents() {
       const contents = [];
       this.allFiles.forEach(file => {
@@ -654,6 +659,18 @@ export default {
         if (item) {
           this.traverseFileTree(item);
         }
+      }
+    },
+    selectExampleString(e) {
+      console.log(e);
+      if (typeof window.getSelection != 'undefined') {
+        let sel = window.getSelection(), range = sel.getRangeAt(0);
+        let selectionRect = range.getBoundingClientRect(), fullRect = this.$refs.exampleBox.getBoundingClientRect();
+
+        this.selectionRange.text = range.toString();
+
+        this.selectionRange.startOffset = Math.round((selectionRect.left - fullRect.left) / selectionRect.width * range.toString().length);
+        this.selectionRange.endOffset = this.selectionRange.startOffset + range.toString().length;
       }
     },
     traverseFileTree(item, path) {
@@ -725,28 +742,37 @@ export default {
     },
 
     clickNamePattern(index) {
-      let fileNameOnly = getFileName(this.selectedFileName);
+      const {text, startOffset, endOffset} = this.selectionRange;
+      let selectedText = this.getSelectionText();
 
-      let text = this.namePatterns[index].text;
-      let start = -1;
+      if (text != "" && selectedText != "") {
+        if (text == selectedText) {
+          if (startOffset > -1 && endOffset > -1) {
 
-      while (true) { /* eslint-disable-line no-constant-condition */ 
-        start = fileNameOnly.indexOf(text, start + 1);
+            const patterns = this.namePatterns.filter(n => n.start > -1);
+            for (var i = 0; i < patterns.length; i++) {
+              if (isOverlapped([patterns[i].start, patterns[i].end], [startOffset, endOffset])) break;
+            }
 
-        const patterns = this.namePatterns.filter(n => n.start > -1);
-        for (var i = 0; i < patterns.length; i++) {
-          if (patterns[i].start < start && start < patterns[i].end) break;
-        }
-
-        if (i == patterns.length) {
-          break;
+            if (i == patterns.length) {
+              this.namePatterns[index].text = text;
+              this.namePatterns[index].start = startOffset;
+              this.namePatterns[index].end = endOffset;
+            }
+          }
         }
       }
+      console.log(this.namePatterns.filter(n => n.start > -1));
+    },
 
-      if (start > -1) {
-        this.namePatterns[index].start = start;
-        this.namePatterns[index].end = start + text.length;
+    getSelectionText() {
+      var text = "";
+      if (window.getSelection) {
+          text = window.getSelection().toString();
+      } else if (document.selection && document.selection.type != "Control") {
+          text = document.selection.createRange().text;
       }
+      return text;
     },
 
     getMainName() {
