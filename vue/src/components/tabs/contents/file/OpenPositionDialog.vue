@@ -6,7 +6,7 @@
       class="d-none"
       @change="requestUploadFile"
     />
-    <v-dialog v-model="visibleDialog" max-width="980">
+    <v-dialog v-model="visibleDialog" max-width="1080">
       <simple-dialog
         title="Position"
         okTitle="Select"
@@ -39,18 +39,13 @@
                 v-if="!files.length"
                 class="d-flex align-center justify-center fill-height"
               >
-                <p
-                  v-if="!files.length"
-                  class="text-h4 grey--text text--lighten-2"
-                >
-                  Drag and Drop.
-                </p>
+                <p class="text-h4 grey--text text--lighten-2">{{ backgroundText }}</p>
               </div>
               <v-row v-else class="align-center">
                 <v-col
                   v-for="(file, idx) in files"
                   :key="idx"
-                  cols="3"
+                  cols="2"
                   class="px-4"
                 >
                   <v-img
@@ -58,8 +53,8 @@
                     lazy-src="../../../../assets/images/image-placeholder.png"
                     class="mx-auto"
                     aspect-ratio="1"
-                    width="150"
-                    height="150"
+                    width="130"
+                    height="130"
                   />
                   <p class="ma-2 text-center text-caption">
                     {{ file.name }}
@@ -256,11 +251,10 @@
               @drop.prevent="drop($event)"
             >
               <div
-                v-if="!allFiles.length"
-                class="d-flex align-center justify-center"
-                style="height: 200px"
+                v-if="!files.length"
+                class="d-flex align-center justify-center fill-height"
               >
-                <p class="text-h4 grey--text text--lighten-2">Drag and Drop.</p>
+                <p class="text-h4 grey--text text--lighten-2">{{ backgroundText }}</p>
               </div>
               <v-card v-else>
                 <v-card-title class="v-card-title">
@@ -299,10 +293,9 @@
             >
               <div
                 v-if="files.length == 0"
-                class="d-flex align-center justify-center"
-                style="height: 200px"
+                class="d-flex align-center justify-center fill-height"
               >
-                <p class="text-h4 grey--text text--lighten-2">Drag and Drop.</p>
+                <p class="text-h4 grey--text text--lighten-2">{{ backgroundText }}</p>
               </div>
               <div v-else>
                 <v-row class="justify-center mx-5">
@@ -406,6 +399,7 @@ import { createNamespacedHelpers } from "vuex";
 import {
   getFileName,
   checkFileType,
+  enumerateDirectory,
   isOverlapped
 } from "../../../../utils/utils-func";
 import SimpleDialog from "../../../custom/SimpleDialog";
@@ -418,6 +412,8 @@ export default {
   components: { SimpleDialog },
 
   data: () => ({
+    loading: false,
+
     isDragging: false,
     selectedTab: null,
     tilingMenus: [
@@ -485,15 +481,15 @@ export default {
       { label: "Time Point", text: "", start: -1, end: -1, color: "error" }
     ],
     nameTypeTableHeaders: [
-      { text: "No", value: "no", sortable: false },
-      { text: "FileName", value: "filename", sortable: false },
-      { text: "Series", value: "series", sortable: false },
-      { text: "Row", value: "row", sortable: false },
-      { text: "Column", value: "column", sortable: false },
-      { text: "Field", value: "field", sortable: false },
-      { text: "View Method", value: "viewMethod", sortable: false },
-      { text: "Z Position", value: "zPosition", sortable: false },
-      { text: "Time Point", value: "timepoint", sortable: false }
+      { text: "No", value: "no" },
+      { text: "FileName", value: "filename" },
+      { text: "Series", value: "series" },
+      { text: "Row", value: "row" },
+      { text: "Column", value: "column" },
+      { text: "Field", value: "field" },
+      { text: "View Method", value: "viewMethod" },
+      { text: "Z Position", value: "zPosition" },
+      { text: "Time Point", value: "timepoint" }
     ]
   }),
 
@@ -554,6 +550,10 @@ export default {
   },
 
   computed: {
+    ...positionModule.mapGetters({
+      files: "getFiles"
+    }),
+
     visibleDialog: {
       get() {
         return this.value;
@@ -565,9 +565,10 @@ export default {
     getClasses() {
       return { isDragging: this.isDragging };
     },
-    ...positionModule.mapGetters({
-      files: "getFiles"
-    }),
+
+    backgroundText() {
+      return this.loading ? "Loading..." : "Drag and drop files or a folder"
+    },
 
     fileNames() {
       let filename_array = [];
@@ -656,7 +657,12 @@ export default {
   },
 
   methods: {
-    ...positionModule.mapActions(["setFiles", "clearFiles", "addFile"]),
+    ...positionModule.mapActions([
+      "setFiles",
+      "clearFiles",
+      "addFile"
+    ]),
+
     dragOver() {
       this.isDragging = true;
     },
@@ -671,25 +677,30 @@ export default {
       for (let i = 0; i < items.length; i++) {
         let item = items[i].webkitGetAsEntry();
         if (item) {
+          this.loading = true;
           this.traverseFileTree(item);
         }
       }
     },
     selectExampleString(e) {/* eslint-disable-line */
       if (typeof window.getSelection != "undefined") {
-        let sel = window.getSelection(),
-          range = sel.getRangeAt(0);
-        let selectionRect = range.getBoundingClientRect(),
-          fullRect = this.$refs.exampleBox.getBoundingClientRect();
+        try {
+          let sel = window.getSelection(),
+            range = sel.getRangeAt(0);
+          let selectionRect = range.getBoundingClientRect(),
+            fullRect = this.$refs.exampleBox.getBoundingClientRect();
 
-        this.selectionRange.text = range.toString();
+          this.selectionRange.text = range.toString();
 
-        this.selectionRange.startOffset = Math.round(
-          ((selectionRect.left - fullRect.left) / selectionRect.width) *
-            range.toString().length
-        );
-        this.selectionRange.endOffset =
-          this.selectionRange.startOffset + range.toString().length;
+          this.selectionRange.startOffset = Math.round(
+            ((selectionRect.left - fullRect.left) / selectionRect.width) *
+              range.toString().length
+          );
+          this.selectionRange.endOffset =
+            this.selectionRange.startOffset + range.toString().length;
+        } catch (error) {
+          console.log(error);
+        }
       }
     },
     traverseFileTree(item, path) {
@@ -701,12 +712,13 @@ export default {
             self.addFile(file);
           }
         });
+        self.loading = false;
       } else if (item.isDirectory) {
-        let dirReader = item.createReader();
-        dirReader.readEntries(function(entries) {
+        enumerateDirectory(item).then(entries => {
           for (let i = 0; i < entries.length; i++) {
             self.traverseFileTree(entries[i], path + item.name + "/");
           }
+          self.loading = false;
         });
       }
     },
