@@ -24,10 +24,12 @@
 </template>
 
 <script>
-const RATIO = 0.5;
-const MAX_HEIGHT = 1000;
-const GAP = 10;
-const MAX_SIZE = 300;
+import {
+  VESSEL_WAFER_RATIO,
+  VESSEL_WAFER_MAX_HEIGHT,
+  VESSEL_WAFER_GAP,
+  VESSEL_WAFER_MAX_SIZE
+} from "../../utils/constants";
 
 export default {
   name: "Wafer",
@@ -93,20 +95,20 @@ export default {
 
   methods: {
     resize: function() {
-      if (this.width * RATIO > MAX_HEIGHT) {
-        this.rect.height = MAX_HEIGHT;
-        this.rect.width = this.height / RATIO;
+      if (this.width * VESSEL_WAFER_RATIO > VESSEL_WAFER_MAX_HEIGHT) {
+        this.rect.height = VESSEL_WAFER_MAX_HEIGHT;
+        this.rect.width = this.height / VESSEL_WAFER_RATIO;
       } else {
         this.rect.width = this.width;
-        this.rect.height = this.width * RATIO;
+        this.rect.height = this.width * VESSEL_WAFER_RATIO;
       }
 
-      const max_radius = this.rect.height - GAP;
+      const max_radius = this.rect.height - VESSEL_WAFER_GAP;
 
       this.radius =
-        this.size > MAX_SIZE
+        this.size > VESSEL_WAFER_MAX_SIZE
           ? max_radius
-          : Math.abs(Math.ceil(this.size * max_radius) / MAX_SIZE);
+          : Math.abs(Math.ceil(this.size * max_radius) / VESSEL_WAFER_MAX_SIZE);
     },
 
     clicked: function() {
