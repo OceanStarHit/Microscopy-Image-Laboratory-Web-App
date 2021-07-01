@@ -69,11 +69,21 @@ const isOverlapped = (a, b) => {
   );
 };
 
+const loadImage = (src) => {
+  return new Promise((resolve, reject) => {
+    let _image = new Image()
+    _image.onload = () => resolve(_image)
+    _image.onerror = reject
+    _image.src = src
+  })
+}
+
 export {
   getFileName,
   getFileExtension,
   checkFileType,
   tiffImage,
   enumerateDirectory,
-  isOverlapped
+  isOverlapped,
+  loadImage
 };

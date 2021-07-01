@@ -15,7 +15,7 @@
         @select="onSelect"
         @close="onClose"
       >
-        <v-tabs v-model="selectedTab" fixed-tabs>
+        <v-tabs v-model="selectedTab" fixed-tabs @change="onTabChange">
           <v-tab href="#tabs-images" class="primary--text">Images</v-tab>
           <v-tab href="#tabs-tiling" class="primary--text">Tiling</v-tab>
           <v-tab href="#tabs-metadata" class="primary--text">Metadata</v-tab>
@@ -63,7 +63,7 @@
               </v-row>
             </v-sheet>
           </v-tab-item>
-          <v-tab-item value="tabs-tiling" class="v-tab-item">
+          <v-tab-item value="tabs-tiling" class="v-tab-item" eager>
             <v-sheet class="drop pa-5" height="600">
               <v-row no-gutters>
                 <v-col cols="2">
@@ -95,7 +95,7 @@
                       <div class="control-panel">
                         <v-list
                           class="overflow-y-auto fill-height mr-4"
-                          max-height="350"
+                          max-height="450"
                           outlined
                         >
                           <v-list-item v-for="(file, idx) in files" :key="idx">
@@ -107,13 +107,14 @@
                           </v-list-item>
                         </v-list>
                       </div>
-                      <v-img
+                      <canvas id="canvas" ref="canvas" class="black-border"></canvas>
+                      <!-- <v-img
                         src=""
                         class="black-border"
                         width="350"
                         height="350"
                         fill
-                      />
+                      /> -->
                     </div>
                   </v-card>
 
@@ -400,7 +401,8 @@ import {
   getFileName,
   checkFileType,
   enumerateDirectory,
-  isOverlapped
+  isOverlapped,
+  loadImage
 } from "../../../../utils/utils-func";
 import SimpleDialog from "../../../custom/SimpleDialog";
 
@@ -416,6 +418,7 @@ export default {
 
     isDragging: false,
     selectedTab: null,
+
     tilingMenus: [
       "Edit",
       "Alignment",
@@ -425,6 +428,8 @@ export default {
       "Result",
       "Option"
     ],
+    tilingCanvas: null,
+
     activeMenuItem: 0,
     activeAlignMode: null,
     alignOrder: [],
@@ -530,6 +535,10 @@ export default {
       files => {
         if (files.length) {
           this.selectedFileName = files[0].name;
+
+          if (this.tilingCanvas) {
+            this.drawImages();
+          }
         }
       }
     );
@@ -657,12 +666,39 @@ export default {
   },
 
   methods: {
+    // Mapping actions from Position store
     ...positionModule.mapActions([
       "setFiles",
       "clearFiles",
       "addFile"
     ]),
 
+    // Tab change
+    async onTabChange(tabIdx) {
+      if (tabIdx == 'tabs-tiling') {
+        if (this.tilingCanvas == null) {
+          let c = document.getElementById('canvas');
+          this.tilingCanvas = c.getContext('2d');
+
+          this.tilingCanvas.canvas.width = 1000;
+          this.tilingCanvas.canvas.height = 1000;
+        }
+
+        this.drawImages();
+      }
+    },
+    async drawImages() {
+      if (this.files && this.files.length) {
+        this.tilingCanvas.clearRect(0, 0, this.tilingCanvas.canvas.width, this.tilingCanvas.canvas.height);
+
+        for (var i = 0; i < this.files.length; i++ ) {
+          let imageURL = await loadImage(this.files[i].imageData);
+          this.tilingCanvas.drawImage(imageURL, i * 100, 0, 100, 100);
+        }
+      }
+    },
+
+    // Drag&Drop files or folder
     dragOver() {
       this.isDragging = true;
     },
@@ -682,6 +718,41 @@ export default {
         }
       }
     },
+    traverseFileTree(item, path) {
+      let self = this;
+      path = path || "";
+      if (item.isFile) {
+        item.file(function(file) {
+          if (checkFileType(file.name)) {
+            self.addFile(file);
+          }
+        });
+        self.loading = false;
+      } else if (item.isDirectory) {
+        enumerateDirectory(item).then(entries => {
+          entries = entries.sort(function(a, b) {
+            return a.name.localeCompare(b.name, undefined, {
+              numeric: true,
+              sensitivity: 'base'
+            });
+          });
+
+          for (let i = 0; i < entries.length; i++) {
+            self.traverseFileTree(entries[i], path + item.name + "/");
+          }
+          self.loading = false;
+        });
+      }
+    },
+    requestUploadFile() {
+      const fileInput = this.$el.querySelector("#uploadFile");
+      if (fileInput.files && fileInput.files.length > 0) {
+        this.allFiles = fileInput.files;
+        this.setFiles(fileInput.files);
+      }
+    },
+
+    // Select example string in names&types tab
     selectExampleString(e) {/* eslint-disable-line */
       if (typeof window.getSelection != "undefined") {
         try {
@@ -703,32 +774,8 @@ export default {
         }
       }
     },
-    traverseFileTree(item, path) {
-      let self = this;
-      path = path || "";
-      if (item.isFile) {
-        item.file(function(file) {
-          if (checkFileType(file.name)) {
-            self.addFile(file);
-          }
-        });
-        self.loading = false;
-      } else if (item.isDirectory) {
-        enumerateDirectory(item).then(entries => {
-          for (let i = 0; i < entries.length; i++) {
-            self.traverseFileTree(entries[i], path + item.name + "/");
-          }
-          self.loading = false;
-        });
-      }
-    },
-    requestUploadFile() {
-      const fileInput = this.$el.querySelector("#uploadFile");
-      if (fileInput.files && fileInput.files.length > 0) {
-        this.allFiles = fileInput.files;
-        this.setFiles(fileInput.files);
-      }
-    },
+
+    // Click select button
     onSelect() {
       this.visibleDialog = false;
       if (!this.allFiles) {
@@ -751,6 +798,7 @@ export default {
       this.$store.dispatch("image/setNewFiles", formData);
     },
 
+    // Click close button
     onClose() {
       this.visibleDialog = false;
     },
@@ -926,6 +974,7 @@ export default {
 
 .black-border {
   width: calc(100% - 350px);
+  height: 450px;
   border: 1px solid #333;
 }
 
