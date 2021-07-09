@@ -19,3 +19,9 @@ export const VESSEL_WAFER_RATIO = 0.5;
 export const VESSEL_WAFER_MAX_HEIGHT = 1000;
 export const VESSEL_WAFER_GAP = 10;
 export const VESSEL_WAFER_MAX_SIZE = 300;
+
+// components/tabs/contents/file/openpositiondialog
+export const POSITION_DIALOG_CANVAS_MAX_PIXEL = 4096;
+export const POSITION_DIALOG_COL_COUNT = 19;
+export const POSITION_DIALOG_CELL_SIZE = 100;
+export const POSITION_DIALOG_STROKE_WIDTH = 8;

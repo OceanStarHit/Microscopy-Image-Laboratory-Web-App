@@ -196,7 +196,10 @@ export default {
           : this.rect.width / a_cols;
       this.radius = Math.floor(Math.floor(radius) * 0.9);
 
-      this.fontSize = radius / 2 > VESSEL_WELLPLATE_MAX_FONTSIZE ? VESSEL_WELLPLATE_MAX_FONTSIZE : radius / 2;
+      this.fontSize =
+        radius / 2 > VESSEL_WELLPLATE_MAX_FONTSIZE
+          ? VESSEL_WELLPLATE_MAX_FONTSIZE
+          : radius / 2;
     },
 
     clicked: function(row, col) {
