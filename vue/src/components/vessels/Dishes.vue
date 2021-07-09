@@ -25,10 +25,12 @@
 </template>
 
 <script>
-const RATIO = 0.5;
-const MAX_HEIGHT = 1000;
-const GAP = 10;
-const MAX_SIZE = 100;
+import {
+  VESSEL_DISH_RATIO,
+  VESSEL_DISH_MAX_HEIGHT,
+  VESSEL_DISH_GAP,
+  VESSEL_DISH_MAX_SIZE
+} from "../../utils/constants";
 
 export default {
   name: "Dish",
@@ -98,20 +100,20 @@ export default {
 
   methods: {
     resize: function() {
-      if (this.width * RATIO > MAX_HEIGHT) {
-        this.rect.height = MAX_HEIGHT;
-        this.rect.width = this.rect.height / RATIO;
+      if (this.width * VESSEL_DISH_RATIO > VESSEL_DISH_MAX_HEIGHT) {
+        this.rect.height = VESSEL_DISH_MAX_HEIGHT;
+        this.rect.width = this.rect.height / VESSEL_DISH_RATIO;
       } else {
         this.rect.width = this.width;
-        this.rect.height = this.width * RATIO;
+        this.rect.height = this.width * VESSEL_DISH_RATIO;
       }
 
-      const max_radius = this.rect.height - GAP;
+      const max_radius = this.rect.height - VESSEL_DISH_GAP;
 
       this.radius =
-        this.size > MAX_SIZE
+        this.size > VESSEL_DISH_MAX_SIZE
           ? max_radius
-          : Math.abs(Math.ceil(this.size * max_radius) / MAX_SIZE);
+          : Math.abs(Math.ceil(this.size * max_radius) / VESSEL_DISH_MAX_SIZE);
     },
 
     clicked: function() {

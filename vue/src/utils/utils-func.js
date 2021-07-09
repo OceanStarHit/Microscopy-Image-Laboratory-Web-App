@@ -41,23 +41,26 @@ const tiffImage = base64 => {
 
 const readEntriesAsync = reader => {
   return new Promise((resolve, reject) => {
-      reader.readEntries(entries => {
-          resolve(entries);
-      }, error => reject(error));
-  })
+    reader.readEntries(
+      entries => {
+        resolve(entries);
+      },
+      error => reject(error)
+    );
+  });
 };
 
-const enumerateDirectory = async (directoryEntry) => {
+const enumerateDirectory = async directoryEntry => {
   let reader = directoryEntry.createReader();
   let resultEntries = [];
 
   let read = async function() {
-      let entries = await readEntriesAsync(reader);
-      if (entries.length > 0) {
-          resultEntries = resultEntries.concat(entries);
-          await read();
-      }
-  }
+    let entries = await readEntriesAsync(reader);
+    if (entries.length > 0) {
+      resultEntries = resultEntries.concat(entries);
+      await read();
+    }
+  };
 
   await read();
   return resultEntries;
@@ -69,11 +72,21 @@ const isOverlapped = (a, b) => {
   );
 };
 
+const loadImage = src => {
+  return new Promise((resolve, reject) => {
+    let _image = new Image();
+    _image.onload = () => resolve(_image);
+    _image.onerror = reject;
+    _image.src = src;
+  });
+};
+
 export {
   getFileName,
   getFileExtension,
   checkFileType,
   tiffImage,
   enumerateDirectory,
-  isOverlapped
+  isOverlapped,
+  loadImage
 };

@@ -74,10 +74,11 @@
 
 <script>
 import { mapState } from "vuex";
-
-const H_RATIO = 0.6;
-const V_RATIO = 0.5;
-const MAX_HEIGHT = 1000;
+import {
+  VESSEL_SLIDE_H_RATIO,
+  VESSEL_SLIDE_V_RATIO,
+  VESSEL_SLIDE_MAX_HEIGHT
+} from "../../utils/constants";
 
 export default {
   name: "Slide",
@@ -166,12 +167,12 @@ export default {
   methods: {
     resize: function() {
       if (this.count < 3) {
-        if (this.width * H_RATIO > MAX_HEIGHT) {
-          this.rect.height = MAX_HEIGHT;
-          this.rect.width = this.height / H_RATIO;
+        if (this.width * VESSEL_SLIDE_H_RATIO > VESSEL_SLIDE_MAX_HEIGHT) {
+          this.rect.height = VESSEL_SLIDE_MAX_HEIGHT;
+          this.rect.width = this.height / VESSEL_SLIDE_H_RATIO;
         } else {
           this.rect.width = this.width - 40;
-          this.rect.height = this.width * H_RATIO;
+          this.rect.height = this.width * VESSEL_SLIDE_H_RATIO;
         }
 
         this.slide.width = this.rect.width;
@@ -186,12 +187,12 @@ export default {
           this.slide.height = one_height;
         }
       } else {
-        if (this.width * V_RATIO > MAX_HEIGHT) {
-          this.rect.height = MAX_HEIGHT;
-          this.rect.width = this.height / V_RATIO;
+        if (this.width * VESSEL_SLIDE_V_RATIO > VESSEL_SLIDE_MAX_HEIGHT) {
+          this.rect.height = VESSEL_SLIDE_MAX_HEIGHT;
+          this.rect.width = this.height / VESSEL_SLIDE_V_RATIO;
         } else {
           this.rect.width = this.width;
-          this.rect.height = this.width * V_RATIO;
+          this.rect.height = this.width * VESSEL_SLIDE_V_RATIO;
         }
 
         this.slide.height = this.rect.height;

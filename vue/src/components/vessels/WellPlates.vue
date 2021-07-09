@@ -56,10 +56,11 @@
 
 <script>
 import { mapState } from "vuex";
-
-const RATIO = 0.6;
-const MAX_HEIGHT = 1000;
-const MAX_FONTSIZE = 14;
+import {
+  VESSEL_WELLPLATE_RATIO,
+  VESSEL_WELLPLATE_MAX_HEIGHT,
+  VESSEL_WELLPLATE_MAX_FONTSIZE
+} from "../../utils/constants";
 
 export default {
   name: "WellPlate",
@@ -179,12 +180,12 @@ export default {
 
   methods: {
     resize: function() {
-      if (this.width * RATIO > MAX_HEIGHT) {
-        this.rect.height = MAX_HEIGHT;
-        this.rect.width = this.rect.height / RATIO;
+      if (this.width * VESSEL_WELLPLATE_RATIO > VESSEL_WELLPLATE_MAX_HEIGHT) {
+        this.rect.height = VESSEL_WELLPLATE_MAX_HEIGHT;
+        this.rect.width = this.rect.height / VESSEL_WELLPLATE_RATIO;
       } else {
         this.rect.width = this.width;
-        this.rect.height = this.width * RATIO;
+        this.rect.height = this.width * VESSEL_WELLPLATE_RATIO;
       }
 
       const a_rows = this.rows + (this.showName ? 1 : 0);
@@ -195,7 +196,10 @@ export default {
           : this.rect.width / a_cols;
       this.radius = Math.floor(Math.floor(radius) * 0.9);
 
-      this.fontSize = radius / 2 > MAX_FONTSIZE ? MAX_FONTSIZE : radius / 2;
+      this.fontSize =
+        radius / 2 > VESSEL_WELLPLATE_MAX_FONTSIZE
+          ? VESSEL_WELLPLATE_MAX_FONTSIZE
+          : radius / 2;
     },
 
     clicked: function(row, col) {
