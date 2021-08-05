@@ -13,9 +13,7 @@
           <v-tab href="#tabs-images" class="primary--text">Images</v-tab>
           <v-tab href="#tabs-tiling" class="primary--text">Tiling</v-tab>
           <v-tab href="#tabs-metadata" class="primary--text">Metadata</v-tab>
-          <v-tab href="#tabs-name-type" class="primary--text"
-            >Names &amp; Types</v-tab
-          >
+          <v-tab href="#tabs-name-type" class="primary--text">Names &amp; Types</v-tab>
         </v-tabs>
 
         <v-tabs-items v-model="selectedTab" class="v-tab-item">
@@ -721,12 +719,25 @@ export default {
         }
       }
     );
+
+    /* this.filesWatch = this.$store.watch(
+      (state, getters) => getters["files/position/getFiles"],
+      async files => {
+        if (files.length) {
+          this.selectedFileName = files[0].name;
+
+          if (this.tiling.preview) {
+            await this.getImageSize();
+            this.drawImages();
+          }
+        }
+      }
+    ); */
   },
 
   beforeDestroy() {
     this.newResWatch();
     this.allFilesWatch();
-
     this.filesWatch();
   },
 
@@ -865,8 +876,8 @@ export default {
       this.isDragging = false;
       e.preventDefault();
 
+      this.allFiles = []
       this.clearFiles();
-
       let items = e.dataTransfer.items;
       for (let i = 0; i < items.length; i++) {
         let item = items[i].webkitGetAsEntry();
@@ -875,7 +886,6 @@ export default {
           this.traverseFileTree(item);
         }
       }
-
       this.resetConfig();
     },
     traverseFileTree(item, path) {
@@ -884,6 +894,7 @@ export default {
       if (item.isFile) {
         item.file(function(file) {
           if (checkFileType(file.name)) {
+            self.allFiles.push(file)
             self.addFile(file);
           }
         });
@@ -1523,6 +1534,7 @@ export default {
       if (!this.allFiles) {
         return "";
       }
+      
       let formData = new FormData();
       const name = this.getMainName();
       if (name) {
