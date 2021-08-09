@@ -435,6 +435,7 @@
                     :disabled="!canUpdate"
                     depressed
                     color="primary"
+                    @click="updateNameType"
                   >
                     Update
                   </v-btn>
@@ -894,8 +895,8 @@ export default {
       if (item.isFile) {
         item.file(function(file) {
           if (checkFileType(file.name)) {
-            self.allFiles.push(file)
             self.addFile(file);
+            self.allFiles.push(file)
           }
         });
         self.loading = false;
@@ -1639,6 +1640,7 @@ export default {
           maxKey = key;
         }
       }
+      // console.log(maxKey)
       return maxKey;
     },
     getSource(file) {
@@ -1683,6 +1685,33 @@ export default {
           this.curNameIdx = content.no - 1;
           break;
       }
+    },
+
+    // update
+    updateNameType() {
+      /* const patternProperties = {
+
+      } */
+      // const imageNamePatterns = this.nameTypeTableContents;
+      if (!this.allFiles) {
+        return "";
+      }
+      
+      let formData = new FormData();
+      const name = this.getMainName();
+      if (name) {
+        this.allFiles.forEach((file, idx) => {
+          const type = file.name.match(
+            /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+          );
+          if (type && type[1] == name) {
+            formData.append("position_" + idx, file);
+          }
+        });
+      } else {
+        formData.append("position_0", this.allFiles[0]);
+      }
+      this.$store.dispatch("image/setNewFiles", formData);
     },
 
     // clear

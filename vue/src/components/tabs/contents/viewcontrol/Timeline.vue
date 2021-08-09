@@ -111,7 +111,7 @@ export default {
     t_max: 1,
     t_range: {
       min: 1,
-      max: 1
+      max: 0
     }
   }),
 

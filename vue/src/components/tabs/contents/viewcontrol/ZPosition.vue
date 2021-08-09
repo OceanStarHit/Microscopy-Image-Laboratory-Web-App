@@ -52,7 +52,7 @@ export default {
     z_max: 1,
     z_range: {
       min: 1,
-      max: 1
+      max: 0
     }
   }),
 
@@ -90,7 +90,7 @@ export default {
               /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
             );
             if (types) {
-              if (zMax < types[4]) {
+              if (zMax < parseInt(types[4])) {
                 zMax = types[4];
               }
               if (idx == info.pageData.dataIndex) {
@@ -98,7 +98,6 @@ export default {
               }
             }
           });
-
           this.z_max = zMax + 1;
           this.z_range.max = this.z_max;
         }
