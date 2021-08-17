@@ -55,12 +55,14 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, createNamespacedHelpers } from "vuex";
 import {
   VESSEL_WELLPLATE_RATIO,
   VESSEL_WELLPLATE_MAX_HEIGHT,
   VESSEL_WELLPLATE_MAX_FONTSIZE
 } from "../../utils/constants";
+
+const positionModule = createNamespacedHelpers("files/position");
 
 export default {
   name: "WellPlate",
@@ -124,6 +126,10 @@ export default {
       allIndice: state => state.image.allIndice,
       curPageIdx: state => state.image.curPageIdx
     }),
+    ...positionModule.mapGetters({
+      namePattern: "getNamePattern"
+    }),
+
     size() {
       const { rows, cols } = this;
       return {
@@ -223,20 +229,38 @@ export default {
           }
 
           const cnt = data.pageData.length;
+          const patternRowStart = this.namePattern['row'][0];
+          const patternRowEnd = this.namePattern['row'][1];
+          const patternColStart = this.namePattern['col'][0];
+          const patternColEnd = this.namePattern['col'][1];
+
           for (let idx = 0; idx < cnt; idx++) {
             const filename = data.pageData[idx].filename;
             const type = filename.match(
               /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
             );
-            if (type) {
-              const r = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
-              const c = parseInt(type[6]);
-              if (row == r && col == c) {
-                if (this.allIndice[this.curPageIdx - 1] != idx) {
-                  this.$store.dispatch("image/changeCurrentData", idx);
-                }
-                break;
+            
+            var r = 0;
+            if(patternRowStart >= 0 && patternRowEnd >= 0 && patternRowEnd > patternRowStart) {
+              r = filename.substring(patternRowStart, patternRowEnd);
+              r = r.charCodeAt(0) - "A".charCodeAt(0) + 1
+            } else if(type) {
+              r = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
+            }
+
+            var c = 0;
+            if(patternColStart >= 0 && patternColEnd >= 0 && patternColEnd > patternColStart) {
+              c = parseInt(filename.substring(patternColStart, patternColEnd));
+            } else if(type) {
+              c = parseInt(type[6]);
+            }
+
+            if (row == r && col == c) {
+              if (this.allIndice[this.curPageIdx - 1] != idx) {
+                this.$store.dispatch("image/changeCurrentData", idx);
+                console.log("Debug:" + data.pageData[idx].filename);
               }
+              break;
             }
           }
         }
@@ -247,6 +271,11 @@ export default {
     },
 
     setActivate() {
+      const patternRowStart = this.namePattern['row'][0];
+      const patternRowEnd = this.namePattern['row'][1];
+      const patternColStart = this.namePattern['col'][0];
+      const patternColEnd = this.namePattern['col'][1];
+
       this.activeHoles = [];
 
       const data = this.$store.getters["image/currentPageInfo"];
@@ -255,18 +284,34 @@ export default {
       }
 
       data.pageData.forEach((item, idx) => {
-        const type = item.filename.match(
+        const filename = item.filename;
+
+        const type = filename.match(
           /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
         );
-        if (type) {
-          const row = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
-          const col = parseInt(type[6]);
-          const index = (row - 1) * this.cols + col - 1;
-          this.activeHoles.push(index);
+    
+        var r = 0;
+        if(patternRowStart >= 0 && patternRowEnd >= 0 && patternRowEnd > patternRowStart) {
+          r = filename.substring(patternRowStart, patternRowEnd);
+          r = r.charCodeAt(0) - "A".charCodeAt(0) + 1;
+        } else if(type) {
+          r = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
+        }
 
-          if (idx == data.dataIndex) {
-            this.selectedHole = index;
-          }
+        var c = 0;
+        if(patternColStart >= 0 && patternColEnd >= 0 && patternColEnd > patternColStart) {
+          c = parseInt(filename.substring(patternColStart, patternColEnd));
+        } else if(type) {
+          c = parseInt(type[6]);
+        }
+        
+        const row = r; //type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
+        const col = c; //parseInt(type[6]);
+        const index = (row - 1) * this.cols + col - 1;
+        this.activeHoles.push(index);
+
+        if (idx == data.dataIndex) {
+          this.selectedHole = index;
         }
       });
     }

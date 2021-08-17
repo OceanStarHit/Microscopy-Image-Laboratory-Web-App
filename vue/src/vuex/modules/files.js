@@ -6,10 +6,19 @@ const position = {
   namespaced: true,
 
   state: () => ({
-    files: []
+    files: [],
+    namePatterns: {
+      'row': [-1, -1],
+      'col': [-1, -1],
+      'field': [-1, -1],
+      'view': [-1, -1],
+      'z': [-1, -1],
+      'time': [-1, -1],
+    },  
   }),
   getters: {
-    getFiles: state => state.files
+    getFiles: state => state.files,
+    getNamePattern: state => state.namePatterns
   },
   actions: {
     setFiles({ commit }, files) {
@@ -68,7 +77,10 @@ const position = {
         }
       };
       reader.readAsDataURL(file);
-    }
+    },
+    setNamePattern( { commit}, keyPos) {
+      commit("setNamePattern", keyPos);
+    }  
   },
   mutations: {
     clearFiles(state) {
@@ -86,7 +98,11 @@ const position = {
     },
     addImageData(state, payload) {
       Vue.set(state.files[payload.index], "imageData", payload.imageData);
-    }
+    },
+    setNamePattern(state, keyValue) {
+      console.log("setNamePattern key:" + keyValue['key'] + " pos: " + keyValue['pos']);
+      state.namePatterns[keyValue['key']] = keyValue["pos"];
+    }  
   }
 };
 

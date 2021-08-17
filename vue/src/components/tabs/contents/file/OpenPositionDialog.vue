@@ -864,7 +864,7 @@ export default {
 
   methods: {
     // Mapping actions from Position store
-    ...positionModule.mapActions(["setFiles", "clearFiles", "addFile"]),
+    ...positionModule.mapActions(["setFiles", "clearFiles", "addFile", "setNamePattern"]),
 
     // Drag&Drop files or folder
     dragOver() {
@@ -1620,15 +1620,18 @@ export default {
       let num = {};
       const cnt = this.allFiles.length;
       for (let idx = 0; idx < cnt; idx++) {
-        const type = this.allFiles[idx].name.match(
-          /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-        );
-        if (type) {
-          const name = type[1];
-          if (num[name]) {
-            num[name] += 1;
-          } else {
-            num[name] = 1;
+        if(this.allFiles[idx].name) {
+          const type = this.allFiles[idx].name.match(
+            /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+          );
+
+          if (type) {
+            const name = type[1];
+            if (num[name]) {
+              num[name] += 1;
+            } else {
+              num[name] = 1;
+            }
           }
         }
       }
@@ -1687,6 +1690,52 @@ export default {
       }
     },
 
+    updateNamePattern(mainName) {
+      const nameReg = /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/;
+      const defaultV = mainName.match(nameReg);
+      console.log(defaultV);
+
+
+    // namePatterns: [
+    //   { label: "Series", text: "", start: -1, end: -1, color: "success" },
+    //   { label: "Row", text: "", start: -1, end: -1, color: "primary" },
+    //   { label: "Column", text: "", start: -1, end: -1, color: "deep-orange" },
+    //   { label: "Field", text: "", start: -1, end: -1, color: "warning" },
+    //   { label: "View Method", text: "", start: -1, end: -1, color: "purple" },
+    //   { label: "Z Position", text: "", start: -1, end: -1, color: "blue-grey" },
+    //   { label: "Time Point", text: "", start: -1, end: -1, color: "error" }
+    // ]
+
+      for (let i = 0; i < this.namePatterns.length; i++) {
+        var key = null;
+        switch(i) {
+          case 1:
+            key = 'row'
+            break;
+          case 2:
+            key = 'col'
+            break;
+          case 3:
+            key = 'field'
+            break;
+          case 4:
+            key = 'view'
+            break;
+          case 5:
+            key = 'z'
+            break;
+          case 6:
+            key = 'time'
+            break;
+        }
+        if(key) this.setNamePattern({
+          'key': key,
+          'pos': [this.namePatterns[i].start, this.namePatterns[i].end]
+        });
+      }
+
+    },
+
     // update
     updateNameType() {
       /* const patternProperties = {
@@ -1700,7 +1749,9 @@ export default {
       let formData = new FormData();
       const name = this.getMainName();
       if (name) {
-        this.allFiles.forEach((file, idx) => {
+          this.updateNamePattern(name);
+
+          this.allFiles.forEach((file, idx) => {
           const type = file.name.match(
             /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
           );
@@ -1711,7 +1762,9 @@ export default {
       } else {
         formData.append("position_0", this.allFiles[0]);
       }
-      this.$store.dispatch("image/setNewFiles", formData);
+      // console.log("Ready to post formData");
+      // console.log(formData);
+      // this.$store.dispatch("image/setNewFiles", formData);
     },
 
     // clear
