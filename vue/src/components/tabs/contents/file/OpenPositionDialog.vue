@@ -1764,7 +1764,7 @@ export default {
       }
       // console.log("Ready to post formData");
       // console.log(formData);
-      // this.$store.dispatch("image/setNewFiles", formData);
+      this.$store.dispatch("image/setNewFiles", formData);
     },
 
     // clear
