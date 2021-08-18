@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import * as API from "../../api";
+import "./files"
 
 const DEFAULT_PARAMS = {
   Z: 1,
@@ -52,6 +53,10 @@ const getters = {
   imageId: (state, getters) => state.imageId,
   imageParams: (state, getters) => state.parameters,
   currentPageInfo: (state, getters) => {
+    // console.log("currentPageInfo");
+    // console.log(state.allData);
+    // console.log(state.curPageIdx - 1);
+    // console.log("currentPageInfo ------- end");
     return {
       pageData: state.allData[state.curPageIdx - 1],
       dataIndex: state.allIndice[state.curPageIdx - 1]

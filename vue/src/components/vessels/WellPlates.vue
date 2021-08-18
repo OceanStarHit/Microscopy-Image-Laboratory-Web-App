@@ -55,14 +55,14 @@
 </template>
 
 <script>
-import { mapState, createNamespacedHelpers } from "vuex";
+import { mapState } from "vuex";
 import {
   VESSEL_WELLPLATE_RATIO,
   VESSEL_WELLPLATE_MAX_HEIGHT,
   VESSEL_WELLPLATE_MAX_FONTSIZE
 } from "../../utils/constants";
+import  { getPosition } from "../../vuex/modules/files";
 
-const positionModule = createNamespacedHelpers("files/position");
 
 export default {
   name: "WellPlate",
@@ -126,9 +126,9 @@ export default {
       allIndice: state => state.image.allIndice,
       curPageIdx: state => state.image.curPageIdx
     }),
-    ...positionModule.mapGetters({
-      namePattern: "getNamePattern"
-    }),
+    // ...positionModule.mapGetters({
+    //   namePattern: "getNamePattern"
+    // }),
 
     size() {
       const { rows, cols } = this;
@@ -229,31 +229,13 @@ export default {
           }
 
           const cnt = data.pageData.length;
-          const patternRowStart = this.namePattern['row'][0];
-          const patternRowEnd = this.namePattern['row'][1];
-          const patternColStart = this.namePattern['col'][0];
-          const patternColEnd = this.namePattern['col'][1];
 
           for (let idx = 0; idx < cnt; idx++) {
             const filename = data.pageData[idx].filename;
-            const type = filename.match(
-              /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-            );
             
-            var r = 0;
-            if(patternRowStart >= 0 && patternRowEnd >= 0 && patternRowEnd > patternRowStart) {
-              r = filename.substring(patternRowStart, patternRowEnd);
-              r = r.charCodeAt(0) - "A".charCodeAt(0) + 1
-            } else if(type) {
-              r = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
-            }
-
-            var c = 0;
-            if(patternColStart >= 0 && patternColEnd >= 0 && patternColEnd > patternColStart) {
-              c = parseInt(filename.substring(patternColStart, patternColEnd));
-            } else if(type) {
-              c = parseInt(type[6]);
-            }
+            const p = getPosition(filename);
+            const r = p[0];
+            const c = p[1];
 
             if (row == r && col == c) {
               if (this.allIndice[this.curPageIdx - 1] != idx) {
@@ -271,42 +253,20 @@ export default {
     },
 
     setActivate() {
-      const patternRowStart = this.namePattern['row'][0];
-      const patternRowEnd = this.namePattern['row'][1];
-      const patternColStart = this.namePattern['col'][0];
-      const patternColEnd = this.namePattern['col'][1];
-
       this.activeHoles = [];
 
       const data = this.$store.getters["image/currentPageInfo"];
       if (!data || data.pageData == undefined || data.dataIndex == undefined) {
+        console.log("no data!!");
         return;
       }
 
       data.pageData.forEach((item, idx) => {
         const filename = item.filename;
 
-        const type = filename.match(
-          /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-        );
-    
-        var r = 0;
-        if(patternRowStart >= 0 && patternRowEnd >= 0 && patternRowEnd > patternRowStart) {
-          r = filename.substring(patternRowStart, patternRowEnd);
-          r = r.charCodeAt(0) - "A".charCodeAt(0) + 1;
-        } else if(type) {
-          r = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
-        }
-
-        var c = 0;
-        if(patternColStart >= 0 && patternColEnd >= 0 && patternColEnd > patternColStart) {
-          c = parseInt(filename.substring(patternColStart, patternColEnd));
-        } else if(type) {
-          c = parseInt(type[6]);
-        }
-        
-        const row = r; //type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
-        const col = c; //parseInt(type[6]);
+        const p = getPosition(filename);
+        const row = p[0];
+        const col = p[1];
         const index = (row - 1) * this.cols + col - 1;
         this.activeHoles.push(index);
 

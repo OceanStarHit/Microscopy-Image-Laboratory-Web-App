@@ -1709,6 +1709,9 @@ export default {
       for (let i = 0; i < this.namePatterns.length; i++) {
         var key = null;
         switch(i) {
+          case 0:
+            key = 'series'
+            break;
           case 1:
             key = 'row'
             break;

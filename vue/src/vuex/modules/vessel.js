@@ -1,5 +1,7 @@
 var vessel = require("../../utils/vessel-types");
 
+// import { position } from "./image";
+
 /* eslint-disable no-unused-vars */
 const DEFAULT_PARAMS = {
   loading: false,
@@ -54,6 +56,7 @@ const mutations = {
   },
 
   setVesselId(state, data) {
+    // TODO: use new methods
     let col = "";
     let row = "";
 
