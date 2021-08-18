@@ -2,15 +2,14 @@ import Vue from "vue";
 import { tiffImage } from "../../utils/utils-func";
 const noPreviewImage = require("../../assets/images/no-preview.png");
 
-
 const namePatterns = {
   series: [-1, -1],
   row: [-1, -1],
   col: [-1, -1],
   field: [-1, -1],
-  view: [-1, -1],
+  channel: [-1, -1],
   z: [-1, -1],
-  time: [-1, -1],
+  time: [-1, -1]
 };
 
 const position = {
@@ -18,7 +17,7 @@ const position = {
 
   state: () => ({
     files: [],
-    namePatterns: namePatterns,  
+    namePatterns: namePatterns
   }),
   getters: {
     getFiles: state => state.files,
@@ -82,9 +81,9 @@ const position = {
       };
       reader.readAsDataURL(file);
     },
-    setNamePattern( { commit}, keyPos) {
+    setNamePattern({ commit }, keyPos) {
       commit("setNamePattern", keyPos);
-    }  
+    }
   },
   mutations: {
     clearFiles(state) {
@@ -110,17 +109,30 @@ const position = {
   }
 };
 
+const defaultPattern = /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/;
+
+export function getChannel (filename) {
+  const s = namePatterns.channel[0];
+  const e = namePatterns.channel[1];
+
+  const tokens = filename.match(defaultPattern);
+  var c = '0';
+  if(s >= 0 && e >= 0 && e > s) {
+    c = filename.substring(s, e);
+  } else if(tokens) {
+    c = tokens[3];
+  }
+
+  return parseInt(c.replace(/\D/g,''));
+};
+
 export function getPosition (filename) {
   const patternRowStart = namePatterns.row[0];
   const patternRowEnd = namePatterns.row[1];
   const patternColStart = namePatterns.col[0];
   const patternColEnd = namePatterns.col[1];
 
-  console.log("patternRowStart:" + patternRowStart);
-
-  const type = filename.match(
-    /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-  );
+  const type = filename.match(defaultPattern);
 
   var r = 0;
   if(patternRowStart >= 0 && patternRowEnd >= 0 && patternRowEnd > patternRowStart) {
@@ -136,8 +148,7 @@ export function getPosition (filename) {
   } else if(type) {
     c = parseInt(type[6]);
   }
-  console.log(r);
-  
+
   return [r, c];
 };
 
@@ -145,5 +156,5 @@ export default {
   namespaced: true,
   modules: {
     position
-  },
+  }
 };

@@ -28,6 +28,7 @@
 import { mapGetters } from "vuex";
 
 import SmallCard from "../../../custom/SmallCard";
+import { getChannel } from "../../../../vuex/modules/files";
 
 export default {
   name: "Channel",
@@ -55,13 +56,18 @@ export default {
           const channel = info.pageData[0].metadata.imageInfo.pixels.sizeC;
           this.setChannels(channel);
         } else {
-          const idx = info.dataIndex;
-          const types = info.pageData[idx].filename.match(
-            /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-          );
-          if (types) {
-            this.setChannels(types[3]);
-          }
+          
+          const fileNames = info.dataIndexes.map(function(idx){
+            return info.pageData[idx].filename;
+          });
+
+          var channels = fileNames.map(fName => { 
+            return getChannel(fName); 
+          });
+
+          channels = [...new Set(channels)]
+
+          this.setChannels(channels.length);
         }
       }
     );

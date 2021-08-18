@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import * as API from "../../api";
-import "./files"
+import "./files";
 
 const DEFAULT_PARAMS = {
   Z: 1,
@@ -29,6 +29,7 @@ const state = () => ({
 
   allData: [],
   allIndice: [],
+  allIndices: [],
   newRes: [],
   newData: [],
 
@@ -59,7 +60,8 @@ const getters = {
     // console.log("currentPageInfo ------- end");
     return {
       pageData: state.allData[state.curPageIdx - 1],
-      dataIndex: state.allIndice[state.curPageIdx - 1]
+      dataIndex: state.allIndice[state.curPageIdx - 1],
+      dataIndexes: state.allIndices[state.curPageIdx - 1]
     };
   },
   metaData: (state, getters) =>
@@ -169,6 +171,12 @@ const actions = {
     if (state.loading) return;
 
     commit("changeCurrentData", idx);
+  },
+
+  changeCurrentMutiData({ commit, state }, idxes) {
+    if (state.loading) return;
+
+    commit("changeCurrentMutiData", idxes);
   },
 
   addData({ commit, state }, data) {
@@ -361,11 +369,16 @@ const mutations = {
       idx == state.curPageIdx - 1 ? payload : val
     );
   },
-
+  changeCurrentMutiData(state, indexes) {
+    state.allIndices = state.allIndices.map((oldValue, idx) =>
+      idx == state.curPageIdx - 1 ? indexes : oldValue
+    );
+  },
   addData(state, payload) {
     state.newData = payload;
     state.allData.push(payload);
     state.allIndice.push(0);
+    state.allIndices.push([]);
     state.curPageIdx = state.allData.length;
   },
 

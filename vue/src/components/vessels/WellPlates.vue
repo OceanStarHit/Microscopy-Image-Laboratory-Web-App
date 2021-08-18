@@ -124,6 +124,7 @@ export default {
   computed: {
     ...mapState({
       allIndice: state => state.image.allIndice,
+      allIndices: state => state.image.allIndices,
       curPageIdx: state => state.image.curPageIdx
     }),
     // ...positionModule.mapGetters({
@@ -230,6 +231,8 @@ export default {
 
           const cnt = data.pageData.length;
 
+          // Collect all indexes if the position is matched.
+          var idxes = [];
           for (let idx = 0; idx < cnt; idx++) {
             const filename = data.pageData[idx].filename;
             
@@ -238,13 +241,17 @@ export default {
             const c = p[1];
 
             if (row == r && col == c) {
-              if (this.allIndice[this.curPageIdx - 1] != idx) {
-                this.$store.dispatch("image/changeCurrentData", idx);
-                console.log("Debug:" + data.pageData[idx].filename);
-              }
-              break;
+              idxes.push(idx);
             }
           }
+
+          if (this.allIndices[this.curPageIdx - 1] != idxes) {
+            this.$store.dispatch("image/changeCurrentMutiData", idxes);
+            
+            // Compatible to old logic
+            if(idxes.length > 0) this.$store.dispatch("image/changeCurrentData", idxes[0]);
+          }
+
         }
       } else {
         this.selectedHole = index;

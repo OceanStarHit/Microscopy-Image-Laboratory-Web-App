@@ -1722,7 +1722,7 @@ export default {
             key = 'field'
             break;
           case 4:
-            key = 'view'
+            key = 'channel'
             break;
           case 5:
             key = 'z'
