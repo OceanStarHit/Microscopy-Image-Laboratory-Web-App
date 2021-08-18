@@ -103,30 +103,29 @@ const position = {
       Vue.set(state.files[payload.index], "imageData", payload.imageData);
     },
     setNamePattern(state, keyValue) {
-      console.log("setNamePattern key:" + keyValue['key'] + " pos: " + keyValue['pos']);
-      state.namePatterns[keyValue['key']] = keyValue["pos"];
-    }  
+      state.namePatterns[keyValue["key"]] = keyValue["pos"];
+    }
   }
 };
 
 const defaultPattern = /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/;
 
-export function getChannel (filename) {
+export function getChannel(filename) {
   const s = namePatterns.channel[0];
   const e = namePatterns.channel[1];
 
   const tokens = filename.match(defaultPattern);
-  var c = '0';
-  if(s >= 0 && e >= 0 && e > s) {
+  var c = "0";
+  if (s >= 0 && e >= 0 && e > s) {
     c = filename.substring(s, e);
-  } else if(tokens) {
+  } else if (tokens) {
     c = tokens[3];
   }
 
-  return parseInt(c.replace(/\D/g,''));
-};
+  return parseInt(c.replace(/\D/g, ""));
+}
 
-export function getPosition (filename) {
+export function getPosition(filename) {
   const patternRowStart = namePatterns.row[0];
   const patternRowEnd = namePatterns.row[1];
   const patternColStart = namePatterns.col[0];
@@ -135,22 +134,30 @@ export function getPosition (filename) {
   const type = filename.match(defaultPattern);
 
   var r = 0;
-  if(patternRowStart >= 0 && patternRowEnd >= 0 && patternRowEnd > patternRowStart) {
+  if (
+    patternRowStart >= 0 &&
+    patternRowEnd >= 0 &&
+    patternRowEnd > patternRowStart
+  ) {
     r = filename.substring(patternRowStart, patternRowEnd);
-    r = r.charCodeAt(0) - "A".charCodeAt(0) + 1
-  } else if(type) {
+    r = r.charCodeAt(0) - "A".charCodeAt(0) + 1;
+  } else if (type) {
     r = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
   }
 
   var c = 0;
-  if(patternColStart >= 0 && patternColEnd >= 0 && patternColEnd > patternColStart) {
+  if (
+    patternColStart >= 0 &&
+    patternColEnd >= 0 &&
+    patternColEnd > patternColStart
+  ) {
     c = parseInt(filename.substring(patternColStart, patternColEnd));
-  } else if(type) {
+  } else if (type) {
     c = parseInt(type[6]);
   }
 
   return [r, c];
-};
+}
 
 export default {
   namespaced: true,

@@ -61,7 +61,7 @@ import {
   VESSEL_WELLPLATE_MAX_HEIGHT,
   VESSEL_WELLPLATE_MAX_FONTSIZE
 } from "../../utils/constants";
-import  { getPosition } from "../../vuex/modules/files";
+import { getPosition } from "../../vuex/modules/files";
 
 
 export default {
