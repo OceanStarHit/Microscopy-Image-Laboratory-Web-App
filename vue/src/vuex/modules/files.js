@@ -110,6 +110,21 @@ const position = {
 
 const defaultPattern = /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/;
 
+export function getSeries(filename) {
+  const s = namePatterns.series[0];
+  const e = namePatterns.series[1];
+  const tokens = filename.match(defaultPattern);
+
+  var seris = "name";
+  if (s >= 0 && e >= 0 && e > s) {
+    seris = filename.substring(s, e);
+  } else if (tokens) {
+    seris = tokens[3];
+  }
+
+  return seris;
+}
+
 export function getChannel(filename) {
   const s = namePatterns.channel[0];
   const e = namePatterns.channel[1];

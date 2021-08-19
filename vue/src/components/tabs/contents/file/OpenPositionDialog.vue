@@ -498,6 +498,8 @@ import SimpleDialog from "../../../custom/SimpleDialog";
 
 const positionModule = createNamespacedHelpers("files/position");
 
+import { getSeries } from "../../../../vuex/modules/files";
+
 export default {
   name: "OpenPositionDialog",
 
@@ -1533,6 +1535,7 @@ export default {
     onSelect() {
       this.visibleDialog = false;
       if (!this.allFiles) {
+        console.log(this.allFiles);
         return "";
       }
       
@@ -1621,20 +1624,16 @@ export default {
       const cnt = this.allFiles.length;
       for (let idx = 0; idx < cnt; idx++) {
         if(this.allFiles[idx].name) {
-          const type = this.allFiles[idx].name.match(
-            /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-          );
+          const name = getSeries(this.allFiles[idx].name);
 
-          if (type) {
-            const name = type[1];
-            if (num[name]) {
-              num[name] += 1;
-            } else {
-              num[name] = 1;
-            }
+          if (num[name]) {
+            num[name] += 1;
+          } else {
+            num[name] = 1;
           }
         }
       }
+      
       let maxN = 1;
       let maxKey = "";
       for (var key in num) {
@@ -1643,7 +1642,6 @@ export default {
           maxKey = key;
         }
       }
-      // console.log(maxKey)
       return maxKey;
     },
     getSource(file) {
@@ -1690,10 +1688,10 @@ export default {
       }
     },
 
-    updateNamePattern(mainName) {
-      const nameReg = /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/;
-      const defaultV = mainName.match(nameReg);
-      console.log(defaultV);
+    updateNamePattern() {
+      // const nameReg = /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/;
+      // const defaultV = mainName.match(nameReg);
+      // console.log(defaultV);
 
 
     // namePatterns: [
@@ -1741,32 +1739,27 @@ export default {
 
     // update
     updateNameType() {
-      /* const patternProperties = {
+      this.updateNamePattern();
 
-      } */
-      // const imageNamePatterns = this.nameTypeTableContents;
       if (!this.allFiles) {
+        console.log("allFiles error: " + this.allFiles);
         return "";
       }
       
       let formData = new FormData();
-      const name = this.getMainName();
-      if (name) {
-          this.updateNamePattern(name);
-
+      const mainName = this.getMainName();
+      console.log("getMainName: " + mainName);
+      if (mainName) {
           this.allFiles.forEach((file, idx) => {
-          const type = file.name.match(
-            /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-          );
-          if (type && type[1] == name) {
+            const name = getSeries(file.name);
+
+          if (mainName == name) {
             formData.append("position_" + idx, file);
           }
         });
       } else {
         formData.append("position_0", this.allFiles[0]);
       }
-      // console.log("Ready to post formData");
-      // console.log(formData);
       this.$store.dispatch("image/setNewFiles", formData);
     },
 
