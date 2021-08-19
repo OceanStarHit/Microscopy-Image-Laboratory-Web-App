@@ -1558,6 +1558,7 @@ export default {
 
     // Click close button
     onClose() {
+      console.log("onclose");
       this.visibleDialog = false;
     },
 
@@ -1739,12 +1740,15 @@ export default {
 
     // update
     updateNameType() {
+      console.log("here!1");
       this.updateNamePattern();
 
       if (!this.allFiles) {
         console.log("allFiles error: " + this.allFiles);
         return "";
       }
+
+      console.log("here!2");
       
       let formData = new FormData();
       const mainName = this.getMainName();
@@ -1765,6 +1769,7 @@ export default {
 
     // clear
     clearNameType() {
+      console.error("strange!");
       this.namePatterns.forEach(pattern => {
         pattern.start = -1;
         pattern.end = -1;
