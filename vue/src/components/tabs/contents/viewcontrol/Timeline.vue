@@ -138,32 +138,34 @@ export default {
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
       info => {
-        if (info.pageData.size == 1) {
-          console.log(info.pageData);
+        if(info.pageData) {
+          if (info.pageData.size == 1) {
+            console.log(info.pageData);
 
-          let keys = [...info.pageData.keys()];
+            let keys = [...info.pageData.keys()];
 
-          this.t_max = info.pageData.get(keys[0]).metadata.coreMetadata.sizeT;
-          this.t_range.max = this.t_max;
-          this.t_value = info.pageData.get(keys[0]).metadata.imageInfo.pixels.sizeT;
-        } else {
-          let tMax = 0;
-          info.pageData.forEach((data, idx) => {
-            const types = data.filename.match(
-              /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-            );
-            if (types) {
-              if (tMax < types[3]) {
-                tMax = types[3];
+            this.t_max = info.pageData.get(keys[0]).metadata.coreMetadata.sizeT;
+            this.t_range.max = this.t_max;
+            this.t_value = info.pageData.get(keys[0]).metadata.imageInfo.pixels.sizeT;
+          } else {
+            let tMax = 0;
+            info.pageData.forEach((data, idx) => {
+              const types = data.filename.match(
+                /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+              );
+              if (types) {
+                if (tMax < types[3]) {
+                  tMax = types[3];
+                }
+                if (idx == info.pageData.dataIndex) {
+                  this.t_value = types[3];
+                }
               }
-              if (idx == info.pageData.dataIndex) {
-                this.t_value = types[3];
-              }
-            }
-          });
+            });
 
-          this.t_max = tMax + 1;
-          this.t_range.max = this.t_max;
+            this.t_max = tMax + 1;
+            this.t_range.max = this.t_max;
+          }
         }
       }
     );

@@ -76,7 +76,9 @@ export default {
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
       info => {
-        this.$store.dispatch("vessel/setVesselId", info);
+        if(info.pageData) {
+          this.$store.dispatch("vessel/setVesselId", info);
+        }
       }
     );
   },

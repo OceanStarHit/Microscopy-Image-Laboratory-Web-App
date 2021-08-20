@@ -79,27 +79,32 @@ export default {
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
       info => {
-        if (info.pageData.length == 1) {
-          this.z_max = info.pageData[0].metadata.coreMetadata.sizeZ;
-          this.z_range.max = this.z_max;
-          this.z_value = info.pageData[0].metadata.imageInfo.pixels.sizeZ;
-        } else {
-          let zMax = 0;
-          info.pageData.forEach((data, idx) => {
-            const types = data.filename.match(
-              /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-            );
-            if (types) {
-              if (zMax < parseInt(types[4])) {
-                zMax = types[4];
+        if(info.pageData) {
+          if (info.pageData.size == 1) {
+            let keys = [...info.pageData.keys()];
+            const metadata = info.pageData.get(keys[0]).metadata;
+
+            this.z_max = metadata.coreMetadata.sizeZ;
+            this.z_range.max = this.z_max;
+            this.z_value = metadata.imageInfo.pixels.sizeZ;
+          } else {
+            let zMax = 0;
+            info.pageData.forEach((data, idx) => {
+              const types = data.filename.match(
+                /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+              );
+              if (types) {
+                if (zMax < parseInt(types[4])) {
+                  zMax = types[4];
+                }
+                if (idx == info.pageData.dataIndex) {
+                  this.z_value = types[4];
+                }
               }
-              if (idx == info.pageData.dataIndex) {
-                this.z_value = types[4];
-              }
-            }
-          });
-          this.z_max = zMax + 1;
-          this.z_range.max = this.z_max;
+            });
+            this.z_max = zMax + 1;
+            this.z_range.max = this.z_max;
+          }
         }
       }
     );

@@ -1749,7 +1749,7 @@ export default {
 
     // update
     updateNameType() {
-      let MAX_BATCH_SIZE = 3;
+      let MAX_BATCH_SIZE = 100;
 
       this.updateNamePattern();
 

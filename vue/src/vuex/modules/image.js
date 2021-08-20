@@ -14,6 +14,7 @@ const DEFAULT_PARAMS = {
 // state
 const state = () => ({
   loading: false,
+  loading_count: 0,
 
   coreMetadata: null,
   originMetadata: null,
@@ -54,6 +55,7 @@ const getters = {
   // newData: (state, getters) => state.newData,
   imageId: (state, getters) => state.imageId,
   imageParams: (state, getters) => state.parameters,
+  curPageIdx:(state, getters) => state.curPageIdx,
   currentPageInfo: (state, getters) => {
     return {
       pageData: state.allData[state.curPageIdx - 1],
@@ -175,7 +177,7 @@ const actions = {
   },
 
   addData({ commit, state }, data) {
-    if (state.loading) return;
+    // if (state.loading) return;
 
     commit("addData", data);
   },
@@ -217,19 +219,19 @@ const actions = {
 
   setNewFiles({ commit, state }, formData) {
     // if (state.loading) return;
-    if(!state.loading) {
-      commit("setLoading", true);
-    }
+    commit("incLoadingCount", true);
 
     API.setMetadata(formData)
       .then(response => {
         commit("setNewResponse", response);
 
-        commit("setLoading", false);
+        commit("decLoadingCount", true);
+        console.log("loading count:" + state.loading_count);
       })
       .catch(error => {
-        commit("setLoading", false);
-
+        commit("decLoadingCount", true);
+        console.log("loading count:" + state.loading_count);
+        
         console.log(error);
       });
   },
@@ -329,6 +331,18 @@ const actions = {
 const mutations = {
   setLoading(state, data) {
     state.loading = data;
+  },
+
+  incLoadingCount(state, data) {
+    state.loading_count ++;
+    state.loading = true;
+  },
+
+  decLoadingCount(state, data) {
+    state.loading_count --;
+    if(state.loading_count == 0) {
+      state.loading = false;
+    }
   },
 
   setImageResponse(state, payload) {
