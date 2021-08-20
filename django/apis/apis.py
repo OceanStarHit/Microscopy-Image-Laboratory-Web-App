@@ -65,11 +65,14 @@ def set_metadata(request):
 
     jsonReq = request.FILES
     jsonRes = {}
+    idx = 0
     for key in jsonReq:
-
+        print(idx)
+        idx = idx + 1
         try:
             metadata = jsonReq[key]
 
+            print(metadata.name)
             if utils.check_source_format(metadata):
                 metafile = utils.save_source_image(metadata)
 
