@@ -39,6 +39,7 @@ def check_source_format(source_image):
         print_exc()
         return False
 
+# Save the uploaded file to a cache dir.
 def save_source_image(source_image):
     dest_dir = get_cache_directory()
 

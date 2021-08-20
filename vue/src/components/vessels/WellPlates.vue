@@ -117,7 +117,7 @@ export default {
       radius: 0,
       fontSize: 5,
       selectedHole: this.selected,
-      activeHoles: this.actives
+      // activeHoles: this.actives
     };
   },
 
@@ -125,11 +125,9 @@ export default {
     ...mapState({
       allIndice: state => state.image.allIndice,
       allIndices: state => state.image.allIndices,
-      curPageIdx: state => state.image.curPageIdx
+      curPageIdx: state => state.image.curPageIdx,
+      curPageData: state => state.image.currentPageInfo
     }),
-    // ...positionModule.mapGetters({
-    //   namePattern: "getNamePattern"
-    // }),
 
     size() {
       const { rows, cols } = this;
@@ -156,15 +154,44 @@ export default {
       return (row, col) => {
         return (row - 1) * this.cols + col;
       };
+    },
+    activeHoles() {
+      let ahs = [];
+
+      const data = this.$store.getters["image/currentPageInfo"];
+      if (!data || data.pageData == undefined || data.dataIndex == undefined) {
+        console.log("no data!!");
+        return;
+      }
+
+      data.pageData.forEach((item, idx) => {
+        const filename = item.filename;
+
+        const p = getPosition(filename);
+        const row = p[0];
+        const col = p[1];
+        const index = (row - 1) * this.cols + col - 1;
+        ahs.push(index);
+
+        if (idx == data.dataIndex) {
+          this.selectedHole = index;
+        }
+      });
+      return ahs;
     }
   },
 
   watch: {
+    curPageData: {
+      handler() {
+        console.log("curPageData changed.");
+        this.selectedHole = -1;
+      }
+    },
     size: {
       handler() {
         this.resize();
         this.selectedHole = -1;
-        this.setActivate();
       },
       deep: true,
       immediate: true
@@ -213,7 +240,6 @@ export default {
       if (!this.interaction) return;
 
       const index = (row - 1) * this.cols + col - 1;
-
       if (this.check) {
         const pos = this.activeHoles.indexOf(index);
         if (pos > -1) {
@@ -229,21 +255,19 @@ export default {
             return;
           }
 
-          const cnt = data.pageData.length;
-
           // Collect all indexes if the position is matched.
           var idxes = [];
-          for (let idx = 0; idx < cnt; idx++) {
-            const filename = data.pageData[idx].filename;
-            
-            const p = getPosition(filename);
+          data.pageData.forEach((data, fileIdx) => {
+            const p = getPosition(data.filename);
             const r = p[0];
             const c = p[1];
 
             if (row == r && col == c) {
-              idxes.push(idx);
+              idxes.push(fileIdx);
             }
-          }
+          })
+
+          idxes = idxes.sort();
 
           if (this.allIndices[this.curPageIdx - 1] != idxes) {
             this.$store.dispatch("image/changeCurrentMutiData", idxes);
@@ -251,37 +275,12 @@ export default {
             // Compatible to old logic
             if(idxes.length > 0) this.$store.dispatch("image/changeCurrentData", idxes[0]);
           }
-
         }
       } else {
         this.selectedHole = index;
         this.$emit("click", { row, col });
       }
     },
-
-    setActivate() {
-      this.activeHoles = [];
-
-      const data = this.$store.getters["image/currentPageInfo"];
-      if (!data || data.pageData == undefined || data.dataIndex == undefined) {
-        console.log("no data!!");
-        return;
-      }
-
-      data.pageData.forEach((item, idx) => {
-        const filename = item.filename;
-
-        const p = getPosition(filename);
-        const row = p[0];
-        const col = p[1];
-        const index = (row - 1) * this.cols + col - 1;
-        this.activeHoles.push(index);
-
-        if (idx == data.dataIndex) {
-          this.selectedHole = index;
-        }
-      });
-    }
   }
 };
 </script>

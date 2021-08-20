@@ -28,10 +28,11 @@ const state = () => ({
   wellSamples: [],
 
   allData: [],
+  allDataMap: {},
   allIndice: [],
   allIndices: [],
   newRes: [],
-  newData: [],
+  // newData: [],
 
   curPageIdx: -1,
 
@@ -50,14 +51,10 @@ const getters = {
   },
   currentPageData: (state, getters) => state.allData[state.curPageIdx - 1],
   newRes: (state, getters) => state.newRes,
-  newData: (state, getters) => state.newData,
+  // newData: (state, getters) => state.newData,
   imageId: (state, getters) => state.imageId,
   imageParams: (state, getters) => state.parameters,
   currentPageInfo: (state, getters) => {
-    // console.log("currentPageInfo");
-    // console.log(state.allData);
-    // console.log(state.curPageIdx - 1);
-    // console.log("currentPageInfo ------- end");
     return {
       pageData: state.allData[state.curPageIdx - 1],
       dataIndex: state.allIndice[state.curPageIdx - 1],
@@ -67,9 +64,7 @@ const getters = {
   metaData: (state, getters) =>
     state.curPageIdx == -1
       ? null
-      : state.allData[state.curPageIdx - 1][
-          state.allIndice[state.curPageIdx - 1]
-        ].metadata.imageData,
+      : state.allData[state.curPageIdx - 1].get(state.allIndice[state.curPageIdx - 1]).metadata.imageData,
   objectiveX: (state, getters) => {
     let X = 0;
     if (!state.imageInfo || !state.imageInfo.objective) return X;
@@ -221,9 +216,10 @@ const actions = {
   },
 
   setNewFiles({ commit, state }, formData) {
-    if (state.loading) return;
-
-    commit("setLoading", true);
+    // if (state.loading) return;
+    if(!state.loading) {
+      commit("setLoading", true);
+    }
 
     API.setMetadata(formData)
       .then(response => {
@@ -375,13 +371,31 @@ const mutations = {
     );
   },
   addData(state, payload) {
-    state.newData = payload;
-    state.allData.push(payload);
-    state.allIndice.push(0);
-    state.allIndices.push([]);
-    state.curPageIdx = state.allData.length;
-  },
+    const files = payload.files;
 
+    if(files.size == 0) return;
+
+    const append = payload.appendToCurrentPage;
+
+    if(append) {
+      
+      // state.newData.push.apply(state.newData, files);
+      state.allData = state.allData.map((oldData, idx) => {
+        if(idx == state.curPageIdx - 1) {
+          return new Map([...oldData, ...files])
+        } else {
+          return oldData;
+        }
+      });
+    } else {
+      // state.newData = files;
+      state.allData.push(files);
+      let minIdx = Math.min(...(files.keys()));
+      state.allIndice.push(minIdx);
+      state.allIndices.push([]);
+      state.curPageIdx = state.allData.length;
+    }
+  },
   removeData(state, payload) {
     state.allData.splice(payload, 1);
   },

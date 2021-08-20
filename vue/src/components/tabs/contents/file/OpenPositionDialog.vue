@@ -500,6 +500,8 @@ const positionModule = createNamespacedHelpers("files/position");
 
 import { getSeries } from "../../../../vuex/modules/files";
 
+var createNewPage = true;
+
 export default {
   name: "OpenPositionDialog",
 
@@ -660,7 +662,7 @@ export default {
       { label: "Row", text: "", start: -1, end: -1, color: "primary" },
       { label: "Column", text: "", start: -1, end: -1, color: "deep-orange" },
       { label: "Field", text: "", start: -1, end: -1, color: "warning" },
-      { label: "View Method", text: "", start: -1, end: -1, color: "purple" },
+      { label: "Channel", text: "", start: -1, end: -1, color: "purple" },
       { label: "Z Position", text: "", start: -1, end: -1, color: "blue-grey" },
       { label: "Time Point", text: "", start: -1, end: -1, color: "error" }
     ],
@@ -671,7 +673,7 @@ export default {
       { text: "Row", value: "row" },
       { text: "Column", value: "column" },
       { text: "Field", value: "field" },
-      { text: "View Method", value: "viewMethod" },
+      { text: "Channel", value: "viewMethod" },
       { text: "Z Position", value: "zPosition" },
       { text: "Time Point", value: "timepoint" }
     ]
@@ -681,7 +683,15 @@ export default {
     this.newResWatch = this.$store.watch(
       (state, getters) => getters["image/newRes"],
       res => {
-        const filteredData = [];
+        let filteredData = new Map();
+        const payload = {
+          files: filteredData,
+          appendToCurrentPage: false
+        };
+
+        payload.appendToCurrentPage = !createNewPage;
+        createNewPage = false;
+
         for (var key in res) {
           const idx = parseInt(key.split("_")[1]);
           if (
@@ -689,25 +699,27 @@ export default {
             res[key] &&
             idx < this.allFiles.length
           ) {
-            filteredData.push({
+            filteredData.set(idx, {
               filename: this.allFiles[idx].name,
               metadata: res[key]
             });
           }
         }
-        if (filteredData.length > 0) {
-          this.$store.dispatch("image/addData", filteredData);
+        if (filteredData.size > 0) {
+          this.$store.dispatch("image/addData", payload);
         }
-        this.newFile = null;
-        this.imageData = null;
+        // this.newFile = null;
+        // this.imageData = null;
       }
     );
-    this.allFilesWatch = this.$store.watch(
-      (state, getters) => getters["image/currentPageData"],
-      res => {
-        this.allFiles = res;
-      }
-    );
+    // this.allFilesWatch = this.$store.watch(
+    //   (state, getters) => getters["image/currentPageData"],
+    //   res => {
+    //     console.log("allFilesWatch !!!!");
+    //     console.log(res);
+    //     this.allFiles = res;
+    //   }
+    // );
 
     this.filesWatch = this.$store.watch(
       (state, getters) => getters["files/position/getFiles"],
@@ -740,7 +752,7 @@ export default {
 
   beforeDestroy() {
     this.newResWatch();
-    this.allFilesWatch();
+    // this.allFilesWatch();
     this.filesWatch();
   },
 
@@ -1539,21 +1551,19 @@ export default {
         return "";
       }
       
-      let formData = new FormData();
-      const name = this.getMainName();
-      if (name) {
-        this.allFiles.forEach((file, idx) => {
-          const type = file.name.match(
-            /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-          );
-          if (type && type[1] == name) {
-            formData.append("position_" + idx, file);
-          }
-        });
-      } else {
-        formData.append("position_0", this.allFiles[0]);
-      }
-      this.$store.dispatch("image/setNewFiles", formData);
+      // let formData = new FormData();
+      // const name = this.getMainName();
+      // if (name) {
+      //   this.allFiles.forEach((file, idx) => {
+      //     const series = getSeries(file.name);
+      //     if(series == name) {
+      //       formData.append("position_" + idx, file);
+      //     }
+      //   });
+      // } else {
+      //   formData.append("position_0", this.allFiles[0]);
+      // }
+      // this.$store.dispatch("image/setNewFiles", formData);
     },
 
     // Click close button
@@ -1739,6 +1749,8 @@ export default {
 
     // update
     updateNameType() {
+      let MAX_BATCH_SIZE = 3;
+
       this.updateNamePattern();
 
       if (!this.allFiles) {
@@ -1746,21 +1758,33 @@ export default {
         return "";
       }
       
+      createNewPage = true;
       let formData = new FormData();
       const mainName = this.getMainName();
-      console.log("getMainName: " + mainName);
+      let count = 0;
       if (mainName) {
-          this.allFiles.forEach((file, idx) => {
-            const name = getSeries(file.name);
+        this.allFiles.forEach((file, idx) => {
+          const name = getSeries(file.name);
 
           if (mainName == name) {
             formData.append("position_" + idx, file);
+            count ++;
+          }
+
+          if(count >= MAX_BATCH_SIZE) {
+            this.$store.dispatch("image/setNewFiles", formData);
+            formData = new FormData();
+            count = 0;
           }
         });
       } else {
         formData.append("position_0", this.allFiles[0]);
+        count ++;
       }
-      this.$store.dispatch("image/setNewFiles", formData);
+
+      if(count > 0) {
+        this.$store.dispatch("image/setNewFiles", formData);
+      }
     },
 
     // clear

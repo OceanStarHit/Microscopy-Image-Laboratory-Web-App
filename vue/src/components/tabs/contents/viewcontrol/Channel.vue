@@ -52,13 +52,14 @@ export default {
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
       info => {
-        if (info.pageData.length == 1) {
-          const channel = info.pageData[0].metadata.imageInfo.pixels.sizeC;
+        if (info.pageData.size == 1) {          
+          let keys = [...info.pageData.keys()];
+          const channel = info.pageData.get(keys[0]).metadata.imageInfo.pixels.sizeC;
           this.setChannels(channel);
         } else {
           
           const fileNames = info.dataIndexes.map(function(idx){
-            return info.pageData[idx].filename;
+            return info.pageData.get(idx).filename;
           });
 
           var channels = fileNames.map(fName => { 

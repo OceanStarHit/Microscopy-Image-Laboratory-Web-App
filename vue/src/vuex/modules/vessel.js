@@ -1,3 +1,5 @@
+import { getPosition } from "./files";
+
 var vessel = require("../../utils/vessel-types");
 
 // import { position } from "./image";
@@ -62,19 +64,18 @@ const mutations = {
 
     // get column and row from name type
     data.pageData.forEach(item => {
-      const type = item.filename.match(
-        /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-      );
-      if (type) {
-        row = row > type[5] ? row : type[5];
-        col = col > type[6] ? col : type[6];
-      }
+      let p = getPosition(item.filename);
+      let r = p[0];
+      let c = p[1];
+
+      row = row > r ? row : r;
+      col = col > c ? col : c;
     });
 
     // calc the current vessel id
     if (row != "" && col != "") {
-      let r = row.charCodeAt(0) - "A".charCodeAt(0) + 1;
-      let c = parseInt(col);
+      let r = row;
+      let c = col;
       for (let idx = 0; idx < 6; idx++) {
         const item = vessel.VESSELS[1][idx];
         if (r <= item.rows && c <= item.cols) {
