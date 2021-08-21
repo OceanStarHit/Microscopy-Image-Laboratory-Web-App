@@ -1,0 +1,18 @@
+1. 项目运行
+安装插件 ，
+pip install -r requirement.txt  异常
+pip --default-timeout=1000 install python-bioformats
+或者是 pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple python-bioformats
+
+手动安装 wheel 包
+pip install python_javabridge-4.0.3-cp39-cp39-win_amd64.whl
+
+python manage.py migrate
+
+
+运行，
+python manage.py runserver
+
+
+2. 前端运行    npm i  安装依赖 ，
+2.1 npm run serve
