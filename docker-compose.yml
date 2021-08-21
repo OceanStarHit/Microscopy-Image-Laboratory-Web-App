@@ -42,15 +42,18 @@ services:
 
   ui:
     build: ./vue
+    command: npm run serve
     container_name: ui
     volumes:
       - ./vue:/code/ui
     expose:
-      - 80
+      - 8080
+    ports:
+      - 8080:8080
     depends_on:
       - api
     networks:
-    - custom_network
+      - custom_network
 
   nginx:
     build: ./docker/nginx

@@ -10,7 +10,7 @@ RUN npm install --quiet
 
 COPY . .
 RUN npm run build:staging
-RUN npm run serve
+# RUN npm run serve
 
 # # Production stage
 # FROM nginx:1.16.1-alpine as production-stage
