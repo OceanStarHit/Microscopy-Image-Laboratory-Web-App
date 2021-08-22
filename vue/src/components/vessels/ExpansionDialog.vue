@@ -6,14 +6,14 @@
           v-if="currentVessel.type == 'Slide'"
           :width="width"
           :count="currentVessel.count"
-          :showNumber="true"
+          :show-number="true"
         ></slide>
         <well-plate
           v-if="currentVessel.type == 'WellPlate'"
           :width="width"
           :rows="currentVessel.rows"
           :cols="currentVessel.cols"
-          :showNumber="true"
+          :show-number="true"
         ></well-plate>
         <dish
           v-if="currentVessel.type == 'Dish'"
@@ -52,17 +52,17 @@ export default {
     WellPlate
   },
 
-  data: () => ({
-    vessels: VESSELS,
-    width: 800
-  }),
-
   props: {
     value: {
       type: Boolean,
       default: false
     }
   },
+
+  data: () => ({
+    vessels: VESSELS,
+    width: 800
+  }),
 
   computed: {
     ...mapGetters("vessel", {

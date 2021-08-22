@@ -4,9 +4,9 @@
     :class="active ? 'grey lighten-2' : ''"
     min-width="24"
     min-height="52"
-    @click="clicked"
     text
     color="teal"
+    @click="clicked"
   >
     <div class="my-2">
       <v-img
@@ -26,9 +26,9 @@
 export default {
   name: "ObjectiveButton",
 
-  data: () => ({}),
-
   props: ["label", "active"],
+
+  data: () => ({}),
 
   methods: {
     clicked: function() {

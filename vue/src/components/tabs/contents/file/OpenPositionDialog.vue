@@ -3,9 +3,9 @@
     <v-dialog v-model="visibleDialog" max-width="1080">
       <simple-dialog
         title="Position"
-        okTitle="Select"
-        :singleButton="false"
-        :selectDisable="!this.allFiles.length"
+        ok-title="Select"
+        :single-button="false"
+        :select-disable="!this.allFiles.length"
         @select="onSelect"
         @close="onClose"
       >
@@ -13,7 +13,9 @@
           <v-tab href="#tabs-images" class="primary--text">Images</v-tab>
           <v-tab href="#tabs-tiling" class="primary--text">Tiling</v-tab>
           <v-tab href="#tabs-metadata" class="primary--text">Metadata</v-tab>
-          <v-tab href="#tabs-name-type" class="primary--text">Names &amp; Types</v-tab>
+          <v-tab href="#tabs-name-type" class="primary--text"
+            >Names &amp; Types</v-tab
+          >
         </v-tabs>
 
         <v-tabs-items v-model="selectedTab" class="v-tab-item">
@@ -139,10 +141,10 @@
                                     :src="alignButtonImage(n)"
                                     aspect-ratio="1"
                                     v-bind="attrs"
-                                    v-on="on"
                                     :style="
                                       n == 4 ? { filter: 'grayscale(1)' } : {}
                                     "
+                                    v-on="on"
                                   />
                                 </v-btn>
                               </template>
@@ -209,12 +211,12 @@
                                 type="number"
                                 outlined
                                 dense
-                                @input="inputTilingRows"
                                 :disabled="
                                   tiling.alignment.disables[
                                     tiling.alignment.activeMode
                                   ].txtRows
                                 "
+                                @input="inputTilingRows"
                               />
                             </v-col>
                             <v-col cols="6">
@@ -225,12 +227,12 @@
                                 type="number"
                                 outlined
                                 dense
-                                @input="inputTilingCols"
                                 :disabled="
                                   tiling.alignment.disables[
                                     tiling.alignment.activeMode
                                   ].txtCols
                                 "
+                                @input="inputTilingCols"
                               />
                             </v-col>
                           </v-row>
@@ -244,12 +246,12 @@
                                 type="number"
                                 outlined
                                 dense
-                                @change="inputTilingBorder"
                                 :disabled="
                                   tiling.alignment.disables[
                                     tiling.alignment.activeMode
                                   ].txtBorder
                                 "
+                                @change="inputTilingBorder"
                               />
                             </v-col>
                             <v-col cols="4">
@@ -260,12 +262,12 @@
                                 type="number"
                                 outlined
                                 dense
-                                @change="inputTilingGapX"
                                 :disabled="
                                   tiling.alignment.disables[
                                     tiling.alignment.activeMode
                                   ].txtGapX
                                 "
+                                @change="inputTilingGapX"
                               />
                             </v-col>
                             <v-col cols="4">
@@ -276,12 +278,12 @@
                                 type="number"
                                 outlined
                                 dense
-                                @change="inputTilingGapY"
                                 :disabled="
                                   tiling.alignment.disables[
                                     tiling.alignment.activeMode
                                   ].txtGapY
                                 "
+                                @change="inputTilingGapY"
                               />
                             </v-col>
                           </v-row>
@@ -371,7 +373,7 @@
               @dragover.prevent="dragOver"
               @dragleave.prevent="dragLeave"
               @drop.prevent="drop($event)"
-              v-on:mouseup="selectExampleString"
+              @mouseup="selectExampleString"
             >
               <div
                 v-if="files.length == 0"
@@ -392,8 +394,8 @@
                       <div
                         ref="exampleBox"
                         class="d-flex example-string"
+                        @mouseup="selectExampleString"
                         v-html="exampleFileName"
-                        v-on:mouseup="selectExampleString"
                       ></div>
                     </v-row>
                   </div>
@@ -407,9 +409,9 @@
                 </v-row>
                 <v-row class="align-center justify-center name-type-input">
                   <div
-                    class="pattern-section"
                     v-for="(pattern, idx) in namePatterns"
                     :key="idx"
+                    class="pattern-section"
                   >
                     <v-btn
                       class="pattern-item-button"
@@ -421,8 +423,8 @@
                       {{ pattern.label }}
                     </v-btn>
                     <v-text-field
-                      class="pattern-item-button"
                       v-model="namePatterns[idx].text"
+                      class="pattern-item-button"
                       solo
                     ></v-text-field>
                   </div>
@@ -506,6 +508,13 @@ export default {
   name: "OpenPositionDialog",
 
   components: { SimpleDialog },
+
+  props: {
+    value: {
+      type: Boolean,
+      default: false
+    }
+  },
 
   data: () => ({
     loading: false,
@@ -756,13 +765,6 @@ export default {
     this.filesWatch();
   },
 
-  props: {
-    value: {
-      type: Boolean,
-      default: false
-    }
-  },
-
   computed: {
     ...positionModule.mapGetters({
       files: "getFiles"
@@ -878,7 +880,12 @@ export default {
 
   methods: {
     // Mapping actions from Position store
-    ...positionModule.mapActions(["setFiles", "clearFiles", "addFile", "setNamePattern"]),
+    ...positionModule.mapActions([
+      "setFiles",
+      "clearFiles",
+      "addFile",
+      "setNamePattern"
+    ]),
 
     // Drag&Drop files or folder
     dragOver() {
@@ -891,7 +898,7 @@ export default {
       this.isDragging = false;
       e.preventDefault();
 
-      this.allFiles = []
+      this.allFiles = [];
       this.clearFiles();
       let items = e.dataTransfer.items;
       for (let i = 0; i < items.length; i++) {
@@ -910,7 +917,7 @@ export default {
         item.file(function(file) {
           if (checkFileType(file.name)) {
             self.addFile(file);
-            self.allFiles.push(file)
+            self.allFiles.push(file);
           }
         });
         self.loading = false;
@@ -1550,7 +1557,7 @@ export default {
         console.log(this.allFiles);
         return "";
       }
-      
+
       // let formData = new FormData();
       // const name = this.getMainName();
       // if (name) {
@@ -1633,7 +1640,7 @@ export default {
       let num = {};
       const cnt = this.allFiles.length;
       for (let idx = 0; idx < cnt; idx++) {
-        if(this.allFiles[idx].name) {
+        if (this.allFiles[idx].name) {
           const name = getSeries(this.allFiles[idx].name);
 
           if (num[name]) {
@@ -1643,7 +1650,7 @@ export default {
           }
         }
       }
-      
+
       let maxN = 1;
       let maxKey = "";
       for (var key in num) {
@@ -1703,48 +1710,47 @@ export default {
       // const defaultV = mainName.match(nameReg);
       // console.log(defaultV);
 
-
-    // namePatterns: [
-    //   { label: "Series", text: "", start: -1, end: -1, color: "success" },
-    //   { label: "Row", text: "", start: -1, end: -1, color: "primary" },
-    //   { label: "Column", text: "", start: -1, end: -1, color: "deep-orange" },
-    //   { label: "Field", text: "", start: -1, end: -1, color: "warning" },
-    //   { label: "View Method", text: "", start: -1, end: -1, color: "purple" },
-    //   { label: "Z Position", text: "", start: -1, end: -1, color: "blue-grey" },
-    //   { label: "Time Point", text: "", start: -1, end: -1, color: "error" }
-    // ]
+      // namePatterns: [
+      //   { label: "Series", text: "", start: -1, end: -1, color: "success" },
+      //   { label: "Row", text: "", start: -1, end: -1, color: "primary" },
+      //   { label: "Column", text: "", start: -1, end: -1, color: "deep-orange" },
+      //   { label: "Field", text: "", start: -1, end: -1, color: "warning" },
+      //   { label: "View Method", text: "", start: -1, end: -1, color: "purple" },
+      //   { label: "Z Position", text: "", start: -1, end: -1, color: "blue-grey" },
+      //   { label: "Time Point", text: "", start: -1, end: -1, color: "error" }
+      // ]
 
       for (let i = 0; i < this.namePatterns.length; i++) {
         var key = null;
-        switch(i) {
+        switch (i) {
           case 0:
-            key = 'series'
+            key = "series";
             break;
           case 1:
-            key = 'row'
+            key = "row";
             break;
           case 2:
-            key = 'col'
+            key = "col";
             break;
           case 3:
-            key = 'field'
+            key = "field";
             break;
           case 4:
-            key = 'channel'
+            key = "channel";
             break;
           case 5:
-            key = 'z'
+            key = "z";
             break;
           case 6:
-            key = 'time'
+            key = "time";
             break;
         }
-        if(key) this.setNamePattern({
-          'key': key,
-          'pos': [this.namePatterns[i].start, this.namePatterns[i].end]
-        });
+        if (key)
+          this.setNamePattern({
+            key: key,
+            pos: [this.namePatterns[i].start, this.namePatterns[i].end]
+          });
       }
-
     },
 
     // update
@@ -1757,7 +1763,7 @@ export default {
         console.log("allFiles error: " + this.allFiles);
         return "";
       }
-      
+
       createNewPage = true;
       let formData = new FormData();
       const mainName = this.getMainName();
@@ -1768,10 +1774,10 @@ export default {
 
           if (mainName == name) {
             formData.append("position_" + idx, file);
-            count ++;
+            count++;
           }
 
-          if(count >= MAX_BATCH_SIZE) {
+          if (count >= MAX_BATCH_SIZE) {
             this.$store.dispatch("image/setNewFiles", formData);
             formData = new FormData();
             count = 0;
@@ -1779,10 +1785,10 @@ export default {
         });
       } else {
         formData.append("position_0", this.allFiles[0]);
-        count ++;
+        count++;
       }
 
-      if(count > 0) {
+      if (count > 0) {
         this.$store.dispatch("image/setNewFiles", formData);
       }
     },

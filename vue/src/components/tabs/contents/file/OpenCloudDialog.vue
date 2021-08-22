@@ -2,8 +2,8 @@
   <v-dialog v-model="visibleDialog" max-width="980">
     <simple-dialog
       title="Cloud"
-      :singleButton="false"
-      okTitle="Select"
+      :single-button="false"
+      ok-title="Select"
       @select="visibleDialog = false"
       @close="visibleDialog = false"
     >
@@ -37,6 +37,13 @@ export default {
   name: "OpenCloudDialog",
 
   components: { SimpleDialog },
+
+  props: {
+    value: {
+      type: Boolean,
+      default: false
+    }
+  },
 
   data: () => ({
     initiallyOpen: ["public"],
@@ -88,13 +95,6 @@ export default {
       }
     ]
   }),
-
-  props: {
-    value: {
-      type: Boolean,
-      default: false
-    }
-  },
 
   computed: {
     visibleDialog: {

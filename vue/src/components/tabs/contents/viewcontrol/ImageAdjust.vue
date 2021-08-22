@@ -19,9 +19,9 @@
           :min="-255"
           :max="255"
           :readonly="imageData.url == null"
-          @end="onChangeB"
           dense
           hide-details
+          @end="onChangeB"
         >
           <template v-slot:append>
             <v-text-field
@@ -43,9 +43,9 @@
           :min="-127"
           :max="127"
           :readonly="imageData.url == null"
-          @end="onChangeC"
           dense
           hide-details
+          @end="onChangeC"
         >
           <template v-slot:append>
             <v-text-field
@@ -67,9 +67,9 @@
           :min="0"
           :max="100"
           :readonly="imageData.url == null"
-          @end="onChangeG"
           dense
           hide-details
+          @end="onChangeG"
         >
           <template v-slot:append>
             <v-text-field
@@ -118,6 +118,10 @@ export default {
     );
   },
 
+  beforeDestroy() {
+    this.unwatch();
+  },
+
   methods: {
     onChangeB: function(b) {
       if (b !== this.$store.state.image.parameters.brightness)
@@ -134,10 +138,6 @@ export default {
     onReset: function() {
       this.$store.dispatch("image/resetAdjust");
     }
-  },
-
-  beforeDestroy() {
-    this.unwatch();
   }
 };
 </script>

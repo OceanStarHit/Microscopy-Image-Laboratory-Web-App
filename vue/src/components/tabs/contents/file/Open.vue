@@ -1,6 +1,6 @@
 <template>
   <small-card title="Open">
-    <input type="file" id="uploadFile" @change="requestUploadFile" />
+    <input id="uploadFile" type="file" @change="requestUploadFile" />
     <custom-button
       icon="cloud-download-outline"
       label="Cloud"

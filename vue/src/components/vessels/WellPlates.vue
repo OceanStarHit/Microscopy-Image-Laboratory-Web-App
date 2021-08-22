@@ -63,7 +63,6 @@ import {
 } from "../../utils/constants";
 import { getPosition } from "../../vuex/modules/files";
 
-
 export default {
   name: "WellPlate",
 
@@ -116,7 +115,7 @@ export default {
       },
       radius: 0,
       fontSize: 5,
-      selectedHole: this.selected,
+      selectedHole: this.selected
       // activeHoles: this.actives
     };
   },
@@ -265,22 +264,23 @@ export default {
             if (row == r && col == c) {
               idxes.push(fileIdx);
             }
-          })
+          });
 
           idxes = idxes.sort();
 
           if (this.allIndices[this.curPageIdx - 1] != idxes) {
             this.$store.dispatch("image/changeCurrentMutiData", idxes);
-            
+
             // Compatible to old logic
-            if(idxes.length > 0) this.$store.dispatch("image/changeCurrentData", idxes[0]);
+            if (idxes.length > 0)
+              this.$store.dispatch("image/changeCurrentData", idxes[0]);
           }
         }
       } else {
         this.selectedHole = index;
         this.$emit("click", { row, col });
       }
-    },
+    }
   }
 };
 </script>

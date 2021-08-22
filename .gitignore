@@ -142,3 +142,4 @@ media/
 *.pid
 
 /martial
+/vue/.nvmrc

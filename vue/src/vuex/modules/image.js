@@ -55,7 +55,7 @@ const getters = {
   // newData: (state, getters) => state.newData,
   imageId: (state, getters) => state.imageId,
   imageParams: (state, getters) => state.parameters,
-  curPageIdx:(state, getters) => state.curPageIdx,
+  curPageIdx: (state, getters) => state.curPageIdx,
   currentPageInfo: (state, getters) => {
     return {
       pageData: state.allData[state.curPageIdx - 1],
@@ -66,7 +66,9 @@ const getters = {
   metaData: (state, getters) =>
     state.curPageIdx == -1
       ? null
-      : state.allData[state.curPageIdx - 1].get(state.allIndice[state.curPageIdx - 1]).metadata.imageData,
+      : state.allData[state.curPageIdx - 1].get(
+          state.allIndice[state.curPageIdx - 1]
+        ).metadata.imageData,
   objectiveX: (state, getters) => {
     let X = 0;
     if (!state.imageInfo || !state.imageInfo.objective) return X;
@@ -231,7 +233,7 @@ const actions = {
       .catch(error => {
         commit("decLoadingCount", true);
         console.log("loading count:" + state.loading_count);
-        
+
         console.log(error);
       });
   },
@@ -334,13 +336,13 @@ const mutations = {
   },
 
   incLoadingCount(state, data) {
-    state.loading_count ++;
+    state.loading_count++;
     state.loading = true;
   },
 
   decLoadingCount(state, data) {
-    state.loading_count --;
-    if(state.loading_count == 0) {
+    state.loading_count--;
+    if (state.loading_count == 0) {
       state.loading = false;
     }
   },
@@ -387,16 +389,15 @@ const mutations = {
   addData(state, payload) {
     const files = payload.files;
 
-    if(files.size == 0) return;
+    if (files.size == 0) return;
 
     const append = payload.appendToCurrentPage;
 
-    if(append) {
-      
+    if (append) {
       // state.newData.push.apply(state.newData, files);
       state.allData = state.allData.map((oldData, idx) => {
-        if(idx == state.curPageIdx - 1) {
-          return new Map([...oldData, ...files])
+        if (idx == state.curPageIdx - 1) {
+          return new Map([...oldData, ...files]);
         } else {
           return oldData;
         }
@@ -404,7 +405,7 @@ const mutations = {
     } else {
       // state.newData = files;
       state.allData.push(files);
-      let minIdx = Math.min(...(files.keys()));
+      let minIdx = Math.min(...files.keys());
       state.allIndice.push(minIdx);
       state.allIndices.push([]);
       state.curPageIdx = state.allData.length;

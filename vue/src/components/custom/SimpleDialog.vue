@@ -7,8 +7,8 @@
     <v-card-actions class="pa-6">
       <v-spacer></v-spacer>
       <v-btn
-        :disabled="newDisable"
         v-if="newButton"
+        :disabled="newDisable"
         color="warning lighten-1"
         @click="newed"
       >
@@ -23,8 +23,8 @@
         {{ updateTitle }}
       </v-btn>
       <v-btn
-        :disabled="removeDisable"
         v-if="removeButton"
+        :disabled="removeDisable"
         color="warning darken-2"
         @click="removed"
       >
@@ -47,8 +47,6 @@
 <script>
 export default {
   name: "SimpleDialog",
-
-  data: () => ({}),
 
   props: {
     title: {
@@ -118,6 +116,8 @@ export default {
       default: true
     }
   },
+
+  data: () => ({}),
 
   methods: {
     newed: function() {

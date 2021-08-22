@@ -1,17 +1,17 @@
 <template>
   <div style="display: none">
     <input
-      type="file"
       id="uploadFolder"
-      @change="requestUploadFolder"
+      type="file"
       webkitdirectory
       multiple
+      @change="requestUploadFolder"
     />
     <v-dialog v-model="visibleDialog" max-width="980">
       <simple-dialog
         title="Folder"
-        :singleButton="false"
-        okTitle="Select"
+        :single-button="false"
+        ok-title="Select"
         @select="onSelect"
         @close="onCancel"
       >
@@ -57,15 +57,26 @@ export default {
 
   components: { SimpleDialog },
 
+  props: {
+    value: {
+      type: Boolean,
+      default: false
+    }
+  },
+
   data: () => ({
     imageSource: null,
     allFiles: []
   }),
 
-  props: {
-    value: {
-      type: Boolean,
-      default: false
+  computed: {
+    visibleDialog: {
+      get() {
+        return this.value;
+      },
+      set(val) {
+        this.$emit("input", val);
+      }
     }
   },
 
@@ -100,17 +111,6 @@ export default {
 
   beforeDestroy() {
     this.newResWatch();
-  },
-
-  computed: {
-    visibleDialog: {
-      get() {
-        return this.value;
-      },
-      set(val) {
-        this.$emit("input", val);
-      }
-    }
   },
 
   methods: {

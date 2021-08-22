@@ -34,6 +34,12 @@ export default {
         : process.env.VUE_APP_STATIC_URL
   }),
 
+  computed: {
+    getClasses() {
+      return { isDragging: this.isDragging };
+    }
+  },
+
   created() {
     this.imageDataWatch = this.$store.watch(
       (state, getters) => getters["image/metaData"],
@@ -69,12 +75,6 @@ export default {
       minZoomPixelRatio: 0.1,
       maxZoomPixelRatio: 10
     });
-  },
-
-  computed: {
-    getClasses() {
-      return { isDragging: this.isDragging };
-    }
   },
 
   methods: {
