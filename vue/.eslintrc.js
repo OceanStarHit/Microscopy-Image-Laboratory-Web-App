@@ -1,12 +1,13 @@
 module.exports = {
   root: true,
-  env: {
-    node: true
-  },
-  extends: ["plugin:vue/essential", "eslint:recommended", "@vue/prettier"],
+  extends: ["plugin:vue/strongly-recommended", "@vue/prettier"],
   parserOptions: {
     parser: "babel-eslint",
     sourceType: "module"
   },
-  plugins: ["html"]
+
+  rules: {
+    // override/add rules settings here, such as:
+    // 'vue/no-unused-vars': 'error'
+  }
 };

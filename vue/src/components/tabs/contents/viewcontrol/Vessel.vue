@@ -1,5 +1,5 @@
 <template>
-  <v-card ref="frame" class="pa-1" flat v-resize="onResize">
+  <v-card ref="frame" v-resize="onResize" class="pa-1" flat>
     <v-row class="px-5 py-0 my-1">
       <h5>{{ vesselTitle }}</h5>
     </v-row>
@@ -76,7 +76,7 @@ export default {
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
       info => {
-        if(info.pageData) {
+        if (info.pageData) {
           this.$store.dispatch("vessel/setVesselId", info);
         }
       }

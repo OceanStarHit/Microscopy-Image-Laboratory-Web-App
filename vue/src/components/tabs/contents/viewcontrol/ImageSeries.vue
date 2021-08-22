@@ -2,8 +2,8 @@
   <v-card class="pa-2" flat>
     <h4>Series</h4>
     <v-slider
-      class="mt-12"
       v-model="s_value"
+      class="mt-12"
       prepend-icon="mdi-image-text"
       :min="1"
       :max="s_max == 1 ? 10 : s_max"
@@ -41,15 +41,15 @@ export default {
     );
   },
 
+  beforeDestroy() {
+    this.unwatch();
+  },
+
   methods: {
     onChange: function(s) {
       if (s !== this.$store.state.image.imageId + 1)
         this.$store.dispatch("image/changeImage", s);
     }
-  },
-
-  beforeDestroy() {
-    this.unwatch();
   }
 };
 </script>

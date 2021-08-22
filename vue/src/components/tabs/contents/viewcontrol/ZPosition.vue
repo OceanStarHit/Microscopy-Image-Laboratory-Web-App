@@ -12,14 +12,14 @@
       </div>
     </div>
     <v-slider
-      prepend-icon="mdi-swap-vertical"
       v-model="z_value"
+      prepend-icon="mdi-swap-vertical"
       :min="z_min"
       :max="z_max == 1 ? 2 : z_max"
       :readonly="z_max == 1"
-      @end="onChangeZ"
       dense
       hide-details
+      @end="onChangeZ"
     ></v-slider>
     <v-row class="pa-0 ml-10 mr-2 my-0" justify="space-between">
       <input
@@ -79,7 +79,7 @@ export default {
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
       info => {
-        if(info.pageData) {
+        if (info.pageData) {
           if (info.pageData.size == 1) {
             let keys = [...info.pageData.keys()];
             const metadata = info.pageData.get(keys[0]).metadata;

@@ -66,14 +66,14 @@
         <v-icon>mdi-fast-forward</v-icon>
       </v-btn>
       <v-slider
-        class="ml-2"
         v-model="t_value"
+        class="ml-2"
         :min="t_min"
         :max="t_max == 1 ? 2 : t_max"
         :readonly="t_max == 1"
-        @end="onChangeT"
         dense
         hide-details
+        @end="onChangeT"
       ></v-slider>
     </v-row>
     <v-row
@@ -138,7 +138,7 @@ export default {
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
       info => {
-        if(info.pageData) {
+        if (info.pageData) {
           if (info.pageData.size == 1) {
             console.log(info.pageData);
 
@@ -146,7 +146,9 @@ export default {
 
             this.t_max = info.pageData.get(keys[0]).metadata.coreMetadata.sizeT;
             this.t_range.max = this.t_max;
-            this.t_value = info.pageData.get(keys[0]).metadata.imageInfo.pixels.sizeT;
+            this.t_value = info.pageData.get(
+              keys[0]
+            ).metadata.imageInfo.pixels.sizeT;
           } else {
             let tMax = 0;
             info.pageData.forEach((data, idx) => {

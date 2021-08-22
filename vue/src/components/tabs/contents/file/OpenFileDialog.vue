@@ -1,11 +1,11 @@
 <template>
   <div style="display: none">
-    <input type="file" id="uploadFile" @change="requestUploadFile" />
+    <input id="uploadFile" type="file" @change="requestUploadFile" />
     <v-dialog v-model="visibleDialog" max-width="980">
       <simple-dialog
         title="File"
-        :singleButton="false"
-        okTitle="Select"
+        :single-button="false"
+        ok-title="Select"
         @select="onSelect"
         @close="onCancel"
       >
@@ -72,16 +72,35 @@ export default {
 
   components: { SimpleDialog },
 
+  props: {
+    value: {
+      type: Boolean,
+      default: false
+    }
+  },
+
   data: () => ({
     isDragging: false,
     newFile: null,
     imageData: null
   }),
 
-  props: {
-    value: {
-      type: Boolean,
-      default: false
+  computed: {
+    visibleDialog: {
+      get() {
+        return this.value;
+      },
+      set(val) {
+        this.$emit("input", val);
+      }
+    },
+    getClasses() {
+      return { isDragging: this.isDragging };
+    },
+    imageURL() {
+      return this.imageData
+        ? this.imageData
+        : require("../../../../assets/images/no-preview.png");
     }
   },
 
@@ -112,25 +131,6 @@ export default {
 
   beforeDestroy() {
     this.newResWatch();
-  },
-
-  computed: {
-    visibleDialog: {
-      get() {
-        return this.value;
-      },
-      set(val) {
-        this.$emit("input", val);
-      }
-    },
-    getClasses() {
-      return { isDragging: this.isDragging };
-    },
-    imageURL() {
-      return this.imageData
-        ? this.imageData
-        : require("../../../../assets/images/no-preview.png");
-    }
   },
 
   methods: {

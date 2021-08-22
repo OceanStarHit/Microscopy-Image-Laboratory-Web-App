@@ -8,9 +8,9 @@
     }"
   >
     <div
-      class="d-flex justify-center"
       v-for="i in count"
       :key="i"
+      class="d-flex justify-center"
       :ripple="interaction"
       @click="clicked(i)"
     >

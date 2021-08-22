@@ -47,7 +47,7 @@
               <div v-if="v_idx == 2">
                 <well-plate
                   :width="140"
-                  :showName="vessels[v_idx - 1][i - 1].showName"
+                  :show-name="vessels[v_idx - 1][i - 1].showName"
                   :rows="vessels[v_idx - 1][i - 1].rows"
                   :cols="vessels[v_idx - 1][i - 1].cols"
                   :interaction="false"
@@ -109,18 +109,18 @@ export default {
     WellPlate
   },
 
-  data: () => ({
-    vesselTypes: VESSEL_TYPES,
-    vessels: VESSELS,
-    selectedTab: null
-  }),
-
   props: {
     value: {
       type: Boolean,
       default: false
     }
   },
+
+  data: () => ({
+    vesselTypes: VESSEL_TYPES,
+    vessels: VESSELS,
+    selectedTab: null
+  }),
 
   computed: {
     ...mapGetters("vessel", {

@@ -3,9 +3,9 @@
     class="px-0"
     min-width="24"
     :height="label ? 38 : 28"
-    @click="clicked"
     text
     color="teal"
+    @click="clicked"
   >
     <div class="ma-0">
       <div v-if="image" class="pa-1">
@@ -21,9 +21,9 @@
 export default {
   name: "CustomButton",
 
-  data: () => ({}),
-
   props: ["icon", "image", "label"],
+
+  data: () => ({}),
 
   computed: {
     imageUrl() {
