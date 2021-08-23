@@ -47,7 +47,7 @@ class ImageInfo(object):
         try:
             if show_log:
                 print('\n\n***************************************')
-                print(f'===== File Name : {self.filename} =====')
+                print('===== File Name : {self.filename} =====')
 
             self.core_metadata = self.parse_core_metadata(self.reader, show_log)
             self.origin_metadata = self.parse_origin_metadata(self.reader, show_log)

@@ -54,7 +54,7 @@
         </v-container>
       </v-col>
 
-      <!--  -->
+      <!-- Center  -->
       <v-col
         class="grey lighten-3"
         cols="8"

@@ -61,7 +61,6 @@ import {
   VESSEL_WELLPLATE_MAX_HEIGHT,
   VESSEL_WELLPLATE_MAX_FONTSIZE
 } from "../../utils/constants";
-import { getPosition } from "../../vuex/modules/files";
 
 export default {
   name: "WellPlate",
@@ -164,11 +163,8 @@ export default {
       }
 
       data.pageData.forEach((item, idx) => {
-        const filename = item.filename;
-
-        const p = getPosition(filename);
-        const row = p[0];
-        const col = p[1];
+        const row = item.extParams.row;
+        const col = item.extParams.col;
         const index = (row - 1) * this.cols + col - 1;
         ahs.push(index);
 
@@ -257,9 +253,8 @@ export default {
           // Collect all indexes if the position is matched.
           var idxes = [];
           data.pageData.forEach((data, fileIdx) => {
-            const p = getPosition(data.filename);
-            const r = p[0];
-            const c = p[1];
+            const r = data.extParams.row;
+            const c = data.extParams.col;
 
             if (row == r && col == c) {
               idxes.push(fileIdx);

@@ -146,6 +146,9 @@ export function getPosition(filename) {
   const patternColStart = namePatterns.col[0];
   const patternColEnd = namePatterns.col[1];
 
+  const patternZStart = namePatterns.z[0];
+  const patternZEnd = namePatterns.z[1];
+
   const type = filename.match(defaultPattern);
 
   var r = 0;
@@ -171,7 +174,14 @@ export function getPosition(filename) {
     c = parseInt(type[6]);
   }
 
-  return [r, c];
+  var z = 0;
+  if (patternZStart >= 0 && patternZEnd >= 0 && patternZEnd > patternZStart) {
+    z = parseInt(filename.substring(patternZStart, patternZEnd));
+  } else if (type) {
+    z = parseInt(type[4]);
+  }
+
+  return [r, c, z];
 }
 
 export default {

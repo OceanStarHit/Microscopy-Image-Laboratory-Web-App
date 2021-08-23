@@ -140,8 +140,6 @@ export default {
       info => {
         if (info.pageData) {
           if (info.pageData.size == 1) {
-            console.log(info.pageData);
-
             let keys = [...info.pageData.keys()];
 
             this.t_max = info.pageData.get(keys[0]).metadata.coreMetadata.sizeT;

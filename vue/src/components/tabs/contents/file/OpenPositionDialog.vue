@@ -500,7 +500,7 @@ import SimpleDialog from "../../../custom/SimpleDialog";
 
 const positionModule = createNamespacedHelpers("files/position");
 
-import { getSeries } from "../../../../vuex/modules/files";
+import { getPosition, getSeries } from "../../../../vuex/modules/files";
 
 var createNewPage = true;
 
@@ -703,14 +703,23 @@ export default {
 
         for (var key in res) {
           const idx = parseInt(key.split("_")[1]);
+          let fileName = this.allFiles[idx].name;
+          let p = getPosition(fileName);
           if (
             key.startsWith("position_") &&
             res[key] &&
             idx < this.allFiles.length
           ) {
+            let extParams = {
+              row: p[0],
+              col: p[1],
+              z: p[2]
+            };
+
             filteredData.set(idx, {
-              filename: this.allFiles[idx].name,
-              metadata: res[key]
+              filename: fileName,
+              metadata: res[key],
+              extParams: extParams
             });
           }
         }
