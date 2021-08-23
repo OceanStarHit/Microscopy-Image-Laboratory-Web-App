@@ -15,97 +15,120 @@
       v-model="z_value"
       prepend-icon="mdi-swap-vertical"
       :min="z_min"
-      :max="z_max == 1 ? 2 : z_max"
-      :readonly="z_max == 1"
+      :max="z_max"
+      :readonly="z_max == 0"
       dense
       hide-details
       @end="onChangeZ"
     ></v-slider>
-    <v-row class="pa-0 ml-10 mr-2 my-0" justify="space-between">
+    <!-- <v-row class="pa-0 ml-10 mr-2 my-0" justify="space-between">
       <input
         class="range-field"
         type="number"
-        :value="z_range.min"
+        :value="z_min"
         disabled
         @input="onChangeZmin"
       />
       <input
         class="range-field"
         type="number"
-        :value="z_range.max"
+        :value="z_max"
         disabled
         @input="onChangeZmax"
       />
-    </v-row>
+    </v-row> -->
   </v-card>
 </template>
 
 <script>
+import { mapState, mapGetters } from "vuex";
+
 export default {
   name: "ZPosition",
 
   components: {},
 
-  data: () => ({
-    z_value: 1,
-    z_min: 1,
-    z_max: 1,
-    z_range: {
-      min: 1,
-      max: 0
+  computed: {
+    ...mapGetters("image", {
+      selectedImagesAtRowCol: "selectedImagesAtRowCol"
+    }),
+    ...mapState({
+      parameters: state => state.image.parameters,
+      // selectedImages() {
+      //   return state.image.curPageIdx;
+      // },
+    }),
+
+    z_max() {
+      if(this.selectedImagesAtRowCol) {
+        let zs = this.selectedImagesAtRowCol.map(img => img.extParams.z);
+        console.log(zs);
+        console.log(Math.max(zs) + 1);
+        return Math.max(...zs);
+      }
+      return 0;
+    },
+    z_min() {
+      if(this.selectedImagesAtRowCol) {
+        let zs = this.selectedImagesAtRowCol.map(img => img.extParams.z);
+        console.log(Math.min(zs) + 1);
+        return Math.min(...zs);
+      }
+      return 0;
     }
+  },
+
+  data: () => ({
+    z_value: 1
+    // z_max: 1,
+    // z_range: {
+    //   min: 1,
+    //   max: 0
+    // }
   }),
 
   created() {
     this.unwatch1 = this.$store.watch(
       (state, getters) => getters["image/sizeZ"],
       newValue => {
-        console.log(newValue);
-        // this.z_min = 1;
-        // this.z_max = newValue;
-
-        // this.z_range.min = 1;
-        // this.z_range.max = this.z_max;
       }
     );
     this.unwatch2 = this.$store.watch(
       (state, getters) => getters["image/imageParams"],
       newValue => {
-        console.log(newValue);
-        // this.z_value = newValue.Z;
       }
     );
 
     this.currentPageDataWatch = this.$store.watch(
       (state, getters) => getters["image/currentPageInfo"],
       info => {
-        if (info.pageData) {
-          if (info.pageData.size == 1) {
-            let keys = [...info.pageData.keys()];
-            const metadata = info.pageData.get(keys[0]).metadata;
+        // if (info.pageData) {
+        //   if (info.pageData.size == 1) {
+        //     let keys = [...info.pageData.keys()];
+        //     const metadata = info.pageData.get(keys[0]).metadata;
 
-            this.z_max = metadata.coreMetadata.sizeZ;
-            this.z_range.max = this.z_max;
-            this.z_value = metadata.imageInfo.pixels.sizeZ;
-          } else {
-            let zMax = 0;
-            info.pageData.forEach((data, idx) => {
-              const types = data.filename.match(
-                /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-              );
-              if (types) {
-                if (zMax < parseInt(types[4])) {
-                  zMax = types[4];
-                }
-                if (idx == info.pageData.dataIndex) {
-                  this.z_value = types[4];
-                }
-              }
-            });
-            this.z_max = zMax + 1;
-            this.z_range.max = this.z_max;
-          }
-        }
+        //     // this.z_max = metadata.coreMetadata.sizeZ;
+        //     this.z_range.max = this.z_max;
+        //     this.z_value = metadata.imageInfo.pixels.sizeZ;
+        //   } else {
+        //     let zMax = 0;
+        //     info.pageData.forEach((data, idx) => {
+        //       const types = data.filename.match(
+        //         /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
+        //       );
+        //       if (types) {
+        //         if (zMax < parseInt(types[4])) {
+        //           zMax = types[4];
+        //         }
+        //         if (idx == info.pageData.dataIndex) {
+        //           this.z_value = types[4];
+        //         }
+        //       }
+        //     });
+        //     // this.z_max = zMax + 1;
+        //     this.z_range.max = this.z_max;
+        //   }
+        // }
       }
     );
   },
@@ -118,34 +141,36 @@ export default {
 
   methods: {
     onChangeZ: function(z) {
+      // console.log(this.selectedImages);
+
       if (z !== this.$store.state.image.parameters.Z)
         this.$store.dispatch("image/changeParameterByZ", z);
     },
     onChangeZmin: function(event) {
-      const z_min = event.target.value;
+      // const z_min = event.target.value;
 
-      if (!(z_min < 1 || z_min > this.z_range.max)) {
-        this.z_range.min = z_min;
+      // if (!(z_min < 1 || z_min > this.z_range.max)) {
+      //   this.z_range.min = z_min;
 
-        if (this.z_value < z_min) {
-          this.z_value = z_min;
-          this.onChangeZ(this.z_value);
-        }
-      }
+      //   if (this.z_value < z_min) {
+      //     this.z_value = z_min;
+      //     this.onChangeZ(this.z_value);
+      //   }
+      // }
 
       this.$forceUpdate();
     },
     onChangeZmax: function(event) {
-      const z_max = event.target.value;
+      // const z_max = event.target.value;
 
-      if (!(z_max > this.z_max || z_max < this.z_range.min)) {
-        this.z_range.max = z_max;
+      // if (!(z_max > this.z_max || z_max < this.z_range.min)) {
+      //   this.z_range.max = z_max;
 
-        if (this.z_value > z_max) {
-          this.z_value = z_max;
-          this.onChangeZ(this.z_value);
-        }
-      }
+      //   if (this.z_value > z_max) {
+      //     this.z_value = z_max;
+      //     this.onChangeZ(this.z_value);
+      //   }
+      // }
 
       this.$forceUpdate();
     },

@@ -63,6 +63,18 @@ const getters = {
       dataIndexes: state.allIndices[state.curPageIdx - 1]
     };
   },
+  selectedImagesAtRowCol: (state, getters) => {
+    if(state.curPageIdx > 0 && state.allData.length > 0) {
+      let idxes = state.allIndices[state.curPageIdx - 1];
+      let data = state.allData[state.curPageIdx - 1];
+  
+      if(idxes.length > 0) {
+        let rs = idxes.map(idx => data.get(idx));
+        return rs;  
+      }
+      return [];  
+    }
+  },
   metaData: (state, getters) =>
     state.curPageIdx == -1
       ? null
@@ -271,7 +283,10 @@ const actions = {
     changeParameter(commit, state, {
       T: state.parameters.T,
       Z: z,
-      C: state.parameters.C
+      C: state.parameters.C,
+      brightness: state.parameters.brightness,
+      contrast: state.parameters.contrast,
+      gamma: state.parameters.gamma
     });
   },
 
@@ -279,7 +294,10 @@ const actions = {
     changeParameter(commit, state, {
       T: t,
       Z: state.parameters.Z,
-      C: state.parameters.C
+      C: state.parameters.C,
+      brightness: state.parameters.brightness,
+      contrast: state.parameters.contrast,
+      gamma: state.parameters.gamma
     });
   },
 
@@ -287,7 +305,10 @@ const actions = {
     changeParameter(commit, state, {
       T: state.parameters.T,
       Z: state.parameters.Z,
-      C: c
+      C: c,
+      brightness: state.parameters.brightness,
+      contrast: state.parameters.contrast,
+      gamma: state.parameters.gamma
     });
   },
 
@@ -436,17 +457,17 @@ const mutations = {
   },
 
   changeParameterData(state, payload) {
-    state.imageData = payload.imageData;
-    state.originData = payload.imageData;
-    state.isNew = false;
+    // state.imageData = payload.imageData;
+    // state.originData = payload.imageData;
+    // state.isNew = false;
 
     state.parameters = Object.assign({}, state.parameters, {
       Z: payload.params.Z,
       T: payload.params.T,
       C: payload.params.C,
-      brightness: 0,
-      contrast: 0,
-      gamma: 0
+      brightness: payload.params.brightness,
+      contrast: payload.params.contrast,
+      gamma: payload.params.gamma
     });
   },
 
@@ -482,38 +503,64 @@ export default {
 //////////////////////////////////////
 
 function changeParameter(commit, state, params) {
-  if (state.loading) return;
+  let newParams = Object.assign({}, state.parameters, {});
+  if(params.Z) {
+    newParams.Z = params.Z;
+  }
+  if(params.T) {
+    newParams.T = params.T; 
+  }
+  if(params.C) {
+    newParams.C = params.C;
+  }
+  if(params.brightness) {
+    newParams.brightness = params.brightness;
+  }
+  if(params.contrast) {
+    newParams.contrast = params.contrast;
+  }
+  if(params.gamma) {
+    newParams.gamma = params.gamma;
+  }
+  console.log(newParams);
 
-  commit("setLoading", true);
+  commit("changeParameterData", {
+    params: newParams
+  });
 
-  API.changeParameter(params)
-    .then(response => {
-      const imageObj = new Image();
-      imageObj.src = response.imageData;
 
-      setTimeout(() => {
-        if (imageObj.height) {
-          commit("changeParameterData", {
-            imageData: imageObj.src,
-            params
-          });
-        } else {
-          setTimeout(function() {
-            commit("changeParameterData", {
-              imageData: imageObj.src,
-              params
-            });
-          }, 1000);
-        }
-      }, 100);
+  // if (state.loading) return;
 
-      commit("setLoading", false);
-    })
-    .catch(error => {
-      commit("setLoading", false);
+  // commit("setLoading", true);
 
-      console.log(error);
-    });
+  // API.changeParameter(params)
+  //   .then(response => {
+  //     const imageObj = new Image();
+  //     imageObj.src = response.imageData;
+
+  //     setTimeout(() => {
+  //       if (imageObj.height) {
+  //         commit("changeParameterData", {
+  //           imageData: imageObj.src,
+  //           params
+  //         });
+  //       } else {
+  //         setTimeout(function() {
+  //           commit("changeParameterData", {
+  //             imageData: imageObj.src,
+  //             params
+  //           });
+  //         }, 1000);
+  //       }
+  //     }, 100);
+
+  //     commit("setLoading", false);
+  //   })
+  //   .catch(error => {
+  //     commit("setLoading", false);
+
+  //     console.log(error);
+  //   });
 }
 
 function adjustImage({ commit, state }, params) {
