@@ -105,6 +105,26 @@ Should proceed this step each time to run the project
 
 You can check the app at `http://127.0.0.1:8000` on your browser
 
+### Use docker images
+- Import the ready to use images
+  ```sh
+  $ docker import ias-project_api.tar
+  $ docker import mariadb.tar
+  ```
+- Check the image ID
+  ```sh
+  $ docker images
+  ```
+- Tag the image
+  ```sh
+  $ docker tag <API Image ID> ias-project_api:latest
+  $ docker tag <DB Image ID> mariadb:latest
+  ```
+- Run docker
+  ```sh
+  $ docker-compose up
+  ```
+
 ## License
 
 Apache License 2.0
