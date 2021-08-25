@@ -119,6 +119,14 @@ export default {
     };
   },
 
+  created() {
+    const data = this.$store.getters["image/currentPageInfo"];
+    let selectedDot = data.pageData.get(0);
+    let row = selectedDot.extParams.row;
+    let col = selectedDot.extParams.col;
+    this.clicked(row, col);
+  },
+
   computed: {
     ...mapState({
       allIndice: state => state.image.allIndice,
@@ -267,8 +275,8 @@ export default {
             this.$store.dispatch("image/changeCurrentMutiData", idxes);
 
             // Compatible to old logic
-            if (idxes.length > 0)
-              this.$store.dispatch("image/changeCurrentData", idxes[0]);
+            // if (idxes.length > 0)
+            //   this.$store.dispatch("image/changeCurrentData", idxes[0]);
           }
         }
       } else {

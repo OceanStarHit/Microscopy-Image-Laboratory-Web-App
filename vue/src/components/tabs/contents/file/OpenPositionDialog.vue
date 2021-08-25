@@ -667,13 +667,13 @@ export default {
       endOffset: -1
     },
     namePatterns: [
-      { label: "Series", text: "", start: -1, end: -1, color: "success" },
-      { label: "Row", text: "", start: -1, end: -1, color: "primary" },
-      { label: "Column", text: "", start: -1, end: -1, color: "deep-orange" },
-      { label: "Field", text: "", start: -1, end: -1, color: "warning" },
-      { label: "Channel", text: "", start: -1, end: -1, color: "purple" },
-      { label: "Z Position", text: "", start: -1, end: -1, color: "blue-grey" },
-      { label: "Time Point", text: "", start: -1, end: -1, color: "error" }
+      { label: "Series", text: "", start: 0, end: 17, color: "success" },
+      { label: "Row", text: "", start: 24, end: 25, color: "primary" },
+      { label: "Column", text: "", start: 25, end: 27, color: "deep-orange" },
+      { label: "Field", text: "", start: 27, end: 30, color: "warning" },
+      { label: "Channel", text: "", start: 30, end: 32, color: "purple" },
+      { label: "Z Position", text: "", start: 22, end: 23, color: "blue-grey" },
+      { label: "Time Point", text: "", start: 18, end: 21, color: "error" }
     ],
     nameTypeTableHeaders: [
       { text: "No", value: "no" },
@@ -1715,20 +1715,6 @@ export default {
     },
 
     updateNamePattern() {
-      // const nameReg = /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/;
-      // const defaultV = mainName.match(nameReg);
-      // console.log(defaultV);
-
-      // namePatterns: [
-      //   { label: "Series", text: "", start: -1, end: -1, color: "success" },
-      //   { label: "Row", text: "", start: -1, end: -1, color: "primary" },
-      //   { label: "Column", text: "", start: -1, end: -1, color: "deep-orange" },
-      //   { label: "Field", text: "", start: -1, end: -1, color: "warning" },
-      //   { label: "View Method", text: "", start: -1, end: -1, color: "purple" },
-      //   { label: "Z Position", text: "", start: -1, end: -1, color: "blue-grey" },
-      //   { label: "Time Point", text: "", start: -1, end: -1, color: "error" }
-      // ]
-
       for (let i = 0; i < this.namePatterns.length; i++) {
         var key = null;
         switch (i) {

@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+// import { of } from "core-js/core/array";
 import * as API from "../../api";
 import "./files";
 
@@ -64,23 +65,32 @@ const getters = {
     };
   },
   selectedImagesAtRowCol: (state, getters) => {
-    if(state.curPageIdx > 0 && state.allData.length > 0) {
+    let pageIdx = state.curPageIdx;
+    let pageData = state.allData;
+    if (pageIdx > 0 && pageData.length > 0) {
       let idxes = state.allIndices[state.curPageIdx - 1];
       let data = state.allData[state.curPageIdx - 1];
-  
-      if(idxes.length > 0) {
+
+      if (idxes.length > 0) {
         let rs = idxes.map(idx => data.get(idx));
-        return rs;  
+        return rs;
       }
-      return [];  
     }
+    return [];
   },
-  metaData: (state, getters) =>
-    state.curPageIdx == -1
-      ? null
-      : state.allData[state.curPageIdx - 1].get(
-          state.allIndice[state.curPageIdx - 1]
-        ).metadata.imageData,
+  metaData: (state, getters) => {
+    if (state.curPageIdx > 0 && state.allData.length > 0) {
+      let idxes = state.allIndices[state.curPageIdx - 1];
+      let data = state.allData[state.curPageIdx - 1];
+
+      if (idxes.length > 0) {
+        let rs = idxes.map(idx => data.get(idx));
+        let images = filtteredByParameters(state.parameters, rs);
+        if (images.length > 0) return images[0].metadata.imageData;
+      }
+    }
+    return null;
+  },
   objectiveX: (state, getters) => {
     let X = 0;
     if (!state.imageInfo || !state.imageInfo.objective) return X;
@@ -233,17 +243,17 @@ const actions = {
 
   setNewFiles({ commit, state }, formData) {
     // if (state.loading) return;
-    commit("incLoadingCount", true);
+    commit("incLoadingCount");
 
     API.setMetadata(formData)
       .then(response => {
         commit("setNewResponse", response);
 
-        commit("decLoadingCount", true);
+        commit("decLoadingCount");
         console.log("loading count:" + state.loading_count);
       })
       .catch(error => {
-        commit("decLoadingCount", true);
+        commit("decLoadingCount");
         console.log("loading count:" + state.loading_count);
 
         console.log(error);
@@ -280,14 +290,16 @@ const actions = {
   },
 
   changeParameterByZ({ commit, state }, z) {
-    changeParameter(commit, state, {
-      T: state.parameters.T,
-      Z: z,
-      C: state.parameters.C,
-      brightness: state.parameters.brightness,
-      contrast: state.parameters.contrast,
-      gamma: state.parameters.gamma
-    });
+    if (state.parameters.Z != z) {
+      changeParameter(commit, state, {
+        T: state.parameters.T,
+        Z: z,
+        C: state.parameters.C,
+        brightness: state.parameters.brightness,
+        contrast: state.parameters.contrast,
+        gamma: state.parameters.gamma
+      });
+    }
   },
 
   changeParameterByT({ commit, state }, t) {
@@ -504,30 +516,28 @@ export default {
 
 function changeParameter(commit, state, params) {
   let newParams = Object.assign({}, state.parameters, {});
-  if(params.Z) {
+  if (typeof params.Z !== "undefined") {
     newParams.Z = params.Z;
   }
-  if(params.T) {
-    newParams.T = params.T; 
+  if (typeof params.T !== "undefined") {
+    newParams.T = params.T;
   }
-  if(params.C) {
+  if (typeof params.C !== "undefined") {
     newParams.C = params.C;
   }
-  if(params.brightness) {
+  if (typeof params.brightness !== "undefined") {
     newParams.brightness = params.brightness;
   }
-  if(params.contrast) {
+  if (typeof params.contrast !== "undefined") {
     newParams.contrast = params.contrast;
   }
-  if(params.gamma) {
+  if (typeof params.gamma !== "undefined") {
     newParams.gamma = params.gamma;
   }
-  console.log(newParams);
 
   commit("changeParameterData", {
     params: newParams
   });
-
 
   // if (state.loading) return;
 
@@ -599,4 +609,9 @@ function adjustImage({ commit, state }, params) {
 
       console.log(error);
     });
+}
+
+function filtteredByParameters(parameters, images) {
+  const filteredByZ = images.filter(img => img.extParams.z == parameters.Z);
+  return filteredByZ;
 }

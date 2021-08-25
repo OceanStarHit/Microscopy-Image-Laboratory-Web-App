@@ -16,6 +16,8 @@
 /* eslint-disable no-unused-vars */
 import OpenSeadragon from "openseadragon";
 import config from "../../vue.config";
+import { mapState, mapGetters, mapActions } from "vuex";
+
 var path = require("path");
 
 export default {
@@ -35,6 +37,10 @@ export default {
   }),
 
   computed: {
+    // ...mapState({
+    //   metaData: state => state.image.metaData,
+    // }),
+
     getClasses() {
       return { isDragging: this.isDragging };
     }
@@ -45,6 +51,7 @@ export default {
       (state, getters) => getters["image/metaData"],
       data => {
         if (this.imageView && data) {
+
           const opt = {
             tileSource: {
               type: "image",

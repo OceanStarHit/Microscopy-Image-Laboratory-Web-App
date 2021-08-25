@@ -19,7 +19,7 @@
       :readonly="z_max == 0"
       dense
       hide-details
-      @end="onChangeZ"
+      @end="changeParameterByZ"
     ></v-slider>
     <!-- <v-row class="pa-0 ml-10 mr-2 my-0" justify="space-between">
       <input
@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 
 export default {
   name: "ZPosition",
@@ -60,18 +60,24 @@ export default {
     }),
 
     z_max() {
+      var rs = 0
       if(this.selectedImagesAtRowCol) {
         let zs = this.selectedImagesAtRowCol.map(img => img.extParams.z);
-        console.log(zs);
-        console.log(Math.max(zs) + 1);
-        return Math.max(...zs);
+        if(zs.length == 0) {
+          return 0;
+        }
+        
+        rs = Math.max(...zs);
       }
-      return 0;
+      return rs;
     },
     z_min() {
       if(this.selectedImagesAtRowCol) {
         let zs = this.selectedImagesAtRowCol.map(img => img.extParams.z);
-        console.log(Math.min(zs) + 1);
+        if(zs.length == 0) {
+          return 0;
+        }
+
         return Math.min(...zs);
       }
       return 0;
@@ -140,12 +146,9 @@ export default {
   },
 
   methods: {
-    onChangeZ: function(z) {
-      // console.log(this.selectedImages);
-
-      if (z !== this.$store.state.image.parameters.Z)
-        this.$store.dispatch("image/changeParameterByZ", z);
-    },
+    ...mapActions("image", {
+      changeParameterByZ: "changeParameterByZ"
+    }),
     onChangeZmin: function(event) {
       // const z_min = event.target.value;
 
