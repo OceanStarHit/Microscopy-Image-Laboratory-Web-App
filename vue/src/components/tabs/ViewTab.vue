@@ -81,14 +81,22 @@ export default {
   computed: {
     ...mapGetters("image", {
       seriesCount: "seriesCount",
-      sizeZ: "sizeZ",
-      sizeT: "sizeT"
+      selectedImagesAtRowCol: "selectedImagesAtRowCol"
     }),
     ...mapState({
       allData: state => state.image.allData
-    })
+    }),
+    sizeZ: function() {
+      let zs = this.selectedImagesAtRowCol.map(img => img.extParams.z);
+      zs = [...new Set(zs)];
+      return zs.length;
+    },
+    sizeT: function() {
+      let ts = this.selectedImagesAtRowCol.map(img => img.extParams.timeline);
+      ts = [...new Set(ts)];
+      return ts.length;
+    }
   },
-
   methods: {
     handlePageChange(idx) {
       this.$store.dispatch("image/changeCurrentPage", idx);

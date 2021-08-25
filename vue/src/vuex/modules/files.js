@@ -149,6 +149,9 @@ export function getPosition(filename) {
   const patternZStart = namePatterns.z[0];
   const patternZEnd = namePatterns.z[1];
 
+  const timelineStart = namePatterns.time[0];
+  const timelineEnd = namePatterns.time[1];
+
   const type = filename.match(defaultPattern);
 
   var r = 0;
@@ -181,7 +184,18 @@ export function getPosition(filename) {
     z = parseInt(type[4]);
   }
 
-  return [r, c, z];
+  var t = 0;
+  if (timelineStart >= 0 && timelineEnd >= 0 && timelineEnd > timelineStart) {
+    let tls = filename.substring(timelineStart, timelineEnd);
+    tls = tls.replace(/\D/g,'');
+
+    t = parseInt(tls);
+  } else if (type) {
+    t = parseInt(type[3]);
+  }
+
+
+  return [r, c, z, t];
 }
 
 export default {

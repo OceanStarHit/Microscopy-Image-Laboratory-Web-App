@@ -309,11 +309,6 @@ const actions = {
   changeParameterByT({ commit, state }, t) {
     changeParameter(commit, state, {
       T: t,
-      Z: state.parameters.Z,
-      C: state.parameters.C,
-      brightness: state.parameters.brightness,
-      contrast: state.parameters.contrast,
-      gamma: state.parameters.gamma
     });
   },
 
@@ -620,9 +615,18 @@ function adjustImage({ commit, state }, params) {
 }
 
 function filtteredByParameters(parameters, images) {
+  // filter by z position
   let filtered = images.filter(img => img.extParams.z == parameters.Z);
+
+  // filter by objective lense
   filtered = images.filter(
     img => img.extParams.objective == parameters.objective
   );
+
+  // filter by timeline
+  filtered = images.filter(
+    img => img.extParams.timeline == parameters.T
+  );
+
   return filtered;
 }

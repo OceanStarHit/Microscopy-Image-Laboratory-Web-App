@@ -714,6 +714,7 @@ export default {
               row: p[0],
               col: p[1],
               z: p[2],
+              timeline: p[3],
               objective: 4
             };
 

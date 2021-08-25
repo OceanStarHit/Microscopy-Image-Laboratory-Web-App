@@ -69,11 +69,11 @@
         v-model="t_value"
         class="ml-2"
         :min="t_min"
-        :max="t_max == 1 ? 2 : t_max"
+        :max="t_max"
         :readonly="t_max == 1"
         dense
         hide-details
-        @end="onChangeT"
+        @end="changeParameterByT"
       ></v-slider>
     </v-row>
     <v-row
@@ -81,7 +81,7 @@
       style="margin-left: 120px"
       justify="space-between"
     >
-      <input
+      <!-- <input
         class="range-field"
         type="number"
         :value="t_range.min"
@@ -94,119 +94,101 @@
         :value="t_range.max"
         disabled
         @input="onChangeTmax"
-      />
+      /> -->
     </v-row>
   </v-card>
 </template>
 
 <script>
+import { mapState, mapGetters, mapActions } from "vuex";
+
 export default {
   name: "Timeline",
 
   components: {},
 
   data: () => ({
-    t_value: 1,
-    t_min: 1,
-    t_max: 1,
-    t_range: {
-      min: 1,
-      max: 0
-    }
+    t_value: 1
   }),
 
   created() {
-    this.unwatch1 = this.$store.watch(
-      (state, getters) => getters["image/sizeT"],
-      newValue => {
-        console.log(newValue);
-        // this.t_min = 1;
-        // this.t_max = newValue;
-
-        // this.t_range.min = 1;
-        // this.t_range.max = this.t_max;
-      }
-    );
-    this.unwatch2 = this.$store.watch(
-      (state, getters) => getters["image/imageParams"],
-      newValue => {
-        console.log(newValue);
-        // this.t_value = newValue.T;
-      }
-    );
-
-    this.currentPageDataWatch = this.$store.watch(
-      (state, getters) => getters["image/currentPageInfo"],
-      info => {
-        if (info.pageData) {
-          if (info.pageData.size == 1) {
-            let keys = [...info.pageData.keys()];
-
-            this.t_max = info.pageData.get(keys[0]).metadata.coreMetadata.sizeT;
-            this.t_range.max = this.t_max;
-            this.t_value = info.pageData.get(
-              keys[0]
-            ).metadata.imageInfo.pixels.sizeT;
-          } else {
-            let tMax = 0;
-            info.pageData.forEach((data, idx) => {
-              const types = data.filename.match(
-                /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-              );
-              if (types) {
-                if (tMax < types[3]) {
-                  tMax = types[3];
-                }
-                if (idx == info.pageData.dataIndex) {
-                  this.t_value = types[3];
-                }
-              }
-            });
-
-            this.t_max = tMax + 1;
-            this.t_range.max = this.t_max;
-          }
-        }
-      }
-    );
+    this.changeParameterByT(this.t_min);
   },
 
   beforeDestroy() {
-    this.unwatch1();
-    this.unwatch2();
-    this.currentPageDataWatch();
+    // this.unwatch1();
+    // this.unwatch2();
+    // this.currentPageDataWatch();
+  },
+
+  computed: {
+    ...mapGetters("image", {
+      selectedImagesAtRowCol: "selectedImagesAtRowCol"
+    }),
+
+    t_max() {
+      var rs = 0
+      if(this.selectedImagesAtRowCol) {
+        let zs = this.selectedImagesAtRowCol.map(img => img.extParams.timeline);
+        console.log(zs);
+        if(zs.length == 0) {
+          return 0;
+        }
+        
+        rs = Math.max(...zs);
+      }
+      console.log("calculated tmax: " + rs);
+      return rs;
+    },
+    t_min() {
+      var rs = 0;
+      if(this.selectedImagesAtRowCol) {
+        let zs = this.selectedImagesAtRowCol.map(img => img.extParams.timeline);
+        console.log(zs);
+        if(zs.length == 0) {
+          return 0;
+        }
+        
+        rs = Math.min(...zs);
+      }
+      console.log("calculated tmin: " + rs);
+      return rs;
+    }
   },
 
   methods: {
-    onChangeT: function(t) {
-      if (t !== this.$store.state.image.parameters.T)
-        this.$store.dispatch("image/changeParameterByT", t);
-    },
+    ...mapActions("image", {
+      changeParameterByT: "changeParameterByT"
+    }),
+    // onChangeT: function(t) {
+    //   if (t !== this.$store.state.image.parameters.T)
+    //     this.$store.dispatch("image/changeParameterByT", t);
+    // },
     onChangeTmin: function(event) {
-      const t_min = event.target.value;
+      // const t_min = event.target.value;
 
-      if (!(t_min < 1 || t_min > this.t_range.max)) {
-        this.t_range.min = t_min;
+      // if (!(t_min < 1 || t_min > this.t_range.max)) {
+      //   this.t_range.min = t_min;
 
-        if (this.t_value < t_min) {
-          this.t_value = t_min;
-          this.onChangeT(this.t_value);
-        }
-      }
+      //   if (this.t_value < t_min) {
+      //     this.t_value = t_min;
+      //     this.onChangeT(this.t_value);
+      //   }
+      // }
 
       this.$forceUpdate();
     },
     onChangeTmax: function(event) {
-      const t_max = event.target.value;
+      // const t_max = event.target.value;
 
-      if (!(t_max > this.t_max || t_max < this.t_range.min)) {
-        this.t_range.max = t_max;
+      // if (!(t_max > this.t_max || t_max < this.t_range.min)) {
+      //   this.t_range.max = t_max;
 
-        if (this.t_value > t_max) {
-          this.t_value = t_max;
-          this.onChangeT(this.t_value);
-        }
-      }
+      //   if (this.t_value > t_max) {
+      //     this.t_value = t_max;
+      //     this.onChangeT(this.t_value);
+      //   }
+      // }
 
       this.$forceUpdate();
     },
