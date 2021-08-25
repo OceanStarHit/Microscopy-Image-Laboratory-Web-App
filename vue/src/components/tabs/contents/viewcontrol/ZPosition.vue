@@ -54,9 +54,6 @@ export default {
     }),
     ...mapState({
       parameters: state => state.image.parameters,
-      // selectedImages() {
-      //   return state.image.curPageIdx;
-      // },
     }),
 
     z_max() {

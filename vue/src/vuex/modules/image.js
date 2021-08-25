@@ -9,7 +9,8 @@ const DEFAULT_PARAMS = {
   C: 0,
   brightness: 0,
   contrast: 0,
-  gamma: 0
+  gamma: 0,
+  objective: 4
 };
 
 // state
@@ -289,15 +290,18 @@ const actions = {
       });
   },
 
+  changeParameterByObjective({ commit, state }, o) {
+    if (state.parameters.objective != o) {
+      changeParameter(commit, state, {
+        objective: o
+      });
+    }
+  },
+
   changeParameterByZ({ commit, state }, z) {
     if (state.parameters.Z != z) {
       changeParameter(commit, state, {
-        T: state.parameters.T,
-        Z: z,
-        C: state.parameters.C,
-        brightness: state.parameters.brightness,
-        contrast: state.parameters.contrast,
-        gamma: state.parameters.gamma
+        Z: z
       });
     }
   },
@@ -479,7 +483,8 @@ const mutations = {
       C: payload.params.C,
       brightness: payload.params.brightness,
       contrast: payload.params.contrast,
-      gamma: payload.params.gamma
+      gamma: payload.params.gamma,
+      objective: payload.params.objective
     });
   },
 
@@ -533,6 +538,9 @@ function changeParameter(commit, state, params) {
   }
   if (typeof params.gamma !== "undefined") {
     newParams.gamma = params.gamma;
+  }
+  if (typeof params.objective !== "undefined") {
+    newParams.objective = params.objective;
   }
 
   commit("changeParameterData", {
@@ -612,6 +620,9 @@ function adjustImage({ commit, state }, params) {
 }
 
 function filtteredByParameters(parameters, images) {
-  const filteredByZ = images.filter(img => img.extParams.z == parameters.Z);
-  return filteredByZ;
+  let filtered = images.filter(img => img.extParams.z == parameters.Z);
+  filtered = images.filter(
+    img => img.extParams.objective == parameters.objective
+  );
+  return filtered;
 }

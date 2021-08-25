@@ -5,8 +5,9 @@
         v-for="o in objectives"
         :key="o.id"
         :label="o.m + 'X'"
-        :active="o.active"
-        @click="onSelect(objectives, o.id)"
+        :active="selectedObjective == o.m"
+        :disabled="!allOptions.includes(o.m)"
+        @click="onSelect(o)"
       />
     </v-row>
   </small-card>
@@ -15,6 +16,7 @@
 <script>
 import SmallCard from "../../../custom/SmallCard";
 import ObjectiveButton from "../../../custom/ObjectiveButton";
+import { mapState, mapGetters, mapActions } from "vuex";
 
 export default {
   name: "Objective",
@@ -24,9 +26,23 @@ export default {
     ObjectiveButton
   },
 
+  computed: {
+    ...mapState({
+      selectedObjective: state => state.image.parameters.objective
+    }),
+    ...mapGetters("image", {
+      selectedImagesAtRowCol: "selectedImagesAtRowCol"
+    }),
+    allOptions: function() {
+      let os = this.selectedImagesAtRowCol.map(img => img.extParams.objective);
+      os = [...new Set(os)];
+      return os;
+    }
+  },
+
   data: () => ({
     objectives: [
-      { id: 0, m: 4, active: false },
+      { id: 0, m: 4, active: true },
       { id: 1, m: 10, active: false },
       { id: 2, m: 20, active: false },
       { id: 3, m: 40, active: false },
@@ -35,22 +51,27 @@ export default {
   }),
 
   methods: {
-    onSelect: (objs, id) => {
-      let activeId = -1;
-      for (var o of objs) {
-        if (o.active) activeId = o.id;
-      }
+    ...mapActions("image", {
+      changeParameterByObjective: "changeParameterByObjective"
+    }),
+    onSelect: function(x) {
+      console.log(x.m);
+      this.changeParameterByObjective(x.m);
+      // let activeId = -1;
+      // for (var o of objs) {
+      //   if (o.active) activeId = o.id;
+      // }
 
-      if (activeId === -1) {
-        objs[id].active = true;
-      } else {
-        if (activeId === id) {
-          objs[id].active = !objs[id].active;
-        } else {
-          objs[activeId].active = false;
-          objs[id].active = true;
-        }
-      }
+      // if (activeId === -1) {
+      //   objs[id].active = true;
+      // } else {
+      //   if (activeId === id) {
+      //     objs[id].active = !objs[id].active;
+      //   } else {
+      //     objs[activeId].active = false;
+      //     objs[id].active = true;
+      //   }
+      // }
     }
   }
 };

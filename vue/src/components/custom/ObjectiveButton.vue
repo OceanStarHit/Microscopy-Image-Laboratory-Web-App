@@ -5,6 +5,7 @@
     min-width="24"
     min-height="52"
     text
+    :disabled="pDisabled"
     color="teal"
     @click="clicked"
   >
@@ -26,7 +27,19 @@
 export default {
   name: "ObjectiveButton",
 
-  props: ["label", "active"],
+  props: {
+    "label": {
+      type: String,
+      default: ""
+    }, 
+    "active": {
+      type: Boolean,
+      default: false
+    }, 
+    "pDisabled": {
+      type: Boolean,
+      default: false
+    }},
 
   data: () => ({}),
 

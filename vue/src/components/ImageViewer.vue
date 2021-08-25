@@ -51,7 +51,6 @@ export default {
       (state, getters) => getters["image/metaData"],
       data => {
         if (this.imageView && data) {
-
           const opt = {
             tileSource: {
               type: "image",

@@ -713,8 +713,25 @@ export default {
             let extParams = {
               row: p[0],
               col: p[1],
-              z: p[2]
+              z: p[2],
+              objective: 4
             };
+
+            let metadata = res[key];
+            if (metadata.imageInfo.objective) {
+              let X = 4;
+              const cm = metadata.imageInfo.objective.calibratedMagnification;
+              const nm = metadata.imageInfo.objective.nominalMagnification;
+
+              if (cm && nm) {
+                X = cm > nm ? cm : nm;
+              } else if (cm && !nm) {
+                X = cm;
+              } else if (!cm && nm) {
+                X = nm;
+              }
+              extParams.objective = X;
+            }
 
             filteredData.set(idx, {
               filename: fileName,
