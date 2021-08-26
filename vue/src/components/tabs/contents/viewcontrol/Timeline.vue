@@ -137,21 +137,18 @@ export default {
         
         rs = Math.max(...zs);
       }
-      console.log("calculated tmax: " + rs);
       return rs;
     },
     t_min() {
       var rs = 0;
       if(this.selectedImagesAtRowCol) {
         let zs = this.selectedImagesAtRowCol.map(img => img.extParams.timeline);
-        console.log(zs);
         if(zs.length == 0) {
           return 0;
         }
         
         rs = Math.min(...zs);
       }
-      console.log("calculated tmin: " + rs);
       return rs;
     }
   },

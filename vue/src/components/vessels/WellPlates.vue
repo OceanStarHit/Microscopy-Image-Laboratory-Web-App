@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import {
   VESSEL_WELLPLATE_RATIO,
   VESSEL_WELLPLATE_MAX_HEIGHT,
@@ -119,15 +119,10 @@ export default {
     };
   },
 
-  created() {
-    const data = this.$store.getters["image/currentPageInfo"];
-    let selectedDot = data.pageData.get(0);
-    let row = selectedDot.extParams.row;
-    let col = selectedDot.extParams.col;
-    this.clicked(row, col);
-  },
-
   computed: {
+    ...mapGetters("image", {
+      selectedImagesAtRowCol: "selectedImagesAtRowCol"
+    }),
     ...mapState({
       allIndice: state => state.image.allIndice,
       allIndices: state => state.image.allIndices,
@@ -144,10 +139,14 @@ export default {
     },
     checkActive() {
       return (row, col) => {
+        let pts = this.selectedImagesAtRowCol.filter(img => {
+          return img.extParams.row == row && img.extParams.col == col;
+        });
         const index = (row - 1) * this.cols + col - 1;
+
         return this.check
           ? this.activeHoles.indexOf(index) > -1
-            ? this.selectedHole == index
+            ? pts.length > 0
               ? "selected"
               : "active"
             : ""
@@ -239,6 +238,7 @@ export default {
       if (!this.interaction) return;
 
       const index = (row - 1) * this.cols + col - 1;
+      
       if (this.check) {
         const pos = this.activeHoles.indexOf(index);
         if (pos > -1) {
@@ -270,8 +270,8 @@ export default {
             this.$store.dispatch("image/changeCurrentMutiData", idxes);
 
             // Compatible to old logic
-            // if (idxes.length > 0)
-            //   this.$store.dispatch("image/changeCurrentData", idxes[0]);
+            if (idxes.length > 0)
+              this.$store.dispatch("image/changeCurrentData", idxes[0]);
           }
         }
       } else {

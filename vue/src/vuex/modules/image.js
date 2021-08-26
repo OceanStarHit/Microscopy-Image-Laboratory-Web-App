@@ -58,6 +58,7 @@ const getters = {
   imageId: (state, getters) => state.imageId,
   imageParams: (state, getters) => state.parameters,
   curPageIdx: (state, getters) => state.curPageIdx,
+  allData: (state, getters) => state.allData,
   currentPageInfo: (state, getters) => {
     return {
       pageData: state.allData[state.curPageIdx - 1],
@@ -439,7 +440,7 @@ const mutations = {
       state.allData.push(files);
       let minIdx = Math.min(...files.keys());
       state.allIndice.push(minIdx);
-      state.allIndices.push([]);
+      state.allIndices.push([minIdx]);
       state.curPageIdx = state.allData.length;
     }
   },
