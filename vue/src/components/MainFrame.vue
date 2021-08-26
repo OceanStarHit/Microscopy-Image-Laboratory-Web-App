@@ -109,6 +109,28 @@
         </v-container>
       </v-col>
     </v-row>
+
+    <loading
+      :active.sync="loading_count_gt_zero"
+      :can-cancel="false"
+      :is-full-page="true"
+      :opacity="0.8"
+    >
+      <v-container 
+        class="text-center loading-progress-bar"
+      >
+        <v-progress-linear
+          color="light-blue"
+          height="15"
+          :value="loading_bar_value"
+          striped
+        ></v-progress-linear>
+        <div class="title mt-4 teal--text">In update ...</div>
+        
+      </v-container>
+    </loading>
+
+
     <loading
       :active.sync="loading"
       :can-cancel="false"
@@ -170,8 +192,22 @@ export default {
 
   computed: {
     ...mapState({
-      loading: state => state.image.loading
-    })
+      loading: state => state.image.loading,
+      loading_count: state => state.image.loading_count,
+      loading_count_max: state => state.image.loading_count_max
+    }),
+    loading_count_gt_zero: function() {
+      return this.loading_count > 0;
+    },
+    loading_bar_value: function() {
+      let v = 0;
+      if(this.loading_count_max != 0) {
+        v = 100 * ((this.loading_count_max - this.loading_count) / this.loading_count_max); 
+      }
+      console.log(this.loading_count_max + " " + this.loading_count + " " + v);
+      return v; 
+    }
+
   },
 
   mounted() {
@@ -198,5 +234,8 @@ export default {
 <style scoped>
 .auto-scroll {
   overflow: auto;
+}
+.loading-progress-bar {
+  width: 300pt;
 }
 </style>

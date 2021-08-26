@@ -17,6 +17,8 @@ const DEFAULT_PARAMS = {
 const state = () => ({
   loading: false,
   loading_count: 0,
+  loading_count_max: 0,
+
 
   coreMetadata: null,
   originMetadata: null,
@@ -370,13 +372,13 @@ const mutations = {
 
   incLoadingCount(state, data) {
     state.loading_count++;
-    state.loading = true;
+    state.loading_count_max = state.loading_count;
   },
 
   decLoadingCount(state, data) {
     state.loading_count--;
     if (state.loading_count == 0) {
-      state.loading = false;
+      state.loading_count_max = state.loading_count;
     }
   },
 

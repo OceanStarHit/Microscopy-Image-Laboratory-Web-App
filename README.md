@@ -125,6 +125,14 @@ You can check the app at `http://127.0.0.1:8000` on your browser
   $ docker-compose up
   ```
 
+## Runbook
+  ```sh
+  $ cd project_dir
+  $ git pull origin dev
+  $ docker-compose build ui
+  $ docker-compose up
+  ```
+
 ## License
 
 Apache License 2.0
