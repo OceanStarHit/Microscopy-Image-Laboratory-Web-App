@@ -147,11 +147,11 @@ export default {
         const index = (row - 1) * this.cols + col - 1;
         return this.check
           ? this.activeHoles.indexOf(index) > -1
-            ? this.selectedHole === index
+            ? this.selectedHole == index
               ? "selected"
               : "active"
             : ""
-          : this.selectedHole === index
+          : this.selectedHole == index
           ? "selected"
           : "";
       };
@@ -176,21 +176,17 @@ export default {
         const index = (row - 1) * this.cols + col - 1;
         ahs.push(index);
 
-        if (idx == data.dataIndex) {
-          this.selectedHole = index;
-        }
+        // if (idx == data.dataIndex) {
+        //   console.log("182 line")
+        //   this.selectedHole = index;
+        // }
       });
+      ahs = [...new Set(ahs)];
       return ahs;
     }
   },
 
   watch: {
-    curPageData: {
-      handler() {
-        console.log("curPageData changed.");
-        this.selectedHole = -1;
-      }
-    },
     size: {
       handler() {
         this.resize();
@@ -270,8 +266,7 @@ export default {
           });
 
           idxes = idxes.sort();
-
-          if (this.allIndices[this.curPageIdx - 1] != idxes) {
+          if ([...this.allIndices[this.curPageIdx - 1]] != idxes) {
             this.$store.dispatch("image/changeCurrentMutiData", idxes);
 
             // Compatible to old logic
