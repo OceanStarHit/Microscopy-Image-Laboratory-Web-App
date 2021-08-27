@@ -18,13 +18,14 @@ from traceback import print_exc
 
 from . import utils
 
+javabridge.start_vm(class_path=javabridge.JARS + JARS,run_headless=True,max_heap_size='4G')
+
 class ImageInfo(object):
     def __init__(self, path, heap_size=4):
         self.path = path
         self.filename = os.path.basename(self.path)
         self.heap_size = heap_size # GB
 
-        javabridge.start_vm(class_path=javabridge.JARS + JARS,run_headless=True,max_heap_size=f'{self.heap_size}G')
         javabridge.attach()
 
         DebugTools = javabridge.JClassWrapper("loci.common.DebugTools")
