@@ -19,7 +19,7 @@
       :readonly="z_max == 0"
       dense
       hide-details
-      @end="changeParameterByZ"
+      @end="changeSelectsByZ"
     ></v-slider>
     <!-- <v-row class="pa-0 ml-10 mr-2 my-0" justify="space-between">
       <input
@@ -49,129 +49,53 @@ export default {
   components: {},
 
   computed: {
-    ...mapGetters("image", {
-      selectedImagesAtRowCol: "selectedImagesAtRowCol"
+    ...mapGetters("files/position", {
+      filesAtRowCol: "getFilesAtRowCol"
     }),
-    ...mapState({
-      parameters: state => state.image.parameters,
-    }),
-
     z_max() {
-      var rs = 0
-      if(this.selectedImagesAtRowCol) {
-        let zs = this.selectedImagesAtRowCol.map(img => img.extParams.z);
-        if(zs.length == 0) {
-          return 0;
+      var rs = [0];
+      if (this.filesAtRowCol) {
+        for (let idx in this.filesAtRowCol) {
+          let f = this.filesAtRowCol[idx];
+          if (f.metaData) {
+            rs.push(f.metaData.z);
+          }
         }
-        
-        rs = Math.max(...zs);
+        rs = Math.max(...rs);
       }
       return rs;
     },
     z_min() {
-      if(this.selectedImagesAtRowCol) {
-        let zs = this.selectedImagesAtRowCol.map(img => img.extParams.z);
-        if(zs.length == 0) {
-          return 0;
+      var rs = [0];
+      if (this.filesAtRowCol) {
+        for (let idx in this.filesAtRowCol) {
+          let f = this.filesAtRowCol[idx];
+          if (f.metaData) {
+            rs.push(f.metaData.z);
+          }
         }
-
-        return Math.min(...zs);
+        if (rs.length == 0) rs.push(0);
+        rs = Math.min(...rs);
       }
-      return 0;
+      return rs;
     }
   },
 
   data: () => ({
     z_value: 1
-    // z_max: 1,
-    // z_range: {
-    //   min: 1,
-    //   max: 0
-    // }
   }),
 
-  created() {
-    this.unwatch1 = this.$store.watch(
-      (state, getters) => getters["image/sizeZ"],
-      newValue => {
-      }
-    );
-    this.unwatch2 = this.$store.watch(
-      (state, getters) => getters["image/imageParams"],
-      newValue => {
-      }
-    );
-
-    this.currentPageDataWatch = this.$store.watch(
-      (state, getters) => getters["image/currentPageInfo"],
-      info => {
-        // if (info.pageData) {
-        //   if (info.pageData.size == 1) {
-        //     let keys = [...info.pageData.keys()];
-        //     const metadata = info.pageData.get(keys[0]).metadata;
-
-        //     // this.z_max = metadata.coreMetadata.sizeZ;
-        //     this.z_range.max = this.z_max;
-        //     this.z_value = metadata.imageInfo.pixels.sizeZ;
-        //   } else {
-        //     let zMax = 0;
-        //     info.pageData.forEach((data, idx) => {
-        //       const types = data.filename.match(
-        //         /^(\w+)[_\s](\w+_\w+)_(\w\d{2})_(\d)_(\w)(\d{2})(\w\d{2})(\w\d)\.(\w+)$/
-        //       );
-        //       if (types) {
-        //         if (zMax < parseInt(types[4])) {
-        //           zMax = types[4];
-        //         }
-        //         if (idx == info.pageData.dataIndex) {
-        //           this.z_value = types[4];
-        //         }
-        //       }
-        //     });
-        //     // this.z_max = zMax + 1;
-        //     this.z_range.max = this.z_max;
-        //   }
-        // }
-      }
-    );
-  },
-
-  beforeDestroy() {
-    this.unwatch1();
-    this.unwatch2();
-    this.currentPageDataWatch();
-  },
+  created() {},
+  beforeDestroy() {},
 
   methods: {
-    ...mapActions("image", {
-      changeParameterByZ: "changeParameterByZ"
+    ...mapActions("files/position", {
+      changeSelectsByZ: "changeSelectsByZ"
     }),
     onChangeZmin: function(event) {
-      // const z_min = event.target.value;
-
-      // if (!(z_min < 1 || z_min > this.z_range.max)) {
-      //   this.z_range.min = z_min;
-
-      //   if (this.z_value < z_min) {
-      //     this.z_value = z_min;
-      //     this.onChangeZ(this.z_value);
-      //   }
-      // }
-
       this.$forceUpdate();
     },
     onChangeZmax: function(event) {
-      // const z_max = event.target.value;
-
-      // if (!(z_max > this.z_max || z_max < this.z_range.min)) {
-      //   this.z_range.max = z_max;
-
-      //   if (this.z_value > z_max) {
-      //     this.z_value = z_max;
-      //     this.onChangeZ(this.z_value);
-      //   }
-      // }
-
       this.$forceUpdate();
     },
     on3DView: function() {

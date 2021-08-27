@@ -74,10 +74,10 @@ export default {
 
   created() {
     this.currentPageDataWatch = this.$store.watch(
-      (state, getters) => getters["image/currentPageInfo"],
-      info => {
-        if (info.pageData) {
-          this.$store.dispatch("vessel/setVesselId", info);
+      (state, getters) => getters["files/position/getFiles"],
+      files => {
+        if (files && files.length > 0) {
+          this.$store.dispatch("vessel/setVesselId", files);
         }
       }
     );

@@ -9,6 +9,7 @@
       @dragleave.prevent="dragLeave"
       @drop.prevent="drop($event)"
     ></div>
+    <!-- <p>{{ demoPic ? demoPic.name : "No pic" }}</p> -->
   </v-container>
 </template>
 
@@ -17,7 +18,8 @@
 import OpenSeadragon from "openseadragon";
 import config from "../../vue.config";
 import { mapState, mapGetters, mapActions } from "vuex";
-
+import { createNamespacedHelpers } from "vuex";
+const positionModule = createNamespacedHelpers("files/position");
 var path = require("path");
 
 export default {
@@ -37,10 +39,15 @@ export default {
   }),
 
   computed: {
-    // ...mapState({
-    //   metaData: state => state.image.metaData,
-    // }),
-
+    ...positionModule.mapGetters({
+      filesAtSelection: "getFilesAtSelection"
+    }),
+    demoPic: function() {
+      if (this.filesAtSelection.length > 0) {
+        return this.filesAtSelection[0];
+      }
+      return null;
+    },
     getClasses() {
       return { isDragging: this.isDragging };
     }
@@ -48,23 +55,23 @@ export default {
 
   created() {
     this.imageDataWatch = this.$store.watch(
-      (state, getters) => getters["image/metaData"],
+      (state, getters) => getters["files/position/getFilesAtSelection"],
       data => {
-        if (this.imageView && data) {
+        if (this.imageView && this.demoPic) {
           const opt = {
             tileSource: {
               type: "image",
-              url: data
+              url: this.demoPic.imageData
             }
           };
 
+          console.log("Show pic: " + this.demoPic.name);
           this.imageView.world.removeAll();
           this.imageView.addTiledImage(opt);
         }
       }
     );
   },
-
   beforeDestroy() {
     this.imageDataWatch();
   },

@@ -57,23 +57,24 @@ const mutations = {
     state.activeHole = activeHole;
   },
 
-  setVesselId(state, data) {
+  setVesselId(state, files) {
     // TODO: use new methods
-    let col = "";
-    let row = "";
+    let col = -1;
+    let row = -1;
 
     // get column and row from name type
-    data.pageData.forEach(item => {
-      let p = getPosition(item.filename);
-      let r = p[0];
-      let c = p[1];
+    files.forEach(file => {
+      if (file.metaData) {
+        let r = file.metaData.row;
+        let c = file.metaData.col;
 
-      row = row > r ? row : r;
-      col = col > c ? col : c;
+        row = row > r ? row : r;
+        col = col > c ? col : c;
+      }
     });
 
     // calc the current vessel id
-    if (row != "" && col != "") {
+    if (row != -1 && col != -1) {
       let r = row;
       let c = col;
       for (let idx = 0; idx < 6; idx++) {
@@ -84,8 +85,7 @@ const mutations = {
         }
       }
     } else {
-      state.currentVesselId =
-        data.pageData.length <= 2 ? data.pageData.length : 3;
+      state.currentVesselId = files.length <= 2 ? files.length : 3;
     }
   }
 };

@@ -70,10 +70,10 @@
         class="ml-2"
         :min="t_min"
         :max="t_max"
-        :readonly="t_max == 1"
+        :readonly="t_max < 1"
         dense
         hide-details
-        @end="changeParameterByT"
+        @end="changeSelectsByTimeline"
       ></v-slider>
     </v-row>
     <v-row
@@ -112,7 +112,7 @@ export default {
   }),
 
   created() {
-    this.changeParameterByT(this.t_min);
+    // this.changeParameterByT(this.t_min);
   },
 
   beforeDestroy() {
@@ -122,71 +122,47 @@ export default {
   },
 
   computed: {
-    ...mapGetters("image", {
-      selectedImagesAtRowCol: "selectedImagesAtRowCol"
+    ...mapGetters("files/position", {
+      filesAtRowCol: "getFilesAtRowCol"
     }),
 
     t_max() {
-      var rs = 0
-      if(this.selectedImagesAtRowCol) {
-        let zs = this.selectedImagesAtRowCol.map(img => img.extParams.timeline);
-        console.log(zs);
-        if(zs.length == 0) {
-          return 0;
+      var rs = [0];
+      if (this.filesAtRowCol) {
+        for (let idx in this.filesAtRowCol) {
+          let f = this.filesAtRowCol[idx];
+          if (f.metaData) {
+            rs.push(f.metaData.timeline);
+          }
         }
-        
-        rs = Math.max(...zs);
+        rs = Math.max(...rs);
       }
       return rs;
     },
     t_min() {
-      var rs = 0;
-      if(this.selectedImagesAtRowCol) {
-        let zs = this.selectedImagesAtRowCol.map(img => img.extParams.timeline);
-        if(zs.length == 0) {
-          return 0;
+      var rs = [];
+      if (this.filesAtRowCol) {
+        for (let idx in this.filesAtRowCol) {
+          let f = this.filesAtRowCol[idx];
+          if (f.metaData) {
+            rs.push(f.metaData.timeline);
+          }
         }
-        
-        rs = Math.min(...zs);
+        if (rs.length == 0) rs.push(0);
+        rs = Math.min(...rs);
       }
       return rs;
     }
   },
 
   methods: {
-    ...mapActions("image", {
-      changeParameterByT: "changeParameterByT"
+    ...mapActions("files/position", {
+      changeSelectsByTimeline: "changeSelectsByTimeline"
     }),
-    // onChangeT: function(t) {
-    //   if (t !== this.$store.state.image.parameters.T)
-    //     this.$store.dispatch("image/changeParameterByT", t);
-    // },
     onChangeTmin: function(event) {
-      // const t_min = event.target.value;
-
-      // if (!(t_min < 1 || t_min > this.t_range.max)) {
-      //   this.t_range.min = t_min;
-
-      //   if (this.t_value < t_min) {
-      //     this.t_value = t_min;
-      //     this.onChangeT(this.t_value);
-      //   }
-      // }
-
       this.$forceUpdate();
     },
     onChangeTmax: function(event) {
-      // const t_max = event.target.value;
-
-      // if (!(t_max > this.t_max || t_max < this.t_range.min)) {
-      //   this.t_range.max = t_max;
-
-      //   if (this.t_value > t_max) {
-      //     this.t_value = t_max;
-      //     this.onChangeT(this.t_value);
-      //   }
-      // }
-
       this.$forceUpdate();
     },
     onRefresh: function() {

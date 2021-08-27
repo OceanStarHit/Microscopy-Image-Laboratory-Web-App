@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 import {
   VESSEL_WELLPLATE_RATIO,
   VESSEL_WELLPLATE_MAX_HEIGHT,
@@ -123,11 +123,16 @@ export default {
     ...mapGetters("image", {
       selectedImagesAtRowCol: "selectedImagesAtRowCol"
     }),
+    ...mapGetters("files", {
+      filesAtRowCol: "position/getFilesAtRowCol",
+      files: "position/getFiles"
+    }),
     ...mapState({
       allIndice: state => state.image.allIndice,
       allIndices: state => state.image.allIndices,
       curPageIdx: state => state.image.curPageIdx,
-      curPageData: state => state.image.currentPageInfo
+      curPageData: state => state.image.currentPageInfo,
+      selects: state => state.files.position.selects
     }),
 
     size() {
@@ -138,15 +143,15 @@ export default {
       };
     },
     checkActive() {
-      return (row, col) => {
-        let pts = this.selectedImagesAtRowCol.filter(img => {
-          return img.extParams.row == row && img.extParams.col == col;
-        });
+      const selects = this.selects;
+      return function(row, col) {
+        let selected = selects.row == row && selects.col == col;
+
         const index = (row - 1) * this.cols + col - 1;
 
         return this.check
           ? this.activeHoles.indexOf(index) > -1
-            ? pts.length > 0
+            ? selected
               ? "selected"
               : "active"
             : ""
@@ -163,22 +168,12 @@ export default {
     activeHoles() {
       let ahs = [];
 
-      const data = this.$store.getters["image/currentPageInfo"];
-      if (!data || data.pageData == undefined || data.dataIndex == undefined) {
-        console.log("no data!!");
-        return;
-      }
-
-      data.pageData.forEach((item, idx) => {
-        const row = item.extParams.row;
-        const col = item.extParams.col;
-        const index = (row - 1) * this.cols + col - 1;
-        ahs.push(index);
-
-        // if (idx == data.dataIndex) {
-        //   console.log("182 line")
-        //   this.selectedHole = index;
-        // }
+      this.files.forEach((file, idx) => {
+        if (file.metaData) {
+          const index =
+            (file.metaData.row - 1) * this.cols + file.metaData.col - 1;
+          ahs.push(index);
+        }
       });
       ahs = [...new Set(ahs)];
       return ahs;
@@ -211,6 +206,9 @@ export default {
   },
 
   methods: {
+    ...mapActions("files/position", {
+      changeSelectsByRowCol: "changeSelectsByRowCol"
+    }),
     resize: function() {
       if (this.width * VESSEL_WELLPLATE_RATIO > VESSEL_WELLPLATE_MAX_HEIGHT) {
         this.rect.height = VESSEL_WELLPLATE_MAX_HEIGHT;
@@ -238,8 +236,13 @@ export default {
       if (!this.interaction) return;
 
       const index = (row - 1) * this.cols + col - 1;
-      
+
       if (this.check) {
+        this.changeSelectsByRowCol({
+          row: row,
+          col: col
+        });
+        return;
         const pos = this.activeHoles.indexOf(index);
         if (pos > -1) {
           this.selectedHole = index;

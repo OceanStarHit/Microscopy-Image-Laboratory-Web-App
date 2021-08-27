@@ -381,7 +381,6 @@ const mutations = {
       state.loading_count_max = state.loading_count;
     }
   },
-
   setImageResponse(state, payload) {
     (state.coreMetadata = payload.coreMetadata),
       (state.originMetadata = payload.originMetadata),
@@ -449,11 +448,9 @@ const mutations = {
   removeData(state, payload) {
     state.allData.splice(payload, 1);
   },
-
   updateAllData(state, payload) {
     state.allData = payload;
   },
-
   changeImageData(state, payload) {
     state.imageData = payload.imageData;
     state.originData = payload.imageData;
@@ -469,7 +466,6 @@ const mutations = {
 
     state.parameters = Object.assign({}, state.parameters, DEFAULT_PARAMS);
   },
-
   changeParameterData(state, payload) {
     // state.imageData = payload.imageData;
     // state.originData = payload.imageData;

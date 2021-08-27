@@ -5,7 +5,7 @@
         v-for="o in objectives"
         :key="o.id"
         :label="o.m + 'X'"
-        :active="selectedObjective == o.m"
+        :active="selects.objectLense == o.m"
         :disabled="!allOptions.includes(o.m)"
         @click="onSelect(o)"
       />
@@ -17,6 +17,8 @@
 import SmallCard from "../../../custom/SmallCard";
 import ObjectiveButton from "../../../custom/ObjectiveButton";
 import { mapState, mapGetters, mapActions } from "vuex";
+import { createNamespacedHelpers } from "vuex";
+const positionModule = createNamespacedHelpers("files/position");
 
 export default {
   name: "Objective",
@@ -28,13 +30,14 @@ export default {
 
   computed: {
     ...mapState({
-      selectedObjective: state => state.image.parameters.objective
+      selects: state => state.files.position.selects
     }),
-    ...mapGetters("image", {
-      selectedImagesAtRowCol: "selectedImagesAtRowCol"
+    ...positionModule.mapGetters({
+      filesAtRowCol: "getFilesAtRowCol"
     }),
+
     allOptions: function() {
-      let os = this.selectedImagesAtRowCol.map(img => img.extParams.objective);
+      let os = this.filesAtRowCol.map(file => file.metaData.objectLense);
       os = [...new Set(os)];
       return os;
     }
@@ -51,27 +54,11 @@ export default {
   }),
 
   methods: {
-    ...mapActions("image", {
-      changeParameterByObjective: "changeParameterByObjective"
+    ...mapActions("files/position", {
+      changeSelectsByObjectLense: "changeSelectsByObjectLense"
     }),
     onSelect: function(x) {
-      console.log(x.m);
-      this.changeParameterByObjective(x.m);
-      // let activeId = -1;
-      // for (var o of objs) {
-      //   if (o.active) activeId = o.id;
-      // }
-
-      // if (activeId === -1) {
-      //   objs[id].active = true;
-      // } else {
-      //   if (activeId === id) {
-      //     objs[id].active = !objs[id].active;
-      //   } else {
-      //     objs[activeId].active = false;
-      //     objs[id].active = true;
-      //   }
-      // }
+      this.changeSelectsByObjectLense(x.m);
     }
   }
 };

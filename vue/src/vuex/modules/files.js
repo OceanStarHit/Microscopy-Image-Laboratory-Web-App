@@ -17,11 +17,65 @@ const position = {
 
   state: () => ({
     files: [],
-    namePatterns: namePatterns
+    namePatterns: namePatterns,
+    selects: {
+      row: -1,
+      col: -1,
+      z: -1,
+      timeline: -1,
+      channels: [],
+      objectLense: -1
+    }
   }),
   getters: {
     getFiles: state => state.files,
-    getNamePattern: state => state.namePatterns
+    getNamePattern: state => state.namePatterns,
+    getFilesAtRowCol: (state, getters) => {
+      let targetRow = state.selects.row;
+      let targetCol = state.selects.col;
+
+      return state.files.filter(
+        file =>
+          file.metaData &&
+          file.metaData.row == targetRow &&
+          file.metaData.col == targetCol
+      );
+    },
+    getFilesAtSelection: (state, getters) => {
+      let rs = state.files.filter(file => {
+        if (file.metaData) {
+          let ck =
+            file.metaData.row == state.selects.row &&
+            file.metaData.col == state.selects.col &&
+            file.metaData.z == state.selects.z &&
+            file.metaData.timeline == state.selects.timeline &&
+            file.metaData.objectLense == state.selects.objectLense &&
+            state.selects.channels.includes(file.metaData.channel);
+          return ck;
+        }
+        return false;
+      });
+      return rs;
+    },
+    getChannelOptions: (state, getters) => {
+      var rs = [];
+      for (let idx in state.files) {
+        let f = state.files[idx];
+        if (f.metaData) {
+          rs.push(f.metaData.channel);
+        }
+      }
+      return [...new Set(rs)];
+
+      // switch (rs.length) {
+      //   case 1:
+      //     return ["S"];
+      //   case 2:
+      //     return ["S", "B"];
+      //   default:
+      //     return ["B", "G", "R"];
+      // }
+    }
   },
   actions: {
     setFiles({ commit }, files) {
@@ -29,7 +83,6 @@ const position = {
 
       files.forEach(function(file, index) {
         commit("addFile", file);
-
         const reader = new FileReader();
         reader.onload = function() {
           let imageData = reader.result;
@@ -81,8 +134,48 @@ const position = {
       };
       reader.readAsDataURL(file);
     },
+    addMetaData({ commit, state }, payload) {
+      commit("addMetaData", {
+        index: payload.index,
+        metaData: payload.metaData
+      });
+    },
     setNamePattern({ commit }, keyPos) {
       commit("setNamePattern", keyPos);
+    },
+    changeSelectsByRowCol({ commit, state }, payload) {
+      if (
+        state.selects.row != payload.row ||
+        state.selects.col != payload.col
+      ) {
+        changeSelects(commit, state, payload);
+      }
+    },
+    changeSelectsByChannels({ commit, state }, payload) {
+      changeSelects(commit, state, {
+        channels: payload
+      });
+    },
+    changeSelectsByObjectLense({ commit, state }, payload) {
+      if (state.selects.objectLense != payload) {
+        changeSelects(commit, state, {
+          objectLense: payload
+        });
+      }
+    },
+    changeSelectsByZ({ commit, state }, payload) {
+      if (state.selects.z != payload) {
+        changeSelects(commit, state, {
+          z: payload
+        });
+      }
+    },
+    changeSelectsByTimeline({ commit, state }, payload) {
+      if (state.selects.timeline != payload) {
+        changeSelects(commit, state, {
+          timeline: payload
+        });
+      }
     }
   },
   mutations: {
@@ -102,8 +195,22 @@ const position = {
     addImageData(state, payload) {
       Vue.set(state.files[payload.index], "imageData", payload.imageData);
     },
+    addMetaData(state, payload) {
+      Vue.set(state.files[payload.index], "metaData", payload.metaData);
+    },
     setNamePattern(state, keyValue) {
       state.namePatterns[keyValue["key"]] = keyValue["pos"];
+    },
+
+    changeSelects(state, payload) {
+      state.selects = Object.assign({}, state.selects, {
+        row: payload.row,
+        col: payload.col,
+        z: payload.z,
+        timeline: payload.timeline,
+        channels: payload.channels,
+        objectLense: payload.objectLense
+      });
     }
   }
 };
@@ -152,6 +259,9 @@ export function getPosition(filename) {
   const timelineStart = namePatterns.time[0];
   const timelineEnd = namePatterns.time[1];
 
+  const channelStart = namePatterns.channel[0];
+  const channelEnd = namePatterns.channel[1];
+
   const type = filename.match(defaultPattern);
 
   var r = 0;
@@ -187,15 +297,31 @@ export function getPosition(filename) {
   var t = 0;
   if (timelineStart >= 0 && timelineEnd >= 0 && timelineEnd > timelineStart) {
     let tls = filename.substring(timelineStart, timelineEnd);
-    tls = tls.replace(/\D/g,'');
+    tls = tls.replace(/\D/g, "");
 
     t = parseInt(tls);
   } else if (type) {
     t = parseInt(type[3]);
   }
 
+  var channel = "";
+  if (channelStart >= 0 && channelEnd >= 0 && channelEnd > channelStart) {
+    channel = filename.substring(channelStart, channelEnd);
+    channel = parseInt(channel.replace(/\D/g, ""));
+    // d01 is linked to B, d02 is linked to G, and d03 is linked to R. 
+    switch (channel) {
+      case 1:
+        channel = "B";
+        break;
+      case 2:
+        channel = "G";
+        break;
+      default:
+        channel = "R";
+    }
+  }
 
-  return [r, c, z, t];
+  return [r, c, z, t, channel];
 }
 
 export default {
@@ -204,3 +330,27 @@ export default {
     position
   }
 };
+
+function changeSelects(commit, state, params) {
+  let newSelects = Object.assign({}, state.selects, {});
+  if (typeof params.z !== "undefined") {
+    newSelects.z = params.z;
+  }
+  if (typeof params.row !== "undefined") {
+    newSelects.row = params.row;
+  }
+  if (typeof params.col !== "undefined") {
+    newSelects.col = params.col;
+  }
+  if (typeof params.timeline !== "undefined") {
+    newSelects.timeline = params.timeline;
+  }
+  if (typeof params.channels !== "undefined") {
+    newSelects.channels = params.channels;
+  }
+  if (typeof params.objectLense !== "undefined") {
+    newSelects.objectLense = params.objectLense;
+  }
+
+  commit("changeSelects", newSelects);
+}

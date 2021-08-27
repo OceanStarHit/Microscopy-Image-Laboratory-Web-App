@@ -23,11 +23,11 @@
       <v-divider></v-divider>
       <ImageSeries />
     </div> -->
-    <div v-if="sizeZ > 0">
+    <div>
       <v-divider></v-divider>
       <ZPosition />
     </div>
-    <div v-if="sizeT > 0">
+    <div>
       <v-divider></v-divider>
       <Timeline />
     </div>

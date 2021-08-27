@@ -794,7 +794,8 @@ export default {
 
   computed: {
     ...positionModule.mapGetters({
-      files: "getFiles"
+      files: "getFiles",
+      channelOptions: "getChannelOptions"
     }),
 
     visibleDialog: {
@@ -911,7 +912,13 @@ export default {
       "setFiles",
       "clearFiles",
       "addFile",
-      "setNamePattern"
+      "setNamePattern",
+      "addMetaData",
+      "changeSelectsByRowCol",
+      "changeSelectsByObjectLense",
+      "changeSelectsByZ",
+      "changeSelectsByTimeline",
+      "changeSelectsByChannels"
     ]),
 
     // Drag&Drop files or folder
@@ -943,6 +950,7 @@ export default {
       if (item.isFile) {
         item.file(function(file) {
           if (checkFileType(file.name)) {
+            console.log("here:" + file.name);
             self.addFile(file);
             self.allFiles.push(file);
           }
@@ -1777,6 +1785,35 @@ export default {
         return "";
       }
 
+      for (let i in this.allFiles) {
+        let p = getPosition(this.allFiles[i].name);
+        this.addMetaData({
+          index: i,
+          metaData: {
+            row: p[0],
+            col: p[1],
+            z: p[2],
+            timeline: p[3],
+            channel: p[4],
+            objectLense: 4 // The default object lense for name & type
+          }
+        });
+      }
+      if (this.allFiles.length > 0) {
+        let defaultSelected = this.files[0];
+        this.changeSelectsByRowCol({
+          row: defaultSelected.metaData.row,
+          col: defaultSelected.metaData.col
+        });
+        this.changeSelectsByObjectLense(defaultSelected.metaData.objectLense);
+        this.changeSelectsByZ(defaultSelected.metaData.z);
+        this.changeSelectsByTimeline(defaultSelected.metaData.timeline);
+        this.changeSelectsByChannels(this.channelOptions);
+      }
+
+      return;
+
+      // Remove bioformat.
       createNewPage = true;
       let formData = new FormData();
       const mainName = this.getMainName();

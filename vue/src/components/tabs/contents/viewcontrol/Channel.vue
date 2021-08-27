@@ -10,7 +10,8 @@
           :class="c.color + '--text'"
           :value="c.label"
           :color="c.color"
-          :disabled="c.disabled"
+          :disabled="!channelOptions.includes(c.label)"
+          @change="onChange"
         ></v-checkbox>
         <div
           class="caption font-weight-medium"
@@ -25,16 +26,28 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 import SmallCard from "../../../custom/SmallCard";
-import { getChannel } from "../../../../vuex/modules/files";
+import { createNamespacedHelpers } from "vuex";
+const positionModule = createNamespacedHelpers("files/position");
 
 export default {
   name: "Channel",
 
   components: { SmallCard },
 
+  created: function() {
+    this.unwatchFiles = this.$store.watch(
+      (state, getters) => getters["files/position/getFiles"],
+      files => {
+        this.selected = this.channelOptions;
+      }
+    );
+  },
+  beforeDestroy: function() {
+    this.unwatchFiles();
+  },
   data: () => ({
     selected: [],
     channels: [
@@ -48,57 +61,19 @@ export default {
     ]
   }),
 
-  created() {
-    this.currentPageDataWatch = this.$store.watch(
-      (state, getters) => getters["image/currentPageInfo"],
-      info => {
-        if (info.pageData) {
-          if (info.pageData.size == 1) {
-            let keys = [...info.pageData.keys()];
-            const channel = info.pageData.get(keys[0]).metadata.imageInfo.pixels
-              .sizeC;
-            this.setChannels(channel);
-          } else {
-            const fileNames = info.dataIndexes.map(function(idx) {
-              return info.pageData.get(idx).filename;
-            });
-
-            var channels = fileNames.map(fName => {
-              return getChannel(fName);
-            });
-
-            channels = [...new Set(channels)];
-
-            this.setChannels(channels.length);
-          }
-        }
-      }
-    );
-  },
-
   computed: {
-    ...mapGetters("image", {
-      chInfo: "channelInfo"
+    ...positionModule.mapGetters({
+      files: "getFiles",
+      channelOptions: "getChannelOptions"
     })
   },
 
   methods: {
+    ...positionModule.mapActions({
+      changeSelectsByChannels: "changeSelectsByChannels"
+    }),
     onChange: function() {
-      if (this.currentChannel !== this.$store.state.image.parameters.C)
-        this.$store.dispatch("image/changeParameterByC", this.currentChannel);
-    },
-
-    setChannels(n) {
-      switch (n) {
-        case 1:
-          this.selected = ["S"];
-          break;
-        case 2:
-          this.selected = ["S", "B"];
-          break;
-        default:
-          this.selected = ["B", "G", "R"];
-      }
+      this.changeSelectsByChannels(this.selected);
     }
   }
 };
