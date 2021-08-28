@@ -546,7 +546,7 @@ var createNewPage = true;
 export default {
   name: "OpenPositionDialog",
 
-  components: { SimpleDialog },
+  components: { },
 
   props: {
     value: {
