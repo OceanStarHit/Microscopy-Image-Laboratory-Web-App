@@ -535,7 +535,7 @@ import {
   POSITION_DIALOG_CELL_SIZE
   // POSITION_DIALOG_STROKE_WIDTH
 } from "../../../../utils/constants";
-import SimpleDialog from "../../../custom/SimpleDialog";
+// import SimpleDialog from "../../../custom/SimpleDialog";
 
 const positionModule = createNamespacedHelpers("files/position");
 
