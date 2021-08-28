@@ -1,14 +1,22 @@
 <template>
   <div class="d-none">
-    <v-dialog v-model="visibleDialog" max-width="1080">
-      <simple-dialog
+    <v-dialog 
+      v-model="visibleDialog" 
+      persistent
+    >
+      <!-- <simple-dialog
         title="Position"
         ok-title="Select"
         :single-button="false"
         :select-disable="!this.allFiles.length"
         @select="onSelect"
         @close="onClose"
-      >
+      > -->
+      <v-card>
+        <!-- <v-card-title class="text-h5">
+          Position
+        </v-card-title> -->
+
         <v-tabs v-model="selectedTab" fixed-tabs @change="onTabChange">
           <v-tab href="#tabs-images" class="primary--text">Images</v-tab>
           <v-tab href="#tabs-tiling" class="primary--text">Tiling</v-tab>
@@ -476,7 +484,37 @@
             </v-sheet>
           </v-tab-item>
         </v-tabs-items>
-      </simple-dialog>
+
+        <v-card-actions>
+          <v-progress-linear
+            color="light-blue"
+            height="15"
+            width="300"
+            :value="loading_bar_value"
+            striped
+          ></v-progress-linear>
+
+
+          <v-spacer></v-spacer>
+          <v-btn
+            color="green darken-1"
+            :disabled="!this.allFiles.length"
+            text
+            @click="onSelect"
+          >
+            OK
+          </v-btn>
+
+          <v-btn
+            color="green darken-1"
+            text
+            @click="onClose"
+          >
+            CANCEL
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+      <!-- </simple-dialog> -->
     </v-dialog>
   </div>
 </template>
