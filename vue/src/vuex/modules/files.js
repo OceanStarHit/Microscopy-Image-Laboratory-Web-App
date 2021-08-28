@@ -108,7 +108,9 @@ const position = {
     clearFiles({ commit }) {
       commit("clearFiles");
     },
-    addFile({ commit, state }, file) {
+    addFile({ commit, state }, payload) {
+      let file = payload.file;
+      const doneCB = payload.doneCB;
       commit("addFile", file);
 
       const index = state.files.length - 1;
@@ -129,7 +131,7 @@ const position = {
         }
 
         if (imageData.startsWith("data:image")) {
-          commit("addImageData", { index, imageData });
+          commit("addImageData", { index, imageData, doneCB });
         }
       };
       reader.readAsDataURL(file);
@@ -137,7 +139,8 @@ const position = {
     addMetaData({ commit, state }, payload) {
       commit("addMetaData", {
         index: payload.index,
-        metaData: payload.metaData
+        metaData: payload.metaData,
+        doneCB: payload.doneCB
       });
     },
     setNamePattern({ commit }, keyPos) {
@@ -194,9 +197,11 @@ const position = {
     },
     addImageData(state, payload) {
       Vue.set(state.files[payload.index], "imageData", payload.imageData);
+      if(payload.doneCB) payload.doneCB();
     },
     addMetaData(state, payload) {
       Vue.set(state.files[payload.index], "metaData", payload.metaData);
+      if(payload.doneCB) payload.doneCB();
     },
     setNamePattern(state, keyValue) {
       state.namePatterns[keyValue["key"]] = keyValue["pos"];

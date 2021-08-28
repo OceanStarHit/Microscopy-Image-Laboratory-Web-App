@@ -487,13 +487,14 @@
 
         <v-card-actions>
           <v-progress-linear
+            :style="{visibility: progressBarPercent < 100 ? 'visible' : 'hidden'}" 
             color="light-blue"
-            height="15"
+            height="10"
             width="300"
-            :value="loading_bar_value"
+            :value="progressBarPercent"
             striped
+            class="progress-bar"
           ></v-progress-linear>
-
 
           <v-spacer></v-spacer>
           <v-btn
@@ -555,8 +556,7 @@ export default {
   },
 
   data: () => ({
-    loading: false,
-
+    // loading: false,
     isDragging: false,
     selectedTab: null,
 
@@ -723,8 +723,16 @@ export default {
       { text: "Channel", value: "viewMethod" },
       { text: "Z Position", value: "zPosition" },
       { text: "Time Point", value: "timepoint" }
-    ]
+    ],
+    progressBarValue: 0,
+    progressBarMaxValue: 0
   }),
+
+  mutations: {
+    setProgressBarValue(state, v) {
+      state.progressBarValue = v;
+    }
+  },
 
   created() {
     this.newResWatch = this.$store.watch(
@@ -941,6 +949,13 @@ export default {
         });
       });
       return contents;
+    },
+
+    progressBarPercent() {
+      if(this.progressBarMaxValue != 0) {
+        return 100 * this.progressBarValue / this.progressBarMaxValue;
+      }
+      return 100;
     }
   },
 
@@ -969,45 +984,56 @@ export default {
     drop(e) {
       this.isDragging = false;
       e.preventDefault();
+      
 
       this.allFiles = [];
       this.clearFiles();
       let items = e.dataTransfer.items;
+
+      this.progressBarValue = 0;
+      this.progressBarMaxValue = 0;
+
       for (let i = 0; i < items.length; i++) {
         let item = items[i].webkitGetAsEntry();
         if (item) {
-          this.loading = true;
-          this.traverseFileTree(item);
+          let thiz = this;
+          this.traverseFileTree(item, "", function() {
+            thiz.progressBarValue ++;
+          });
         }
       }
       this.resetConfig();
     },
-    traverseFileTree(item, path) {
+    traverseFileTree(item, path, doneCB) {
       let self = this;
       path = path || "";
       if (item.isFile) {
         item.file(function(file) {
           if (checkFileType(file.name)) {
-            console.log("here:" + file.name);
-            self.addFile(file);
+            self.progressBarMaxValue ++;
+
+            self.addFile({
+              file: file, 
+              doneCB: doneCB
+            });
             self.allFiles.push(file);
           }
         });
         self.loading = false;
       } else if (item.isDirectory) {
-        enumerateDirectory(item).then(entries => {
-          entries = entries.sort(function(a, b) {
-            return a.name.localeCompare(b.name, undefined, {
-              numeric: true,
-              sensitivity: "base"
-            });
-          });
+      //   enumerateDirectory(item).then(entries => {
+      //     entries = entries.sort(function(a, b) {
+      //       return a.name.localeCompare(b.name, undefined, {
+      //         numeric: true,
+      //         sensitivity: "base"
+      //       });
+      //     });
 
-          for (let i = 0; i < entries.length; i++) {
-            self.traverseFileTree(entries[i], path + item.name + "/");
-          }
-          self.loading = false;
-        });
+      //     for (let i = 0; i < entries.length; i++) {
+      //       self.traverseFileTree(entries[i], path + item.name + "/");
+      //     }
+      //     self.loading = false;
+      //   });
       }
     },
     resetConfig() {
@@ -1822,7 +1848,9 @@ export default {
         console.log("allFiles error: " + this.allFiles);
         return "";
       }
-
+      let thiz = this;
+      this.progressBarValue = 0;
+      this.progressBarMaxValue = this.allFiles.length;
       for (let i in this.allFiles) {
         let p = getPosition(this.allFiles[i].name);
         this.addMetaData({
@@ -1834,6 +1862,10 @@ export default {
             timeline: p[3],
             channel: p[4],
             objectLense: 4 // The default object lense for name & type
+          },
+          doneCB: function() {
+            thiz.progressBarValue ++;
+            console.log(thiz.progressBarValue + " / " + thiz.progressBarMaxValue);
           }
         });
       }
@@ -2011,5 +2043,8 @@ export default {
 .name-type-table >>> tr th:nth-child(2),
 .name-type-table >>> tr td:nth-child(2) {
   width: 295px !important;
+}
+.progress-bar {
+  width: 300pt;
 }
 </style>
