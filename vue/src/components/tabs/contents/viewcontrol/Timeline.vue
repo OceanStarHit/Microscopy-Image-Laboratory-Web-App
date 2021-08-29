@@ -107,9 +107,12 @@ export default {
 
   components: {},
 
-  data: () => ({
-    t_value: 1
-  }),
+  data(){
+    return {
+      t_value: 1,
+      timeList: []
+    }
+  },
 
   created() {
     // this.changeParameterByT(this.t_min);
@@ -125,6 +128,7 @@ export default {
     ...mapGetters("files/position", {
       filesAtRowCol: "getFilesAtRowCol"
     }),
+    ...mapState(['files']), // 获取图片状态
 
     t_max() {
       var rs = [0];
@@ -166,12 +170,34 @@ export default {
       this.$forceUpdate();
     },
     onRefresh: function() {
+      if (this.timeList != undefined && this.timeList.length>0){
+        this.changeSelectsByTimeline(this.timeList[0]);
+      }
       console.log("Refresh");
     },
     onSetting: function() {
       console.log("Setting");
     },
-    onPlay: function() {
+     onPlay: async function() {
+      let self = this;
+      const filesInfo = this.files.position.files;
+      // 得到时间轴列表
+      var timeList = filesInfo.map(element=>{
+        return element.metaData.timeline;
+      });
+      timeList.sort(); // 将时间轴排序，从小到大
+      this.timeList = timeList;
+      console.log('时间轴列表',timeList);
+      // 半秒切换一次图片达到播放效果
+        for ( var i = 0,l = timeList.length; i < l; i++ ){
+          (function(i) {
+              setTimeout(function() {
+                  console.log('test',i);
+                  self.changeSelectsByTimeline(i);
+              }, (i + 1) * 500);
+          })(i)
+        }
+      console.log(this.files.position.files);
       console.log("Play");
     },
     onStop: function() {
