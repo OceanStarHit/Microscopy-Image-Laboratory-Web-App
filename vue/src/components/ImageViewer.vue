@@ -61,7 +61,7 @@ export default {
           const opt = {
             tileSource: {
               type: "image",
-              url: this.demoPic.imageData
+              url: this.demoPic.imageData.src
             }
           };
 

@@ -1,5 +1,3 @@
-import { getPosition } from "./files";
-
 var vessel = require("../../utils/vessel-types");
 
 // import { position } from "./image";

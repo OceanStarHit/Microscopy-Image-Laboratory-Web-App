@@ -54,7 +54,7 @@
                 >
                   <img
                     :id="'images_' + idx"
-                    :src="file.imageData"
+                    :src="file.imageData.src"
                     class="mx-auto"
                     aspect-ratio="1"
                     width="130"
@@ -105,13 +105,13 @@
                             outlined
                           >
                             <v-list-item-group
-                              v-if="files.length"
+                              v-if="filesSortByField.length"
                               v-model="tiling.edit.activeFileItem"
                               color="green"
                               @change="pickImageFile"
                             >
                               <v-list-item
-                                v-for="(file, idx) in files"
+                                v-for="(file, idx) in filesSortByField"
                                 :key="idx"
                               >
                                 <v-list-item-content>
@@ -757,10 +757,10 @@ export default {
             idx < this.allFiles.length
           ) {
             let extParams = {
-              row: p[0],
-              col: p[1],
-              z: p[2],
-              timeline: p[3],
+              row: p.row,
+              col: p.col,
+              z: p.z,
+              timeline: p.timeline,
               objective: 4
             };
 
@@ -841,6 +841,7 @@ export default {
   computed: {
     ...positionModule.mapGetters({
       files: "getFiles",
+      filesSortByField: "getFilesSortByField",
       channelOptions: "getChannelOptions"
     }),
 
@@ -1059,7 +1060,8 @@ export default {
     },
 
     async getImageSize() {
-      let image = await loadImage(this.files[0].imageData);
+      // let image = await loadImage();
+      let image = this.files[0].imageData;
 
       this.imageWidth = image.width;
       this.imageHeight = image.height;
@@ -1506,13 +1508,14 @@ export default {
       let r = 0,
         dir = 1,
         idx = 0;
+      
       while (r < this.tiling.alignment.rows) {
         let c = 0;
         while (c < this.tiling.alignment.cols) {
           idx = r * this.tiling.alignment.cols + c;
-          if (idx >= this.files.length) break;
-
-          let image = document.getElementById(`images_${idx}`);
+          if (idx >= this.filesSortByField.length) break;
+          
+          let image = this.filesSortByField[idx].imageData;
 
           let col = c;
           if (this.tiling.alignment.orders.includes("descending-order")) {
@@ -1546,58 +1549,57 @@ export default {
 
     // Edit section
     pickImageFile(_selectedIndex) {
-      if (_selectedIndex) {
-        console.log(_selectedIndex);
-        //   let row = 0,
-        //     dir = 1,
-        //     idx = 0;
-        //   while(true) { /* eslint-disable-line */
-        //     let col = 0;
-        //     while (0 <= col && col <= this.tiling.alignment.cols) {
-        //       idx = row * this.tiling.alignment.cols + col;
-        //       if (idx >= this.files.length) break;
+      const POSITION_DIALOG_STROKE_WIDTH = 2;
+      if (_selectedIndex >= 0) {
+        let row = 0,
+        dir = 1,
+        idx = 0;
+        while(true) { /* eslint-disable-line */
+          let col = 0;
+          while (0 <= col && col <= this.tiling.alignment.cols) {
+            idx = row * this.tiling.alignment.cols + col;
+            if (idx >= this.files.length) break;
 
-        //       if (idx == this.tiling.edit.oldFileItem) {
-        //         let image = document.getElementById(`images_${idx}`);
-        //         this.tiling.preview.drawImage(
-        //           image,
-        //           (dir > 0 ? col : this.tiling.alignment.cols - 1 - col) *
-        //             POSITION_DIALOG_CELL_SIZE,
-        //           row * POSITION_DIALOG_CELL_SIZE,
-        //           POSITION_DIALOG_CELL_SIZE,
-        //           POSITION_DIALOG_CELL_SIZE
-        //         );
-        //       }
+            if (idx == this.tiling.edit.oldFileItem) {
+              let image = document.getElementById(`images_${idx}`);
+              this.tiling.preview.drawImage(
+                image,
+                (dir > 0 ? col : this.tiling.alignment.cols - 1 - col) *
+                  POSITION_DIALOG_CELL_SIZE,
+                row * POSITION_DIALOG_CELL_SIZE,
+                POSITION_DIALOG_CELL_SIZE,
+                POSITION_DIALOG_CELL_SIZE
+              );
+            }
 
-        //       if (idx == _selectedIndex) {
-        //         let _X =
-        //             (dir > 0 ? col : this.tiling.alignment.cols - 1 - col) *
-        //               POSITION_DIALOG_CELL_SIZE +
-        //             POSITION_DIALOG_STROKE_WIDTH,
-        //           _Y =
-        //             row * POSITION_DIALOG_CELL_SIZE +
-        //             POSITION_DIALOG_STROKE_WIDTH,
-        //           _W =
-        //             POSITION_DIALOG_CELL_SIZE - 2 * POSITION_DIALOG_STROKE_WIDTH,
-        //           _H = _W;
+            if (idx == _selectedIndex) {
+              let _X =
+                  (dir > 0 ? col : this.tiling.alignment.cols - 1 - col) *
+                    POSITION_DIALOG_CELL_SIZE +
+                  POSITION_DIALOG_STROKE_WIDTH,
+                _Y =
+                  row * POSITION_DIALOG_CELL_SIZE +
+                  POSITION_DIALOG_STROKE_WIDTH,
+                _W =
+                  POSITION_DIALOG_CELL_SIZE - 2 * POSITION_DIALOG_STROKE_WIDTH,
+                _H = _W;
 
-        //         this.tiling.preview.beginPath();
-        //         this.tiling.preview.lineWidth = POSITION_DIALOG_STROKE_WIDTH;
-        //         this.tiling.preview.strokeStyle = "#76FF03";
-        //         this.tiling.preview.rect(_X, _Y, _W, _H);
-        //         this.tiling.preview.stroke();
-        //       }
+              this.tiling.preview.beginPath();
+              this.tiling.preview.lineWidth = POSITION_DIALOG_STROKE_WIDTH;
+              this.tiling.preview.strokeStyle = "#76FF03";
+              this.tiling.preview.rect(_X, _Y, _W, _H);
+              this.tiling.preview.stroke();
+            }
 
-        //       col++;
-        //     }
+            col++;
+          }
 
-        //     if (idx >= this.files.length) break;
+          if (idx >= this.files.length) break;
 
-        //     row++;
-        //     dir *= -1;
-        //   }
-
-        //   this.tiling.edit.oldFileItem = _selectedIndex;
+          row++;
+          dir *= -1;
+        }
+        this.tiling.edit.oldFileItem = _selectedIndex;
       }
     },
 
@@ -1856,11 +1858,11 @@ export default {
         this.addMetaData({
           index: i,
           metaData: {
-            row: p[0],
-            col: p[1],
-            z: p[2],
-            timeline: p[3],
-            channel: p[4],
+            row: p.row,
+            col: p.col,
+            z: p.z,
+            timeline: p.timeline,
+            channel: p.channel,
             objectLense: 4 // The default object lense for name & type
           },
           doneCB: function() {

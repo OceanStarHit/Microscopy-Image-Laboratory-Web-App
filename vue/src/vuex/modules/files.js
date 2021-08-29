@@ -29,6 +29,15 @@ const position = {
   }),
   getters: {
     getFiles: state => state.files,
+    getFilesSortByField: state => {
+      let filesSortByField = [...state.files].sort(function(a, b) {
+        if(a.metaData && b.metaData) {
+          return a.metaData.field - b.metaData.field;
+        }
+        return 0;
+      });
+      return filesSortByField;
+    },
     getNamePattern: state => state.namePatterns,
     getFilesAtRowCol: (state, getters) => {
       let targetRow = state.selects.row;
@@ -131,7 +140,12 @@ const position = {
         }
 
         if (imageData.startsWith("data:image")) {
-          commit("addImageData", { index, imageData, doneCB });
+          resizeImage(imageData, function(resizedImageData) {
+            commit("addImageData", { 
+              index: index, 
+              imageData: resizedImageData,
+              doneCB });
+          });
         }
       };
       reader.readAsDataURL(file);
@@ -196,8 +210,11 @@ const position = {
       });
     },
     addImageData(state, payload) {
-      Vue.set(state.files[payload.index], "imageData", payload.imageData);
-      if(payload.doneCB) payload.doneCB();
+      var img = new Image();
+      img.src = payload.imageData;
+
+      Vue.set(state.files[payload.index], "imageData", img);
+      if(payload.doneCB) payload.doneCB();  
     },
     addMetaData(state, payload) {
       Vue.set(state.files[payload.index], "metaData", payload.metaData);
@@ -267,29 +284,32 @@ export function getPosition(filename) {
   const channelStart = namePatterns.channel[0];
   const channelEnd = namePatterns.channel[1];
 
+  const fieldStart = namePatterns.field[0];
+  const fieldEnd = namePatterns.field[1];
+
   const type = filename.match(defaultPattern);
 
-  var r = 0;
+  var row = 0;
   if (
     patternRowStart >= 0 &&
     patternRowEnd >= 0 &&
     patternRowEnd > patternRowStart
   ) {
-    r = filename.substring(patternRowStart, patternRowEnd);
-    r = r.charCodeAt(0) - "A".charCodeAt(0) + 1;
+    row = filename.substring(patternRowStart, patternRowEnd);
+    row = row.charCodeAt(0) - "A".charCodeAt(0) + 1;
   } else if (type) {
-    r = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
+    row = type[5].charCodeAt(0) - "A".charCodeAt(0) + 1;
   }
 
-  var c = 0;
+  var col = 0;
   if (
     patternColStart >= 0 &&
     patternColEnd >= 0 &&
     patternColEnd > patternColStart
   ) {
-    c = parseInt(filename.substring(patternColStart, patternColEnd));
+    col = parseInt(filename.substring(patternColStart, patternColEnd));
   } else if (type) {
-    c = parseInt(type[6]);
+    col = parseInt(type[6]);
   }
 
   var z = 0;
@@ -299,14 +319,14 @@ export function getPosition(filename) {
     z = parseInt(type[4]);
   }
 
-  var t = 0;
+  var timeline = 0;
   if (timelineStart >= 0 && timelineEnd >= 0 && timelineEnd > timelineStart) {
     let tls = filename.substring(timelineStart, timelineEnd);
     tls = tls.replace(/\D/g, "");
 
-    t = parseInt(tls);
+    timeline = parseInt(tls);
   } else if (type) {
-    t = parseInt(type[3]);
+    timeline = parseInt(type[3]);
   }
 
   var channel = "";
@@ -326,7 +346,13 @@ export function getPosition(filename) {
     }
   }
 
-  return [r, c, z, t, channel];
+  var field = "";
+  if (fieldStart >= 0 && fieldEnd >= 0 && fieldEnd > fieldStart) {
+    field = filename.substring(fieldStart, fieldEnd);
+    field = parseInt(field.replace(/\D/g, ""));
+  }
+
+  return {row, col, z, timeline, channel, field};
 }
 
 export default {
@@ -358,4 +384,27 @@ function changeSelects(commit, state, params) {
   }
 
   commit("changeSelects", newSelects);
+}
+
+function resizeImage(imageData, finishCB) {
+  var img = new Image();
+  img.src = imageData;
+    
+  img.onload = function() {
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+            
+    // set its dimension to target size
+    canvas.width = 100;
+    canvas.height = 100;
+
+    // draw source image into the off-screen canvas:
+    ctx.drawImage(img, 0, 0, 100, 100);
+
+    // encode image to data-uri with base64 version of compressed image
+    let imgData = canvas.toDataURL();
+    canvas.remove();
+    finishCB(imgData);
+    // console.log(imgData);
+  }
 }
