@@ -294,7 +294,7 @@ export function getPosition(filename) {
 
   // Deal with the different field lens.
   // It is presumed that the length difference can only be caused by the field number.
-  if(filename && filename.length != namePatterns.totalLen) {
+  if (filename && filename.length != namePatterns.totalLen && namePatterns.totalLen != -1) {
     console.log("Detect filename length changed. old: " + namePatterns.totalLen + ", new: " + filename.length);
     let diff = filename.length - namePatterns.totalLen;
 
