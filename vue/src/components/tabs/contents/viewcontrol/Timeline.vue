@@ -73,7 +73,7 @@
         :readonly="t_max < 1"
         dense
         hide-details
-        @end="changeSelectsByTimeline"
+        @end="changeSelectsByTimeline(timeList[t_value])"
       ></v-slider>
     </v-row>
     <v-row
@@ -107,14 +107,23 @@ export default {
 
   components: {},
 
-  data: () => ({
-    t_value: 1
-  }),
+  data(){
+    return {
+      t_value: 0, // 滑轮绑定的时间点
+      timeList: [],
+      timer: null, // 播放暂停使用
+      continuePointIdx: 0, // 继续播放时间点下标
+    }
+  },
 
   created() {
     // this.changeParameterByT(this.t_min);
+
   },
 
+  mounted() {
+
+  },
   beforeDestroy() {
     // this.unwatch1();
     // this.unwatch2();
@@ -122,36 +131,28 @@ export default {
   },
 
   computed: {
-    ...mapGetters("files/position", {
+    ...mapGetters("files/position", { // 获取图片状态
       filesAtRowCol: "getFilesAtRowCol"
     }),
+    ...mapState(['files']), // 获取图片状态
 
     t_max() {
-      var rs = [0];
-      if (this.filesAtRowCol) {
+      var rs = [];
+      if (this.timeList.length != 0) { // 如果存在图片
         for (let idx in this.filesAtRowCol) {
           let f = this.filesAtRowCol[idx];
           if (f.metaData) {
             rs.push(f.metaData.timeline);
           }
         }
-        rs = Math.max(...rs);
+        var length = rs.length-1;
+        console.log('当前t_value:',this.t_value);
+        console.log("滑轮最大值:",String(length));
       }
-      return rs;
+      return length;
     },
     t_min() {
-      var rs = [];
-      if (this.filesAtRowCol) {
-        for (let idx in this.filesAtRowCol) {
-          let f = this.filesAtRowCol[idx];
-          if (f.metaData) {
-            rs.push(f.metaData.timeline);
-          }
-        }
-        if (rs.length == 0) rs.push(0);
-        rs = Math.min(...rs);
-      }
-      return rs;
+      return 0;
     }
   },
 
@@ -166,21 +167,90 @@ export default {
       this.$forceUpdate();
     },
     onRefresh: function() {
+      this.t_value = 0;
+      this.continuePointIdx = 0;
+      if (this.timeList != undefined && this.timeList.length>0){
+        this.changeSelectsByTimeline(this.timeList[0]);
+      }
       console.log("Refresh");
     },
     onSetting: function() {
       console.log("Setting");
     },
-    onPlay: function() {
+    getTimeList: function() { // 获得时间轴
+      const filesInfo = this.files.position.files;
+      // 得到时间轴列表
+      var timeList = filesInfo.map(element=>{
+        return element.metaData.timeline;
+      });
+      timeList.sort(); // 将时间轴排序，从小到大
+      this.timeList = timeList;
+      console.log('时间轴列表', timeList);
+      return timeList;
+    },
+
+    onPlay: async function() {
+      let self = this;
+      var timeList = this.getTimeList();
+      // 开始播放
+      var nowTimePointIdx = this.continuePointIdx;
+      var timeIdx = timeList.length-1; // 计算时间轴最大下标值
+      console.log('timeIdx',timeIdx);
+      this.timer = setInterval(function () {
+        if (nowTimePointIdx < timeIdx){
+
+          nowTimePointIdx ++;
+          self.t_value ++;
+          self.continuePointIdx = nowTimePointIdx; // 记录继续进度
+          self.changeSelectsByTimeline(timeList[nowTimePointIdx]);
+        }else{
+          console.log("播放结束");
+          clearInterval(self.timer); // 播放完成之后停止循环
+        }
+
+      },500);
+
+
+      // // 半秒切换一次图片达到播放效果
+      //   for ( var i = 0,l = timeList.length; i < l; i++ ){
+      //     (function(i) {
+      //         setTimeout(function() {
+      //             console.log('test',i);
+      //             self.t_value = i;
+      //             self.changeSelectsByTimeline(timeList[i]);
+      //         }, (i + 1) * 500);
+      //     })(i)
+      //   }
+      console.log(this.files.position.files);
       console.log("Play");
     },
+
+
     onStop: function() {
+      clearInterval(this.timer);
       console.log("Stop");
     },
-    onRewind: function() {
+    onRewind: function() { // 向前一张
+      if (this.continuePointIdx>0){
+          this.continuePointIdx --; // 当前时间点索引减一
+      }
+      this.changeSelectsByTimeline(this.timeList[this.continuePointIdx]);
+      if (this.t_value > 0){
+        this.t_value --;
+      }
       console.log("Rewind");
     },
-    onFForward: function() {
+    onFForward: function() { // 向后一张
+      var length = this.timeList.length-1;
+      console.log("length",length);
+      if (this.continuePointIdx < length){
+        this.continuePointIdx ++; // 当前时间点索引加一
+      }
+      console.log("this.continuePointIdx",this.continuePointIdx)
+      this.changeSelectsByTimeline(this.timeList[this.continuePointIdx]);
+      if (this.t_value < length){
+        this.t_value ++;
+      }
       console.log("FForward");
     }
   }
