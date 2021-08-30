@@ -9,7 +9,7 @@
       @dragleave.prevent="dragLeave"
       @drop.prevent="drop($event)"
     ></div>
-    <!-- <p>{{ demoPic ? demoPic.name : "No pic" }}</p> -->
+    <p>{{ demoPic ? demoPic.name : "No pic" }}</p>
   </v-container>
 </template>
 
