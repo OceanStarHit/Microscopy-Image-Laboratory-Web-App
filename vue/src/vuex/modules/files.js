@@ -19,6 +19,7 @@ const position = {
   state: () => ({
     files: [],
     namePatterns: namePatterns,
+    //当前呈现的图片对象
     selects: {
       row: -1,
       col: -1,
@@ -190,6 +191,7 @@ const position = {
     },
     changeSelectsByTimeline({ commit, state }, payload) {
       if (state.selects.timeline != payload) {
+        console.log("changeSelectsByTimeline.payload:", payload);
         changeSelects(commit, state, {
           timeline: payload
         });
@@ -234,6 +236,7 @@ const position = {
         channels: payload.channels,
         objectLense: payload.objectLense
       });
+      console.log("changeSelects.state.selects:", state.selects);
     }
   }
 };
@@ -389,7 +392,7 @@ export function getPosition(filename) {
   if (channelStart >= 0 && channelEnd >= 0 && channelEnd > channelStart) {
     channel = filename.substring(channelStart, channelEnd);
     channel = parseInt(channel.replace(/\D/g, ""));
-    // d01 is linked to B, d02 is linked to G, and d03 is linked to R. 
+    // d01 is linked to B, d02 is linked to G, and d03 is linked to R
     switch (channel) {
       case 1:
         channel = "B";

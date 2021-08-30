@@ -91,7 +91,7 @@
                     </v-list>
                   </v-card>
                 </v-col>
-                <v-col cols="10" class="pa-2">
+                <v-col cols="8" class="pa-2">
                   <div class="d-flex ma-2">
                     <!-- Tiling Control Panel -->
                     <div class="control-panel">
@@ -328,6 +328,9 @@
                     <canvas id="canvas" class="mt-15 canvas"></canvas>
                   </div>
                 </v-col>
+                <v-col cols="2" class="pa-2">
+                  <OpenPositionViewTab />
+                </v-col>
               </v-row>
             </v-sheet>
           </v-tab-item>
@@ -540,13 +543,16 @@ import {
 const positionModule = createNamespacedHelpers("files/position");
 
 import { getPosition, getSeries } from "../../../../vuex/modules/files";
+import OpenPositionViewTab from "./OpenPositionViewTab";
 
 var createNewPage = true;
 
 export default {
   name: "OpenPositionDialog",
 
-  components: { },
+  components: {
+    OpenPositionViewTab
+   },
 
   props: {
     value: {
