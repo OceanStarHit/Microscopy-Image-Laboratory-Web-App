@@ -381,8 +381,8 @@
               @dragover.prevent="dragOver"
               @dragleave.prevent="dragLeave"
               @drop.prevent="drop($event)"
-              @mouseup="selectExampleString"
             >
+            <!-- @mouseup="selectExampleString" -->
               <div
                 v-if="files.length == 0"
                 class="d-flex align-center justify-center fill-height"
@@ -718,11 +718,11 @@ export default {
       { text: "FileName", value: "filename" },
       { text: "Series", value: "series" },
       { text: "Row", value: "row" },
-      { text: "Column", value: "column" },
+      { text: "Column", value: "col" },
       { text: "Field", value: "field" },
-      { text: "Channel", value: "viewMethod" },
-      { text: "Z Position", value: "zPosition" },
-      { text: "Time Point", value: "timepoint" }
+      { text: "Channel", value: "channel" },
+      { text: "Z Position", value: "z" },
+      { text: "Time Point", value: "timeline" }
     ],
     progressBarValue: 0,
     progressBarMaxValue: 0
@@ -922,12 +922,21 @@ export default {
       const contents = [];
       for (let file of this.files) {
         if (file.name) {
-          const nameType = this.getNameType(getFileName(file.name));
-          contents.push({
-            no: contents.length + 1,
-            filename: file.name,
-            ...nameType
-          });
+          let p = getPosition(file.name);
+          if (p.series.length > 0) {
+            // convert 1, 2, 3 to A, B, C
+            p.row = String.fromCharCode("A".charCodeAt() + p.row - 1)
+            contents.push({
+              no: contents.length + 1,
+              filename: file.name,
+              ...p
+            });
+          } else {
+            contents.push({
+              no: contents.length + 1,
+              filename: file.name
+            });
+          }
         }
       }
       return contents;
@@ -1806,7 +1815,7 @@ export default {
       }
     },
 
-    updateNamePattern() {
+    updateNamePattern(fileName) {
       for (let i = 0; i < this.namePatterns.length; i++) {
         var key = null;
         switch (i) {
@@ -1832,11 +1841,18 @@ export default {
             key = "time";
             break;
         }
-        if (key)
+        if (key) {
           this.setNamePattern({
             key: key,
             pos: [this.namePatterns[i].start, this.namePatterns[i].end]
           });
+        }
+      }
+      if(fileName) {
+        this.setNamePattern({
+          key: 'totalLen',
+          pos: fileName.length
+        });
       }
     },
 
@@ -1844,7 +1860,7 @@ export default {
     updateNameType() {
       let MAX_BATCH_SIZE = 10;
 
-      this.updateNamePattern();
+      this.updateNamePattern(this.selectedFileName);
 
       if (!this.allFiles) {
         console.log("allFiles error: " + this.allFiles);

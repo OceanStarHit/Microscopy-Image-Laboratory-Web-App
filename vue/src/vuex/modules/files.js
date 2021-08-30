@@ -9,7 +9,8 @@ const namePatterns = {
   field: [-1, -1],
   channel: [-1, -1],
   z: [-1, -1],
-  time: [-1, -1]
+  time: [-1, -1],
+  totalLen: -1
 };
 
 const position = {
@@ -270,24 +271,79 @@ export function getChannel(filename) {
 }
 
 export function getPosition(filename) {
-  const patternRowStart = namePatterns.row[0];
-  const patternRowEnd = namePatterns.row[1];
-  const patternColStart = namePatterns.col[0];
-  const patternColEnd = namePatterns.col[1];
+  let patternSeriesStart = namePatterns.series[0];
+  let patternSeriesEnd = namePatterns.series[1];
 
-  const patternZStart = namePatterns.z[0];
-  const patternZEnd = namePatterns.z[1];
+  let patternRowStart = namePatterns.row[0];
+  let patternRowEnd = namePatterns.row[1];
 
-  const timelineStart = namePatterns.time[0];
-  const timelineEnd = namePatterns.time[1];
+  let patternColStart = namePatterns.col[0];
+  let patternColEnd = namePatterns.col[1];
 
-  const channelStart = namePatterns.channel[0];
-  const channelEnd = namePatterns.channel[1];
+  let patternZStart = namePatterns.z[0];
+  let patternZEnd = namePatterns.z[1];
 
-  const fieldStart = namePatterns.field[0];
-  const fieldEnd = namePatterns.field[1];
+  let timelineStart = namePatterns.time[0];
+  let timelineEnd = namePatterns.time[1];
+
+  let channelStart = namePatterns.channel[0];
+  let channelEnd = namePatterns.channel[1];
+
+  let fieldStart = namePatterns.field[0];
+  let fieldEnd = namePatterns.field[1];
+
+  // Deal with the different field lens.
+  // It is presumed that the length difference can only be caused by the field number.
+  if(filename && filename.length != namePatterns.totalLen) {
+    console.log("Detect filename length changed. old: " + namePatterns.totalLen + ", new: " + filename.length);
+    let diff = filename.length - namePatterns.totalLen;
+
+    if(patternSeriesStart > fieldEnd) {
+      patternSeriesStart = patternSeriesStart + diff;
+      patternSeriesEnd = patternSeriesEnd + diff;
+    }
+
+    if(patternRowStart > fieldEnd) {
+      patternRowStart = patternRowStart + diff;
+      patternRowEnd = patternRowEnd + diff;
+    }
+
+    if(patternColStart > fieldEnd) {
+      patternColStart = patternColStart + diff;
+      patternColEnd = patternColEnd + diff;      
+    }
+
+    if(patternZStart > fieldEnd) {
+      patternZStart = patternZStart + diff;
+      patternZEnd = patternZEnd + diff;
+    }
+
+    if(timelineStart > fieldEnd) {
+      timelineStart = timelineStart + diff;
+      timelineEnd = timelineEnd + diff;
+    }
+
+    if(channelStart > fieldEnd) {
+      channelStart = channelStart + diff;
+      channelEnd = channelEnd + diff;
+    }
+
+    // The last is to change the field end itself.
+    if(fieldEnd >= 0) {
+      fieldEnd = fieldEnd + diff;
+    }
+  }
 
   const type = filename.match(defaultPattern);
+
+  var series = "";
+  if (
+    patternSeriesStart >= 0 &&
+    patternSeriesEnd >= 0 &&
+    patternSeriesEnd > patternSeriesStart
+  ) {
+    series = filename.substring(patternSeriesStart, patternSeriesEnd);
+  }
 
   var row = 0;
   if (
@@ -352,7 +408,7 @@ export function getPosition(filename) {
     field = parseInt(field.replace(/\D/g, ""));
   }
 
-  return {row, col, z, timeline, channel, field};
+  return {row, col, z, timeline, channel, field, series};
 }
 
 export default {
