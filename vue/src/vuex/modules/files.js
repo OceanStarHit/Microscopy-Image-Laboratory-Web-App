@@ -450,20 +450,25 @@ function resizeImage(imageData, finishCB) {
   img.src = imageData;
     
   img.onload = function() {
+    if (this.width == 0) return;
+
+    let targetWidth = 100;
+    let targetHeight = Math.round(this.height * (targetWidth / this.width));
+    // console.log("Resized: " + targetWidth + "x" + targetHeight);
+
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
             
     // set its dimension to target size
-    canvas.width = 100;
-    canvas.height = 100;
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
 
     // draw source image into the off-screen canvas:
-    ctx.drawImage(img, 0, 0, 100, 100);
+    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
 
     // encode image to data-uri with base64 version of compressed image
     let imgData = canvas.toDataURL();
     canvas.remove();
     finishCB(imgData);
-    // console.log(imgData);
   }
 }

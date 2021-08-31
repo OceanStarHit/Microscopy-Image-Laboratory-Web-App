@@ -56,9 +56,6 @@
                     :id="'images_' + idx"
                     :src="file.imageData.src"
                     class="mx-auto"
-                    aspect-ratio="1"
-                    width="130"
-                    height="130"
                   />
                   <p class="ma-2 text-center text-caption">
                     {{ file.name }}
@@ -1000,7 +997,6 @@ export default {
     drop(e) {
       this.isDragging = false;
       e.preventDefault();
-      
 
       this.allFiles = [];
       this.clearFiles();
@@ -1466,6 +1462,7 @@ export default {
 
       let imageWidth = this.imageWidth,
         imageHeight = this.imageHeight;
+      
       let border = parseInt(this.tiling.alignment.border),
         gapX = parseInt(this.tiling.alignment.gapX),
         gapY = parseInt(this.tiling.alignment.gapY);
@@ -1520,6 +1517,7 @@ export default {
       }
       this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
 
+
       let r = 0,
         dir = 1,
         idx = 0;
@@ -1551,6 +1549,8 @@ export default {
 
           const x = border + col * (imageWidth + gapX),
             y = border + row * (imageHeight + gapY);
+
+          console.log("drawImage => (" + x + ", " + y + ") " + imageWidth + " x" + imageHeight);
           this.tiling.preview.drawImage(image, x, y, imageWidth, imageHeight);
 
           c++;
