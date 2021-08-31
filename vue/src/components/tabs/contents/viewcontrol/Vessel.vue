@@ -103,9 +103,16 @@ export default {
   },
 
   mounted() {
-    this.$nextTick(function() {
-      this.width = this.getWidth();
-    });
+    let that = this;
+    let hd = setInterval(function(){
+      that.width = that.getWidth();
+      if (that.width != 0) {
+        clearInterval(hd);
+      }
+    },100);
+    // this.$nextTick(function() {
+    //   this.width = this.getWidth();
+    // });
   },
 
   methods: {
@@ -113,11 +120,11 @@ export default {
       const frame = this.$refs.frame;
       const frameSize = frame.$el.getBoundingClientRect();
       const width = Math.trunc(frameSize.width);
-
+     
       return width;
     },
     onResize: function() {
-      this.width = this.getWidth();
+      this.width = this.getWidth();  
     },
     select2: function() {
       console.log("Select-2");

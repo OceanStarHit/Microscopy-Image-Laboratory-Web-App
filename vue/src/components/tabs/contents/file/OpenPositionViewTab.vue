@@ -7,6 +7,7 @@
           class="my-4 pagenation"
           total-visible="5"
           :length="allData.length"
+          @input="handlePageChange"
         ></v-pagination>
       </v-container>
     </v-row>
@@ -88,6 +89,9 @@ export default {
     }
   },
   methods: {
+    handlePageChange(idx) {
+      
+    }
   }
 };
 </script>
