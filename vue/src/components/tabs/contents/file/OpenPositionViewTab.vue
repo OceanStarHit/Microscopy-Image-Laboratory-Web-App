@@ -16,13 +16,7 @@
     <v-divider></v-divider>
     <Objective />
     <v-divider></v-divider>
-    <Channel />
-    <v-divider></v-divider>
-    <ImageAdjust />
-    <!-- <div v-if="seriesCount > 1">
-      <v-divider></v-divider>
-      <ImageSeries />
-    </div> -->
+    <Channel />    
     <div>
       <v-divider></v-divider>
       <ZPosition />
@@ -41,7 +35,6 @@ import TabItem from "../../../custom/TabItem";
 import Vessel from "../../contents/viewcontrol/Vessel";
 import Objective from "../../contents/viewcontrol/Objective";
 import Channel from "../../contents/viewcontrol/Channel";
-import ImageAdjust from "../../contents/viewcontrol/ImageAdjust";
 // import ImageSeries from "./contents/viewcontrol/ImageSeries";
 import ZPosition from "../../contents/viewcontrol/ZPosition";
 import Timeline from "../../contents/viewcontrol/Timeline";
@@ -54,8 +47,6 @@ export default {
     Vessel,
     Objective,
     Channel,
-    ImageAdjust,
-    // ImageSeries,
     ZPosition,
     Timeline
   },
@@ -98,6 +89,9 @@ export default {
     }
   },
   methods: {
+    handlePageChange(idx) {
+      
+    }
   }
 };
 </script>
