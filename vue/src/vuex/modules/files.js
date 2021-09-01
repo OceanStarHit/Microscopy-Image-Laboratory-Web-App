@@ -33,10 +33,12 @@ const position = {
     getFiles: state => state.files,
     getFilesSortByField: state => {
       let filesSortByField = [...state.files].sort(function(a, b) {
-        if(a.metaData && b.metaData) {
-          return a.metaData.field - b.metaData.field;
-        }
-        return 0;
+        // if (a.metaData && b.metaData) {
+        //   return a.metaData.field - b.metaData.field;
+        // }
+        console.log(a.name);
+
+        return a.name - b.name;
       });
       return filesSortByField;
     },
