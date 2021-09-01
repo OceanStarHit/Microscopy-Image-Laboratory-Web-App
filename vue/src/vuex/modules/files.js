@@ -33,12 +33,10 @@ const position = {
     getFiles: state => state.files,
     getFilesSortByField: state => {
       let filesSortByField = [...state.files].sort(function(a, b) {
-        // if (a.metaData && b.metaData) {
-        //   return a.metaData.field - b.metaData.field;
-        // }
-        console.log(a.name);
-
-        return a.name - b.name;
+        if (a.name.length != b.name.length) {
+          return a.name.length - b.name.length;
+        }
+        return ("" + a.name).localeCompare(b.name);
       });
       return filesSortByField;
     },
