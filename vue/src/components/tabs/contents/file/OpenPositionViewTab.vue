@@ -16,7 +16,7 @@
     <v-divider></v-divider>
     <Objective />
     <v-divider></v-divider>
-    <Channel />    
+    <Channel />
     <div>
       <v-divider></v-divider>
       <ZPosition />
@@ -89,9 +89,7 @@ export default {
     }
   },
   methods: {
-    handlePageChange(idx) {
-      
-    }
+    handlePageChange(idx) {}
   }
 };
 </script>

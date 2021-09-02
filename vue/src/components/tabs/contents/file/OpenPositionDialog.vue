@@ -1,9 +1,6 @@
 <template>
   <div class="d-none">
-    <v-dialog 
-      v-model="visibleDialog" 
-      persistent
-    >
+    <v-dialog v-model="visibleDialog" persistent>
       <!-- <simple-dialog
         title="Position"
         ok-title="Select"
@@ -65,271 +62,7 @@
             </v-sheet>
           </v-tab-item>
           <v-tab-item value="tabs-tiling" class="v-tab-item" eager>
-            <v-sheet class="drop pa-5" height="600">
-              <v-row no-gutters>
-                <v-col cols="2">
-                  <v-card class="pa-1">
-                    <v-list shaped>
-                      <v-list-item-group
-                        v-model="tiling.activeMenuItem"
-                        color="primary"
-                      >
-                        <v-list-item
-                          v-for="(menuTitle, idx) in tilingMenus"
-                          :key="idx"
-                        >
-                          <v-list-item-content>
-                            <v-list-item-title
-                              v-text="menuTitle"
-                            ></v-list-item-title>
-                          </v-list-item-content>
-                        </v-list-item>
-                      </v-list-item-group>
-                    </v-list>
-                  </v-card>
-                </v-col>
-                <v-col cols="8" class="pa-2">
-                  <div class="d-flex ma-2">
-                    <!-- Tiling Control Panel -->
-                    <div class="control-panel">
-                      <!-- Editing -->
-                      <v-card v-if="tiling.activeMenuItem == 0" flat>
-                        <v-card-title class="pa-1">Editing</v-card-title>
-                        <div class="inside">
-                          <v-list
-                            class="overflow-y-auto fill-height"
-                            max-height="450"
-                            outlined
-                          >
-                            <v-list-item-group
-                              v-if="filesSortByField.length"
-                              v-model="tiling.edit.activeFileItem"
-                              color="green"
-                              @change="pickImageFile"
-                            >
-                              <v-list-item
-                                v-for="(file, idx) in filesSortByField"
-                                :key="idx"
-                              >
-                                <v-list-item-content>
-                                  <v-list-item-title
-                                    v-text="file.name"
-                                  ></v-list-item-title>
-                                </v-list-item-content>
-                              </v-list-item>
-                            </v-list-item-group>
-                            <span v-else>
-                              <v-list-item>
-                                <v-list-item-content>
-                                  <v-list-item-title
-                                    >No Image Files!</v-list-item-title
-                                  >
-                                </v-list-item-content>
-                              </v-list-item>
-                            </span>
-                          </v-list>
-                        </div>
-                      </v-card>
-                      <!-- Alignment -->
-                      <v-card v-else-if="tiling.activeMenuItem == 1" flat>
-                        <v-card-title class="pa-1">Alignment</v-card-title>
-                        <div class="inside">
-                          <v-btn-toggle
-                            v-model="tiling.alignment.activeMode"
-                            mandatory
-                            @change="changeAlignMode"
-                          >
-                            <v-tooltip v-for="n in 6" :key="n" bottom>
-                              <template v-slot:activator="{ on, attrs }">
-                                <v-btn :key="n" :disabled="n == 4">
-                                  <v-img
-                                    :src="alignButtonImage(n)"
-                                    aspect-ratio="1"
-                                    v-bind="attrs"
-                                    :style="
-                                      n == 4 ? { filter: 'grayscale(1)' } : {}
-                                    "
-                                    v-on="on"
-                                  />
-                                </v-btn>
-                              </template>
-                              <span>{{ tilingAlignButtons[n - 1] }}</span>
-                            </v-tooltip>
-                          </v-btn-toggle>
-
-                          <v-checkbox
-                            v-model="tiling.alignment.orders"
-                            label="Left-Right"
-                            color="primary"
-                            value="left-right"
-                            hide-details
-                            :disabled="
-                              tiling.alignment.disables[
-                                tiling.alignment.activeMode
-                              ].chkLR
-                            "
-                            @change="changeAlignOrder"
-                          ></v-checkbox>
-                          <v-checkbox
-                            v-model="tiling.alignment.orders"
-                            label="Up-Down"
-                            color="primary"
-                            value="up-down"
-                            hide-details
-                            :disabled="
-                              tiling.alignment.disables[
-                                tiling.alignment.activeMode
-                              ].chkUD
-                            "
-                            @change="changeAlignOrder"
-                          ></v-checkbox>
-                          <v-checkbox
-                            v-model="tiling.alignment.orders"
-                            label="Descending Order"
-                            color="primary"
-                            value="descending-order"
-                            hide-details
-                            :disabled="
-                              tiling.alignment.disables[
-                                tiling.alignment.activeMode
-                              ].chkDO
-                            "
-                            @change="changeAlignOrder"
-                          ></v-checkbox>
-
-                          <!-- <v-select
-                            v-model="tiling.alignment.activeDirection"
-                            :items="tilingAlignDirections"
-                            class="my-4"
-                            dense
-                            solo
-                            style="max-width: 60% !important"
-                          ></v-select> -->
-
-                          <v-row class="mt-4 mr-4">
-                            <v-col cols="6">
-                              <v-text-field
-                                v-model="tiling.alignment.rows"
-                                :value="tiling.alignment.rows"
-                                class="range-field"
-                                label="Row"
-                                type="number"
-                                outlined
-                                dense
-                                :disabled="
-                                  tiling.alignment.disables[
-                                    tiling.alignment.activeMode
-                                  ].txtRows
-                                "
-                                @input="inputTilingRows"
-                              />
-                            </v-col>
-                            <v-col cols="6">
-                              <v-text-field
-                                v-model="tiling.alignment.cols"
-                                class="range-field"
-                                label="Column"
-                                type="number"
-                                outlined
-                                dense
-                                :disabled="
-                                  tiling.alignment.disables[
-                                    tiling.alignment.activeMode
-                                  ].txtCols
-                                "
-                                @input="inputTilingCols"
-                              />
-                            </v-col>
-                          </v-row>
-
-                          <v-row class="mr-4">
-                            <v-col cols="4">
-                              <v-text-field
-                                v-model="tiling.alignment.border"
-                                class="range-field"
-                                label="Border"
-                                type="number"
-                                outlined
-                                dense
-                                :disabled="
-                                  tiling.alignment.disables[
-                                    tiling.alignment.activeMode
-                                  ].txtBorder
-                                "
-                                @change="inputTilingBorder"
-                              />
-                            </v-col>
-                            <v-col cols="4">
-                              <v-text-field
-                                v-model="tiling.alignment.gapX"
-                                class="range-field"
-                                label="Gap X"
-                                type="number"
-                                outlined
-                                dense
-                                :disabled="
-                                  tiling.alignment.disables[
-                                    tiling.alignment.activeMode
-                                  ].txtGapX
-                                "
-                                @change="inputTilingGapX"
-                              />
-                            </v-col>
-                            <v-col cols="4">
-                              <v-text-field
-                                v-model="tiling.alignment.gapY"
-                                class="range-field"
-                                label="Gap Y"
-                                type="number"
-                                outlined
-                                dense
-                                :disabled="
-                                  tiling.alignment.disables[
-                                    tiling.alignment.activeMode
-                                  ].txtGapY
-                                "
-                                @change="inputTilingGapY"
-                              />
-                            </v-col>
-                          </v-row>
-                        </div>
-                      </v-card>
-                      <!-- Bonding -->
-                      <v-card v-else-if="tiling.activeMenuItem == 2" flat>
-                        <v-card-title class="pa-1">Bonding</v-card-title>
-                        <div class="inside"></div>
-                      </v-card>
-                      <!-- Shading -->
-                      <v-card v-else-if="tiling.activeMenuItem == 3" flat>
-                        <v-card-title class="pa-1">Shading</v-card-title>
-                        <div class="inside"></div>
-                      </v-card>
-                      <!-- Display -->
-                      <v-card v-else-if="tiling.activeMenuItem == 4" flat>
-                        <v-card-title class="pa-1">Display</v-card-title>
-                        <div class="inside"></div>
-                      </v-card>
-                      <!-- Result -->
-                      <v-card v-else-if="tiling.activeMenuItem == 5" flat>
-                        <v-card-title class="pa-1">Result</v-card-title>
-                        <div class="inside"></div>
-                      </v-card>
-                      <!-- Option -->
-                      <v-card v-else-if="tiling.activeMenuItem == 6" flat>
-                        <v-card-title class="pa-1">Option</v-card-title>
-                        <div class="inside"></div>
-                      </v-card>
-                    </div>
-
-                    <!-- Tiling Preview -->
-                    <canvas id="canvas" class="mt-15 canvas"></canvas>
-                  </div>
-                </v-col>
-                <v-col cols="2" class="pa-2">
-                  <OpenPositionViewTab />
-                </v-col>
-              </v-row>
-            </v-sheet>
+            <Tiling />
           </v-tab-item>
           <v-tab-item value="tabs-metadata" class="v-tab-item">
             <v-sheet
@@ -382,7 +115,7 @@
               @dragleave.prevent="dragLeave"
               @drop.prevent="drop($event)"
             >
-            <!-- @mouseup="selectExampleString" -->
+              <!-- @mouseup="selectExampleString" -->
               <div
                 v-if="files.length == 0"
                 class="d-flex align-center justify-center fill-height"
@@ -487,7 +220,9 @@
 
         <v-card-actions>
           <v-progress-linear
-            :style="{visibility: progressBarPercent < 100 ? 'visible' : 'hidden'}" 
+            :style="{
+              visibility: progressBarPercent < 100 ? 'visible' : 'hidden'
+            }"
             color="light-blue"
             height="10"
             width="300"
@@ -506,11 +241,7 @@
             OK
           </v-btn>
 
-          <v-btn
-            color="green darken-1"
-            text
-            @click="onClose"
-          >
+          <v-btn color="green darken-1" text @click="onClose">
             CANCEL
           </v-btn>
         </v-card-actions>
@@ -529,18 +260,13 @@ import {
   isOverlapped,
   loadImage
 } from "../../../../utils/utils-func";
-import {
-  POSITION_DIALOG_CANVAS_MAX_PIXEL,
-  POSITION_DIALOG_COL_COUNT,
-  POSITION_DIALOG_CELL_SIZE
-  // POSITION_DIALOG_STROKE_WIDTH
-} from "../../../../utils/constants";
 // import SimpleDialog from "../../../custom/SimpleDialog";
 
 const positionModule = createNamespacedHelpers("files/position");
 
 import { getPosition, getSeries } from "../../../../vuex/modules/files";
-import OpenPositionViewTab from "./OpenPositionViewTab";
+// import OpenPositionViewTab from "./OpenPositionViewTab";
+import Tiling from "./Tiling.vue";
 
 var createNewPage = true;
 
@@ -548,8 +274,8 @@ export default {
   name: "OpenPositionDialog",
 
   components: {
-    OpenPositionViewTab
-   },
+    Tiling
+  },
 
   props: {
     value: {
@@ -559,12 +285,15 @@ export default {
   },
 
   data: () => ({
+    // ctxHeight,
+    // ctxWidth,
+    // canvasWidth,
+    // canvasHeight,
+    // mouseX,
+    // mouseY;
     // loading: false,
     isDragging: false,
     selectedTab: null,
-
-    imageWidth: 0,
-    imageHeight: 0,
 
     tilingMenus: [
       "Edit",
@@ -586,8 +315,12 @@ export default {
     tilingAlignDirections: ["Clockwise", "Counter-Clockwise"],
 
     tiling: {
+      // 平铺图片界面参数设置
       preview: null,
       activeMenuItem: 0,
+      bonding: {
+        activeadsorption: -1
+      },
       edit: {
         activeFileItem: -1,
         oldFileItem: -1
@@ -728,7 +461,8 @@ export default {
       { text: "Time Point", value: "timeline" }
     ],
     progressBarValue: 0,
-    progressBarMaxValue: 0
+    progressBarMaxValue: 0,
+    luminance: 0.0
   }),
 
   mutations: {
@@ -738,6 +472,15 @@ export default {
   },
 
   created() {
+    this.filesWatch = this.$store.watch(
+      (state, getters) => getters["files/position/getFiles"],
+      async files => {
+        if (files.length) {
+          this.selectedFileName = files[0].name;
+        }
+      }
+    );
+
     this.newResWatch = this.$store.watch(
       (state, getters) => getters["image/newRes"],
       res => {
@@ -749,7 +492,6 @@ export default {
 
         payload.appendToCurrentPage = !createNewPage;
         createNewPage = false;
-
         for (var key in res) {
           const idx = parseInt(key.split("_")[1]);
           let fileName = this.allFiles[idx].name;
@@ -797,42 +539,6 @@ export default {
         // this.imageData = null;
       }
     );
-    // this.allFilesWatch = this.$store.watch(
-    //   (state, getters) => getters["image/currentPageData"],
-    //   res => {
-    //     console.log("allFilesWatch !!!!");
-    //     console.log(res);
-    //     this.allFiles = res;
-    //   }
-    // );
-
-    this.filesWatch = this.$store.watch(
-      (state, getters) => getters["files/position/getFiles"],
-      async files => {
-        if (files.length) {
-          this.selectedFileName = files[0].name;
-
-          if (this.tiling.preview) {
-            await this.getImageSize();
-            this.drawImages();
-          }
-        }
-      }
-    );
-
-    /* this.filesWatch = this.$store.watch(
-      (state, getters) => getters["files/position/getFiles"],
-      async files => {
-        if (files.length) {
-          this.selectedFileName = files[0].name;
-
-          if (this.tiling.preview) {
-            await this.getImageSize();
-            this.drawImages();
-          }
-        }
-      }
-    ); */
   },
 
   beforeDestroy() {
@@ -859,11 +565,6 @@ export default {
 
     getClasses() {
       return { isDragging: this.isDragging };
-    },
-
-    alignButtonImage() {
-      return index =>
-        require(`../../../../assets/images/pos_align_${index - 1}.png`);
     },
 
     backgroundText() {
@@ -928,7 +629,7 @@ export default {
           let p = getPosition(file.name);
           if (p.series.length > 0) {
             // convert 1, 2, 3 to A, B, C
-            p.row = String.fromCharCode("A".charCodeAt() + p.row - 1)
+            p.row = String.fromCharCode("A".charCodeAt() + p.row - 1);
             contents.push({
               no: contents.length + 1,
               filename: file.name,
@@ -944,6 +645,7 @@ export default {
       }
       return contents;
     },
+   
 
     getMetaContents() {
       const contents = [];
@@ -965,8 +667,8 @@ export default {
     },
 
     progressBarPercent() {
-      if(this.progressBarMaxValue != 0) {
-        return 100 * this.progressBarValue / this.progressBarMaxValue;
+      if (this.progressBarMaxValue != 0) {
+        return (100 * this.progressBarValue) / this.progressBarMaxValue;
       }
       return 100;
     }
@@ -1010,7 +712,7 @@ export default {
         if (item) {
           let thiz = this;
           this.traverseFileTree(item, "", function() {
-            thiz.progressBarValue ++;
+            thiz.progressBarValue++;
           });
         }
       }
@@ -1022,10 +724,10 @@ export default {
       if (item.isFile) {
         item.file(function(file) {
           if (checkFileType(file.name)) {
-            self.progressBarMaxValue ++;
+            self.progressBarMaxValue++;
 
             self.addFile({
-              file: file, 
+              file: file,
               doneCB: doneCB
             });
             self.allFiles.push(file);
@@ -1033,19 +735,18 @@ export default {
         });
         self.loading = false;
       } else if (item.isDirectory) {
-      //   enumerateDirectory(item).then(entries => {
-      //     entries = entries.sort(function(a, b) {
-      //       return a.name.localeCompare(b.name, undefined, {
-      //         numeric: true,
-      //         sensitivity: "base"
-      //       });
-      //     });
-
-      //     for (let i = 0; i < entries.length; i++) {
-      //       self.traverseFileTree(entries[i], path + item.name + "/");
-      //     }
-      //     self.loading = false;
-      //   });
+        //   enumerateDirectory(item).then(entries => {
+        //     entries = entries.sort(function(a, b) {
+        //       return a.name.localeCompare(b.name, undefined, {
+        //         numeric: true,
+        //         sensitivity: "base"
+        //       });
+        //     });
+        //     for (let i = 0; i < entries.length; i++) {
+        //       self.traverseFileTree(entries[i], path + item.name + "/");
+        //     }
+        //     self.loading = false;
+        //   });
       }
     },
     resetConfig() {
@@ -1058,589 +759,7 @@ export default {
     // Tab change (Tiling tab)
     async onTabChange(tabIdx) {
       if (tabIdx == "tabs-tiling") {
-        if (this.tiling.preview == null) {
-          let c = document.getElementById("canvas");
-          this.tiling.preview = c.getContext("2d");
-        }
-
-        if (this.files && this.files.length) {
-          await this.getImageSize();
-          this.drawImages();
-        }
       }
-    },
-
-    async getImageSize() {
-      // let image = await loadImage();
-      let image = this.files[0].imageData;
-
-      this.imageWidth = image.width;
-      this.imageHeight = image.height;
-    },
-    // Tiling preview
-    drawImages() {
-      if (this.files && this.files.length) {
-        switch (this.tiling.alignment.activeMode) {
-          case 0:
-            this.drawCascade();
-            break;
-          case 1:
-            this.drawHeightDecreasing();
-            break;
-          case 2:
-            this.drawHeightIncreasing();
-            break;
-          case 3:
-            this.drawByXYZ();
-            break;
-          case 4:
-            this.drawByColumns();
-            break;
-          case 5:
-            this.drawByRows();
-            break;
-        }
-      } else {
-        this.tiling.preview.canvas.width =
-          POSITION_DIALOG_COL_COUNT * POSITION_DIALOG_CELL_SIZE;
-        this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
-      }
-    },
-    drawInit(mode, setNull = true) {
-      console.log(mode);
-
-      if (setNull) {
-        this.tiling.alignment.rows = null;
-        this.tiling.alignment.cols = null;
-      }
-
-      this.tiling.preview.clearRect(
-        0,
-        0,
-        this.tiling.preview.canvas.width,
-        this.tiling.preview.canvas.height
-      );
-    },
-    drawCascade() {
-      this.drawInit("Cascade");
-
-      let imageWidth = this.imageWidth,
-        imageHeight = this.imageHeight;
-      let border = parseInt(this.tiling.alignment.border);
-      if (isNaN(border)) {
-        border = 0;
-        this.tiling.alignment.border = 0;
-      }
-      const tick = 50;
-      let d = Math.max(imageWidth, imageHeight) / tick;
-      const width =
-        Math.max(this.imageWidth, this.imageHeight) +
-        d * this.files.length +
-        2 * border;
-
-      if (width < POSITION_DIALOG_CANVAS_MAX_PIXEL) {
-        this.tiling.preview.canvas.width = width;
-      } else {
-        this.tiling.preview.canvas.width = POSITION_DIALOG_CANVAS_MAX_PIXEL;
-        border = (POSITION_DIALOG_CANVAS_MAX_PIXEL * border) / width;
-        let fitSize =
-          ((POSITION_DIALOG_CANVAS_MAX_PIXEL - 2 * border) * tick) /
-          (tick + this.files.length);
-        d = fitSize / tick;
-        if (imageWidth > imageHeight) {
-          imageWidth = fitSize;
-          imageHeight = (imageWidth / this.imageWidth) * this.imageHeight;
-        } else {
-          imageHeight = fitSize;
-          imageWidth = (imageHeight / this.imageHeight) * this.imageWidth;
-        }
-      }
-      this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
-
-      let idx = 0;
-      while (idx < this.files.length) {
-        let image = document.getElementById(`images_${idx}`);
-        const x = border + idx * d,
-          y = x;
-        this.tiling.preview.drawImage(image, x, y, imageWidth, imageHeight);
-
-        idx++;
-      }
-    },
-    drawHeightDecreasing() {
-      this.drawInit("HeightDecreasing");
-
-      const cols = Math.floor(Math.sqrt(this.files.length));
-      const rows =
-        Math.floor(this.files.length / cols) +
-        (this.files.length / cols == Math.floor(this.files.length / cols)
-          ? 0
-          : 1);
-
-      let imageWidth = this.imageWidth,
-        imageHeight = this.imageHeight;
-      let border = parseInt(this.tiling.alignment.border),
-        gapX = parseInt(this.tiling.alignment.gapX),
-        gapY = parseInt(this.tiling.alignment.gapY);
-      if (isNaN(border)) {
-        border = 0;
-        this.tiling.alignment.border = 0;
-      }
-      if (isNaN(gapX)) {
-        gapX = 0;
-        this.tiling.alignment.gapX = 0;
-      }
-      if (isNaN(gapY)) {
-        gapY = 0;
-        this.tiling.alignment.gapY = 0;
-      }
-
-      const width =
-        Math.max(
-          rows * imageHeight + (rows - 1) * gapY,
-          cols * imageWidth + (cols - 1) * gapX
-        ) +
-        2 * border;
-
-      if (width < POSITION_DIALOG_CANVAS_MAX_PIXEL) {
-        this.tiling.preview.canvas.width = width;
-      } else {
-        this.tiling.preview.canvas.width = POSITION_DIALOG_CANVAS_MAX_PIXEL;
-        border = (POSITION_DIALOG_CANVAS_MAX_PIXEL * border) / width;
-        gapX = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapX) / width;
-        gapY = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapY) / width;
-        if (
-          cols * imageWidth + (cols - 1) * gapX >
-          rows * imageHeight + (rows - 1) * gapY
-        ) {
-          imageWidth =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (cols - 1) * gapX) /
-            cols;
-          imageHeight = (imageWidth / this.imageWidth) * this.imageHeight;
-        } else {
-          imageHeight =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (rows - 1) * gapY) /
-            rows;
-          imageWidth = (imageHeight / this.imageHeight) * this.imageWidth;
-        }
-      }
-      this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
-
-      let row = 0,
-        idx = 0;
-      while (row < rows) {
-        let col = 0;
-        while (col < cols) {
-          idx = row * cols + col;
-          if (idx >= this.files.length) break;
-
-          let image = document.getElementById(`images_${idx}`);
-          const x = border + col * (imageWidth + gapX),
-            y = border + row * (imageHeight + gapY);
-          this.tiling.preview.drawImage(image, x, y, imageWidth, imageHeight);
-
-          col++;
-        }
-        if (idx >= this.files.length) break;
-
-        row++;
-      }
-    },
-    drawHeightIncreasing() {
-      this.drawInit("HeightIncreasing");
-
-      const cols = Math.floor(Math.sqrt(this.files.length));
-      const rows =
-        Math.floor(this.files.length / cols) +
-        (this.files.length / cols == Math.floor(this.files.length / cols)
-          ? 0
-          : 1);
-
-      let imageWidth = this.imageWidth,
-        imageHeight = this.imageHeight;
-      let border = parseInt(this.tiling.alignment.border),
-        gapX = parseInt(this.tiling.alignment.gapX),
-        gapY = parseInt(this.tiling.alignment.gapY);
-      if (isNaN(border)) {
-        border = 0;
-        this.tiling.alignment.border = 0;
-      }
-      if (isNaN(gapX)) {
-        gapX = 0;
-        this.tiling.alignment.gapX = 0;
-      }
-      if (isNaN(gapY)) {
-        gapY = 0;
-        this.tiling.alignment.gapY = 0;
-      }
-
-      const width =
-        Math.max(
-          rows * imageHeight + (rows - 1) * gapY,
-          cols * imageWidth + (cols - 1) * gapX
-        ) +
-        2 * border;
-
-      if (width < POSITION_DIALOG_CANVAS_MAX_PIXEL) {
-        this.tiling.preview.canvas.width = width;
-      } else {
-        this.tiling.preview.canvas.width = POSITION_DIALOG_CANVAS_MAX_PIXEL;
-        border = (POSITION_DIALOG_CANVAS_MAX_PIXEL * border) / width;
-        gapX = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapX) / width;
-        gapY = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapY) / width;
-        if (
-          cols * imageWidth + (cols - 1) * gapX >
-          rows * imageHeight + (rows - 1) * gapY
-        ) {
-          imageWidth =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (cols - 1) * gapX) /
-            cols;
-          imageHeight = (imageWidth / this.imageWidth) * this.imageHeight;
-        } else {
-          imageHeight =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (rows - 1) * gapY) /
-            rows;
-          imageWidth = (imageHeight / this.imageHeight) * this.imageWidth;
-        }
-      }
-      this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
-
-      let row = 0,
-        idx = 0;
-      while (row < rows) {
-        let col = 0;
-        while (col < cols) {
-          idx = row * cols + col;
-          if (idx >= this.files.length) break;
-
-          let image = document.getElementById(
-            `images_${this.files.length - idx - 1}`
-          );
-          const x = border + col * (imageWidth + gapX),
-            y = border + row * (imageHeight + gapY);
-          this.tiling.preview.drawImage(image, x, y, imageWidth, imageHeight);
-
-          col++;
-        }
-        if (idx >= this.files.length) break;
-
-        row++;
-      }
-    },
-    drawByXYZ() {
-      this.drawInit("ByXYZ");
-    },
-    drawByColumns() {
-      this.drawInit("ByColumns", false);
-
-      if (this.tiling.alignment.rows == null) {
-        this.tiling.alignment.rows = Math.floor(Math.sqrt(this.files.length));
-      }
-      this.tiling.alignment.cols =
-        Math.floor(this.files.length / this.tiling.alignment.rows) +
-        (this.files.length / this.tiling.alignment.rows ==
-        Math.floor(this.files.length / this.tiling.alignment.rows)
-          ? 0
-          : 1);
-
-      let imageWidth = this.imageWidth,
-        imageHeight = this.imageHeight;
-      let border = parseInt(this.tiling.alignment.border),
-        gapX = parseInt(this.tiling.alignment.gapX),
-        gapY = parseInt(this.tiling.alignment.gapY);
-      if (isNaN(border)) {
-        border = 0;
-        this.tiling.alignment.border = 0;
-      }
-      if (isNaN(gapX)) {
-        gapX = 0;
-        this.tiling.alignment.gapX = 0;
-      }
-      if (isNaN(gapY)) {
-        gapY = 0;
-        this.tiling.alignment.gapY = 0;
-      }
-      const width =
-        Math.max(
-          this.tiling.alignment.rows * imageHeight +
-            (this.tiling.alignment.rows - 1) * gapY,
-          this.tiling.alignment.cols * imageWidth +
-            (this.tiling.alignment.cols - 1) * gapX
-        ) +
-        2 * border;
-
-      if (width < POSITION_DIALOG_CANVAS_MAX_PIXEL) {
-        this.tiling.preview.canvas.width = width;
-      } else {
-        this.tiling.preview.canvas.width = POSITION_DIALOG_CANVAS_MAX_PIXEL;
-        border = (POSITION_DIALOG_CANVAS_MAX_PIXEL * border) / width;
-        gapX = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapX) / width;
-        gapY = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapY) / width;
-        if (
-          this.tiling.alignment.cols * imageWidth +
-            (this.tiling.alignment.cols - 1) * gapX >
-          this.tiling.alignment.rows * imageHeight +
-            (this.tiling.alignment.rows - 1) * gapY
-        ) {
-          imageWidth =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (this.tiling.alignment.cols - 1) * gapX) /
-            this.tiling.alignment.cols;
-          imageHeight = (imageWidth / this.imageWidth) * this.imageHeight;
-        } else {
-          imageHeight =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (this.tiling.alignment.rows - 1) * gapY) /
-            this.tiling.alignment.rows;
-          imageWidth = (imageHeight / this.imageHeight) * this.imageWidth;
-        }
-      }
-      this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
-
-      let c = 0,
-        dir = 1,
-        idx = 0;
-      while (c < this.tiling.alignment.cols) {
-        let r = 0;
-        while (r < this.tiling.alignment.rows) {
-          idx = r + c * this.tiling.alignment.rows;
-          if (idx >= this.files.length) break;
-
-          let image = document.getElementById(`images_${idx}`);
-
-          let row = r;
-          if (this.tiling.alignment.orders.includes("descending-order")) {
-            if (this.tiling.alignment.orders.includes("up-down")) {
-              row = dir < 0 ? r : this.tiling.alignment.rows - 1 - r;
-            } else {
-              row = dir > 0 ? r : this.tiling.alignment.rows - 1 - r;
-            }
-          } else {
-            if (this.tiling.alignment.orders.includes("up-down")) {
-              row = this.tiling.alignment.rows - 1 - r;
-            }
-          }
-
-          let col = this.tiling.alignment.orders.includes("left-right")
-            ? this.tiling.alignment.cols - 1 - c
-            : c;
-
-          const x = border + col * (imageWidth + gapX),
-            y = border + row * (imageHeight + gapY);
-          this.tiling.preview.drawImage(image, x, y, imageWidth, imageHeight);
-
-          r++;
-        }
-        if (idx >= this.files.length) break;
-
-        c++;
-        dir *= -1;
-      }
-    },
-    drawByRows() {
-      this.drawInit("ByRows", false);
-
-      if (this.tiling.alignment.cols == null) {
-        this.tiling.alignment.cols = Math.floor(Math.sqrt(this.files.length));
-      }
-      this.tiling.alignment.rows =
-        Math.floor(this.files.length / this.tiling.alignment.cols) +
-        (this.files.length / this.tiling.alignment.cols ==
-        Math.floor(this.files.length / this.tiling.alignment.cols)
-          ? 0
-          : 1);
-
-      let imageWidth = this.imageWidth,
-        imageHeight = this.imageHeight;
-      
-      let border = parseInt(this.tiling.alignment.border),
-        gapX = parseInt(this.tiling.alignment.gapX),
-        gapY = parseInt(this.tiling.alignment.gapY);
-      if (isNaN(border)) {
-        border = 0;
-        this.tiling.alignment.border = 0;
-      }
-      if (isNaN(gapX)) {
-        gapX = 0;
-        this.tiling.alignment.gapX = 0;
-      }
-      if (isNaN(gapY)) {
-        gapY = 0;
-        this.tiling.alignment.gapY = 0;
-      }
-      const width =
-        Math.max(
-          this.tiling.alignment.rows * imageHeight +
-            (this.tiling.alignment.rows - 1) * gapY,
-          this.tiling.alignment.cols * imageWidth +
-            (this.tiling.alignment.cols - 1) * gapX
-        ) +
-        2 * border;
-
-      if (width < POSITION_DIALOG_CANVAS_MAX_PIXEL) {
-        this.tiling.preview.canvas.width = width;
-      } else {
-        this.tiling.preview.canvas.width = POSITION_DIALOG_CANVAS_MAX_PIXEL;
-        border = (POSITION_DIALOG_CANVAS_MAX_PIXEL * border) / width;
-        gapX = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapX) / width;
-        gapY = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapY) / width;
-        if (
-          this.tiling.alignment.cols * imageWidth +
-            (this.tiling.alignment.cols - 1) * gapX >
-          this.tiling.alignment.rows * imageHeight +
-            (this.tiling.alignment.rows - 1) * gapY
-        ) {
-          imageWidth =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (this.tiling.alignment.cols - 1) * gapX) /
-            this.tiling.alignment.cols;
-          imageHeight = (imageWidth / this.imageWidth) * this.imageHeight;
-        } else {
-          imageHeight =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (this.tiling.alignment.rows - 1) * gapY) /
-            this.tiling.alignment.rows;
-          imageWidth = (imageHeight / this.imageHeight) * this.imageWidth;
-        }
-      }
-      this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
-
-
-      let r = 0,
-        dir = 1,
-        idx = 0;
-      
-      while (r < this.tiling.alignment.rows) {
-        let c = 0;
-        while (c < this.tiling.alignment.cols) {
-          idx = r * this.tiling.alignment.cols + c;
-          if (idx >= this.filesSortByField.length) break;
-          
-          let image = this.filesSortByField[idx].imageData;
-
-          let col = c;
-          if (this.tiling.alignment.orders.includes("descending-order")) {
-            if (this.tiling.alignment.orders.includes("left-right")) {
-              col = dir < 0 ? c : this.tiling.alignment.cols - 1 - c;
-            } else {
-              col = dir > 0 ? c : this.tiling.alignment.cols - 1 - c;
-            }
-          } else {
-            if (this.tiling.alignment.orders.includes("left-right")) {
-              col = this.tiling.alignment.cols - 1 - c;
-            }
-          }
-
-          let row = this.tiling.alignment.orders.includes("up-down")
-            ? this.tiling.alignment.rows - 1 - r
-            : r;
-
-          const x = border + col * (imageWidth + gapX),
-            y = border + row * (imageHeight + gapY);
-
-          console.log("drawImage => (" + x + ", " + y + ") " + imageWidth + " x" + imageHeight);
-          this.tiling.preview.drawImage(image, x, y, imageWidth, imageHeight);
-
-          c++;
-        }
-        if (idx >= this.files.length) break;
-
-        r++;
-        dir *= -1;
-      }
-    },
-
-    // Edit section
-    pickImageFile(_selectedIndex) {
-      const POSITION_DIALOG_STROKE_WIDTH = 2;
-      if (_selectedIndex >= 0) {
-        let row = 0,
-        dir = 1,
-        idx = 0;
-        while(true) { /* eslint-disable-line */
-          let col = 0;
-          while (0 <= col && col <= this.tiling.alignment.cols) {
-            idx = row * this.tiling.alignment.cols + col;
-            if (idx >= this.files.length) break;
-
-            if (idx == this.tiling.edit.oldFileItem) {
-              let image = document.getElementById(`images_${idx}`);
-              this.tiling.preview.drawImage(
-                image,
-                (dir > 0 ? col : this.tiling.alignment.cols - 1 - col) *
-                  POSITION_DIALOG_CELL_SIZE,
-                row * POSITION_DIALOG_CELL_SIZE,
-                POSITION_DIALOG_CELL_SIZE,
-                POSITION_DIALOG_CELL_SIZE
-              );
-            }
-
-            if (idx == _selectedIndex) {
-              let _X =
-                  (dir > 0 ? col : this.tiling.alignment.cols - 1 - col) *
-                    POSITION_DIALOG_CELL_SIZE +
-                  POSITION_DIALOG_STROKE_WIDTH,
-                _Y =
-                  row * POSITION_DIALOG_CELL_SIZE +
-                  POSITION_DIALOG_STROKE_WIDTH,
-                _W =
-                  POSITION_DIALOG_CELL_SIZE - 2 * POSITION_DIALOG_STROKE_WIDTH,
-                _H = _W;
-
-              this.tiling.preview.beginPath();
-              this.tiling.preview.lineWidth = POSITION_DIALOG_STROKE_WIDTH;
-              this.tiling.preview.strokeStyle = "#76FF03";
-              this.tiling.preview.rect(_X, _Y, _W, _H);
-              this.tiling.preview.stroke();
-            }
-
-            col++;
-          }
-
-          if (idx >= this.files.length) break;
-
-          row++;
-          dir *= -1;
-        }
-        this.tiling.edit.oldFileItem = _selectedIndex;
-      }
-    },
-
-    changeAlignMode() {
-      this.drawImages();
-    },
-
-    changeAlignOrder() {
-      this.drawImages();
-    },
-
-    // Change text fields
-    inputTilingRows() {
-      this.drawImages();
-    },
-    inputTilingCols() {
-      this.drawImages();
-    },
-    inputTilingBorder() {
-      this.drawImages();
-    },
-    inputTilingGapX() {
-      this.drawImages();
-    },
-    inputTilingGapY() {
-      this.drawImages();
     },
 
     // Select example string in names&types tab
@@ -1854,9 +973,9 @@ export default {
           });
         }
       }
-      if(fileName) {
+      if (fileName) {
         this.setNamePattern({
-          key: 'totalLen',
+          key: "totalLen",
           pos: fileName.length
         });
       }
@@ -1888,8 +1007,10 @@ export default {
             objectLense: 4 // The default object lense for name & type
           },
           doneCB: function() {
-            thiz.progressBarValue ++;
-            console.log(thiz.progressBarValue + " / " + thiz.progressBarMaxValue);
+            thiz.progressBarValue++;
+            console.log(
+              thiz.progressBarValue + " / " + thiz.progressBarMaxValue
+            );
           }
         });
       }
@@ -1969,56 +1090,6 @@ export default {
 </script>
 
 <style scoped>
-.isDragging {
-  background-color: #e0f2f1;
-  border-color: #fff;
-}
-
-.control-panel {
-  width: calc(100% - 450px);
-}
-
-.control-panel .inside {
-  height: 450px;
-  margin-top: 20px;
-  margin-right: 16px;
-}
-
-.canvas {
-  width: 450px;
-  height: 450px;
-  border: 1px solid #333;
-  background-color: black;
-}
-
-/*.name-center {
-  text-align: center;
-}
-.img-align {
-  width: 23%;
-  padding: 10px;
-  margin: 1%;
-}
-.img-align > p {
-  margin: 0px !important;
-}
-.v-img-align {
-  margin: auto;
-}
-#uploadFile {
-  display: none;
-}
-.v-sheet {
-  overflow: auto;
-  padding: 15px !important;
-}
-.v-tab-item {
-  padding-top: 10px;
-}
-.v-card-title {
-  padding-top: 0px;
-}
-*/
 .pattern-section {
   width: 14.2%;
   padding: 5px;

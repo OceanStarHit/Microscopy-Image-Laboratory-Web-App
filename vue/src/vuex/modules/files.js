@@ -18,6 +18,7 @@ const position = {
 
   state: () => ({
     files: [],
+    filesUpdatedCount: { c: 0 },
     namePatterns: namePatterns,
     //当前呈现的图片对象
     selects: {
@@ -39,6 +40,9 @@ const position = {
         return ("" + a.name).localeCompare(b.name);
       });
       return filesSortByField;
+    },
+    getFilesUpdatedCount: state => {
+      return state.filesUpdatedCount.c;
     },
     getNamePattern: state => state.namePatterns,
     getFilesAtRowCol: (state, getters) => {
@@ -143,10 +147,11 @@ const position = {
 
         if (imageData.startsWith("data:image")) {
           resizeImage(imageData, function(resizedImageData) {
-            commit("addImageData", { 
-              index: index, 
+            commit("addImageData", {
+              index: index,
               imageData: resizedImageData,
-              doneCB });
+              doneCB
+            });
           });
         }
       };
@@ -217,11 +222,12 @@ const position = {
       img.src = payload.imageData;
 
       Vue.set(state.files[payload.index], "imageData", img);
-      if(payload.doneCB) payload.doneCB();  
+      state.filesUpdatedCount.c = state.filesUpdatedCount.c + 1;
+      if (payload.doneCB) payload.doneCB();
     },
     addMetaData(state, payload) {
       Vue.set(state.files[payload.index], "metaData", payload.metaData);
-      if(payload.doneCB) payload.doneCB();
+      if (payload.doneCB) payload.doneCB();
     },
     setNamePattern(state, keyValue) {
       state.namePatterns[keyValue["key"]] = keyValue["pos"];
@@ -297,42 +303,51 @@ export function getPosition(filename) {
 
   // Deal with the different field lens.
   // It is presumed that the length difference can only be caused by the field number.
-  if (filename && filename.length != namePatterns.totalLen && namePatterns.totalLen != -1) {
-    console.log("Detect filename length changed. old: " + namePatterns.totalLen + ", new: " + filename.length);
+  if (
+    filename &&
+    filename.length != namePatterns.totalLen &&
+    namePatterns.totalLen != -1
+  ) {
+    console.log(
+      "Detect filename length changed. old: " +
+        namePatterns.totalLen +
+        ", new: " +
+        filename.length
+    );
     let diff = filename.length - namePatterns.totalLen;
 
-    if(patternSeriesStart > fieldEnd) {
+    if (patternSeriesStart > fieldEnd) {
       patternSeriesStart = patternSeriesStart + diff;
       patternSeriesEnd = patternSeriesEnd + diff;
     }
 
-    if(patternRowStart > fieldEnd) {
+    if (patternRowStart > fieldEnd) {
       patternRowStart = patternRowStart + diff;
       patternRowEnd = patternRowEnd + diff;
     }
 
-    if(patternColStart > fieldEnd) {
+    if (patternColStart > fieldEnd) {
       patternColStart = patternColStart + diff;
-      patternColEnd = patternColEnd + diff;      
+      patternColEnd = patternColEnd + diff;
     }
 
-    if(patternZStart > fieldEnd) {
+    if (patternZStart > fieldEnd) {
       patternZStart = patternZStart + diff;
       patternZEnd = patternZEnd + diff;
     }
 
-    if(timelineStart > fieldEnd) {
+    if (timelineStart > fieldEnd) {
       timelineStart = timelineStart + diff;
       timelineEnd = timelineEnd + diff;
     }
 
-    if(channelStart > fieldEnd) {
+    if (channelStart > fieldEnd) {
       channelStart = channelStart + diff;
       channelEnd = channelEnd + diff;
     }
 
     // The last is to change the field end itself.
-    if(fieldEnd >= 0) {
+    if (fieldEnd >= 0) {
       fieldEnd = fieldEnd + diff;
     }
   }
@@ -411,7 +426,7 @@ export function getPosition(filename) {
     field = parseInt(field.replace(/\D/g, ""));
   }
 
-  return {row, col, z, timeline, channel, field, series};
+  return { row, col, z, timeline, channel, field, series };
 }
 
 export default {
@@ -448,7 +463,7 @@ function changeSelects(commit, state, params) {
 function resizeImage(imageData, finishCB) {
   var img = new Image();
   img.src = imageData;
-    
+
   img.onload = function() {
     if (this.width == 0) return;
 
@@ -456,9 +471,9 @@ function resizeImage(imageData, finishCB) {
     let targetHeight = Math.round(this.height * (targetWidth / this.width));
     // console.log("Resized: " + targetWidth + "x" + targetHeight);
 
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-            
+    let canvas = document.createElement("canvas");
+    let ctx = canvas.getContext("2d");
+
     // set its dimension to target size
     canvas.width = targetWidth;
     canvas.height = targetHeight;
@@ -470,5 +485,5 @@ function resizeImage(imageData, finishCB) {
     let imgData = canvas.toDataURL();
     canvas.remove();
     finishCB(imgData);
-  }
+  };
 }
