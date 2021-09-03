@@ -210,15 +210,15 @@
               <v-card-title class="pa-1">Bonding</v-card-title>
               <div class="inside">
                 <v-checkbox
-                  v-model="tiling.bonding.adsorption"
-                  label="Automatic adsorption"
+                  v-model="tiling.bonding.snapToEdge"
+                  label="Snap To Edge"
                   color="primary"
-                  value="Automatic adsorption"
+                  :value="true"
                   hide-details
                   :disabled="
                     tiling.alignment.disables[tiling.alignment.activeMode].chkLR
                   "
-                  @change="changeAdsorb"
+                  @change="changeSnapToEdge"
                 ></v-checkbox>
               </div>
             </v-card>
@@ -231,21 +231,21 @@
             <v-card v-else-if="tiling.activeMenuItem == 4" flat>
               <v-card-title class="pa-1">Display</v-card-title>
               <div class="inside">
-                <v-icon>mdi-light</v-icon>
+                <v-icon color="yellow">mdi-weather-sunny</v-icon>
                 <v-btn
                   class="px-0"
-                  min-width="24"
-                  :height="label ? 38 : 28"
+                  min-width="34"
+                  :height="34"
                   text
                   color="teal"
                   @click="decreaseImgLuminance"
                   >-</v-btn
                 >
-                <v-icon>mdi-light</v-icon>
+                <v-icon color="yellow">mdi-weather-sunny</v-icon>
                 <v-btn
                   class="px-0"
-                  min-width="24"
-                  :height="label ? 38 : 28"
+                  min-width="34"
+                  :height="34"
                   text
                   color="teal"
                   @click="increaseImgLuminance"
@@ -331,9 +331,13 @@ export default {
       // 平铺图片界面参数设置
       canvas: null,
       preview: null,
+      canvasScaleRatio: 1,
       activeMenuItem: 0,
       bonding: {
-        activeadsorption: -1
+        snapToEdge: false,
+        lines: [],
+        offsetX: 0,
+        offsetY: 0
       },
       edit: {
         activeFileItem: -1,
@@ -420,13 +424,13 @@ export default {
         imgOriginX: -1,
         imgOriginY: -1
       },
+
       drawList: [],
       drawListSorted: [],
       drawingOrder: 0,
       drawingIntervalHd: null,
       drawingIntervalNeedRedraw: false, // Recalculate x,y according to alignment setting.
-      drawingIntervalNeedPerformingDrawing: false, // Just draw images.
-      customDrawList: new Map()
+      drawingIntervalNeedPerformingDrawing: false // Just draw images.
     },
     // all data
     allFiles: [],
@@ -536,15 +540,8 @@ export default {
         this.tiling.edit.oldFileItem = _selectedIndex;
       }
     },
-    changeAdsorb() {
-      // 是否开启自动吸附
-      if (this.tiling.bonding.activeadsorption === -1) {
-        // console.log("开启自动吸附");
-        this.tiling.bonding.activeadsorption = 1;
-      } else if (this.tiling.bonding.activeadsorption === 1) {
-        // console.log("关闭自动吸附");
-        this.tiling.bonding.activeadsorption = -1;
-      }
+    changeSnapToEdge() {
+      this.performDrawing();
     },
     async getImageSize() {
       // 得到每个小图片的尺寸
@@ -608,6 +605,9 @@ export default {
           POSITION_DIALOG_COL_COUNT * POSITION_DIALOG_CELL_SIZE;
         this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
       }
+
+      this.tiling.canvasScaleRatio =
+        this.canvas.width / this.canvas.offsetWidth;
 
       this.performDrawing();
       this.updateImageLuminance();
@@ -1127,16 +1127,13 @@ export default {
             y = border + row * (imageHeight + gapY);
 
           if (image && imageWidth && typeof image == "object") {
-            // whether the image is dragged away from the original position.
-            // The dragged images are added to the customDrawList for seperately drawing.
-            let occupied = !this.tiling.customDrawList.has(idx);
             this.tiling.drawList.push({
               x,
               y,
               width: imageWidth,
               height: imageHeight,
               image,
-              occupied,
+              occupied: true,
               drawingOrder: this.drawingOrder,
               orgIdx: idx
             });
@@ -1172,12 +1169,31 @@ export default {
           );
         }
       }
+
+      for (let lineIdx in this.tiling.bonding.lines) {
+        let line = this.tiling.bonding.lines[lineIdx];
+        this.tiling.preview.strokeStyle = "green";
+        this.tiling.preview.lineWidth = Math.ceil(
+          1 * this.tiling.canvasScaleRatio
+        );
+
+        // console.log(line);
+        // draw a red line
+        this.tiling.preview.beginPath();
+        this.tiling.preview.moveTo(line.x1, line.y1);
+        this.tiling.preview.lineTo(line.x1, line.y2);
+        this.tiling.preview.lineTo(line.x2, line.y2);
+        this.tiling.preview.lineTo(line.x2, line.y1);
+        this.tiling.preview.lineTo(line.x1, line.y1);
+        this.tiling.preview.stroke();
+      }
     },
 
     getCursorXY(e) {
       const screenWidth = this.canvas.offsetWidth;
       const canvasWidth = this.canvas.width;
-      const scaleRatio = canvasWidth / screenWidth;
+      this.tiling.canvasScaleRatio = canvasWidth / screenWidth;
+      const scaleRatio = this.tiling.canvasScaleRatio;
 
       const rect = this.canvas.getBoundingClientRect();
       const mouseX = (e.clientX - rect.left) * scaleRatio; // e.offsetX;
@@ -1187,7 +1203,6 @@ export default {
 
     mouseDown(e) {
       const { mouseX, mouseY } = this.getCursorXY(e);
-
       let drawList = [...this.tiling.drawList].reverse();
       for (let idx in drawList) {
         let params = drawList[idx];
@@ -1222,7 +1237,26 @@ export default {
     },
 
     mouseUp() {
-      this.tiling.mouse.catchImg = false;
+      if (this.tiling.mouse.catchImg) {
+        this.tiling.mouse.catchImg = false;
+
+        if (this.tiling.bonding.snapToEdge) {
+          // Move image if bonding turned on.
+          let movingImg = this.tiling.drawList[this.tiling.drawList.length - 1];
+          if (this.tiling.bonding.offsetX != 0) {
+            movingImg.x += this.tiling.bonding.offsetX;
+          }
+          if (this.tiling.bonding.offsetY != 0) {
+            movingImg.y += this.tiling.bonding.offsetY;
+          }
+          this.performDrawing();
+        }
+      }
+
+      // Reset bonding offset.
+      this.tiling.bonding.offsetX = 0;
+      this.tiling.bonding.offsetY = 0;
+      this.tiling.bonding.lines = [];
     },
 
     mouseMove(e) {
@@ -1236,10 +1270,108 @@ export default {
         let newImgY =
           this.tiling.mouse.imgOriginY + mouseY - this.tiling.mouse.startY;
 
-        movingImg.x = newImgX;
-        movingImg.y = newImgY;
+        movingImg.x = Math.round(newImgX);
+        movingImg.y = Math.round(newImgY);
 
-        this.drawingIntervalNeedPerformingDrawing = true;
+        if (this.tiling.bonding.snapToEdge) {
+          this.calculateBondingOffsets(movingImg);
+        }
+
+        this.performDrawing();
+
+        // this.drawingIntervalNeedPerformingDrawing = true;
+      }
+    },
+
+    calculateBondingOffsets(movingImg) {
+      let withinHorizontal = this.tiling.drawList.filter(item => {
+        return (
+          (item.y >= movingImg.y && item.y < movingImg.y + movingImg.height) ||
+          (item.y + item.height > movingImg.y &&
+            item.y + item.height <= movingImg.y + movingImg.height)
+        );
+      });
+      let withinVertical = this.tiling.drawList.filter(item => {
+        return (
+          (item.x >= movingImg.x && item.x < movingImg.x + movingImg.width) ||
+          (item.x + item.width > movingImg.x &&
+            item.x + item.width <= movingImg.x + movingImg.width)
+        );
+      });
+
+      let horizonItems = withinHorizontal.filter(i => {
+        let cross = withinVertical.filter(j => {
+          return j.orgIdx == i.orgIdx;
+        });
+        return cross.length == 0;
+      });
+
+      let verticalItems = withinVertical.filter(i => {
+        let cross = withinHorizontal.filter(j => {
+          return j.orgIdx == i.orgIdx;
+        });
+        return cross.length == 0;
+      });
+
+      // let crossItems = withinVertical.filter(i => {
+      //   let cross = withinHorizontal.filter(j => {
+      //     return j.orgIdx == i.orgIdx
+      //   });
+      //   return cross.length != 0;
+      // });
+
+      let minHorizonDistance = Math.min(...horizonItems.map(item => {
+          return Math.abs(item.x - movingImg.x);
+        })
+      );
+      horizonItems = horizonItems.filter(
+        item => Math.abs(item.x - movingImg.x) == minHorizonDistance
+      );
+
+      let minVerticalDistance = Math.min(...verticalItems.map(item => {
+          return Math.abs(item.y - movingImg.y);
+        })
+      );
+      verticalItems = verticalItems.filter(
+        item => Math.abs(item.y - movingImg.y) == minVerticalDistance
+      );
+
+      let horizonItem = horizonItems.length > 0 ? horizonItems[0] : null;
+      let verticalItem = verticalItems.length > 0 ? verticalItems[0] : null;
+
+      if (horizonItem != null) {
+        this.tiling.bonding.offsetX =
+          horizonItem.x > movingImg.x
+            ? horizonItem.x - movingImg.x - movingImg.width
+            : horizonItem.x - movingImg.x + horizonItem.width;
+        if (Math.abs(this.tiling.bonding.offsetX) > movingImg.width) {
+          this.tiling.bonding.offsetX = 0;
+        }
+      }
+
+      if (verticalItem != null) {
+        this.tiling.bonding.offsetY =
+          verticalItem.y > movingImg.y
+            ? verticalItem.y - movingImg.y - movingImg.height
+            : verticalItem.y - movingImg.y + verticalItem.height;
+        if (Math.abs(this.tiling.bonding.offsetY) > movingImg.height) {
+          this.tiling.bonding.offsetY = 0;
+        }
+      }
+
+      if (
+        this.tiling.bonding.offsetX != 0 ||
+        this.tiling.bonding.offsetY != 0
+      ) {
+        this.tiling.bonding.lines = [];
+        this.tiling.bonding.lines.push({
+          x1: movingImg.x + this.tiling.bonding.offsetX,
+          y1: movingImg.y + this.tiling.bonding.offsetY,
+          x2: movingImg.x + this.tiling.bonding.offsetX + movingImg.width,
+          y2: movingImg.y + this.tiling.bonding.offsetY + movingImg.height
+        });
+      } else {
+        this.tiling.bonding.lines = [];
       }
     },
 
