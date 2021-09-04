@@ -225,7 +225,18 @@
             <!-- Shading -->
             <v-card v-else-if="tiling.activeMenuItem == 3" flat>
               <v-card-title class="pa-1">Shading</v-card-title>
-              <div class="inside"></div>
+              <div class="inside">
+                <v-icon color="yellow">mdi-weather-sunny</v-icon>
+                <v-btn
+                  class="px-0"
+                  min-width="34"
+                  :height="34"
+                  text
+                  color="teal"
+                  @click="normalizeImgLuminance"
+                  >Normalize</v-btn
+                >
+              </div>
             </v-card>
             <!-- Display -->
             <v-card v-else-if="tiling.activeMenuItem == 4" flat>
@@ -279,7 +290,8 @@
 <script>
 import { createNamespacedHelpers } from "vuex";
 import OpenPositionViewTab from "./OpenPositionViewTab";
-import { changeImageLuminance } from "../../../../utils/img-chg";
+import { changeImageLuminance, imageAverageLuminance } from "../../../../utils/img-chg";
+import { base64ToArrayBuffer } from "../../../../utils/utils-func";
 import {
   POSITION_DIALOG_CANVAS_MAX_PIXEL,
   POSITION_DIALOG_COL_COUNT,
@@ -447,7 +459,8 @@ export default {
     tilingFiles: [],
     tilingData: [],
     progressBarMaxValue: 0,
-    luminance: 0.0
+    luminance: 0.0,
+    averageLuminance: 0.0
   }),
 
   computed: {
@@ -610,7 +623,9 @@ export default {
         this.canvas.width / this.canvas.offsetWidth;
 
       this.performDrawing();
-      this.updateImageLuminance();
+      if (this.averageLuminance != 0.0) {
+        this.updateImageLuminance();
+      }
     },
 
     updateImageLuminance: function() {
@@ -627,13 +642,52 @@ export default {
     // 增加图像亮度
     increaseImgLuminance: function() {
       this.luminance += 0.1;
-      this.drawImages();
+      this.performDrawing();
+      this.updateImageLuminance();
     },
 
     // 降低图像亮度
     decreaseImgLuminance() {
       this.luminance -= 0.1;
       this.performDrawing();
+      this.updateImageLuminance();
+    },
+
+    img2ImageData(image){
+      var cvs = document.createElement("canvas");
+      var ctx = cvs.getContext('2d');
+      cvs.width = image.width;
+      cvs.height = image.height;
+      ctx.drawImage(image, 0, 0, cvs.width, cvs.height);
+      return ctx.getImageData(0,0, cvs.width, cvs.height);
+    },
+
+    normalizeImgLuminance() {
+      let c = document.getElementById("canvas");
+      if (this.tiling.preview == null) {
+        this.tiling.preview = c.getContext("2d");
+      }
+      this.drawImages2();
+
+      let imageData = this.tiling.preview.getImageData(0, 0, c.width, c.height);
+      this.averageLuminance = imageAverageLuminance(imageData);
+
+      for (let idx in this.tiling.drawList) {
+        let params = this.tiling.drawList[idx];
+        let imgData = this.img2ImageData(params.image);
+        let imgLum = imageAverageLuminance(imgData);
+        let ratio = (imgLum - this.averageLuminance) / this.averageLuminance;
+        changeImageLuminance(imgData, ratio);
+        this.tiling.preview.putImageData(
+          imgData,
+          params.x,
+          params.y,
+          0,
+          0,
+          params.width,
+          params.height
+        );
+      }
     },
 
     drawInit(mode, setNull = true) {
