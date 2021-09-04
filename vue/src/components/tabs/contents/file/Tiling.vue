@@ -1359,6 +1359,11 @@ export default {
         });
         return cross.length == 0;
       });
+      let horizontalOneside =
+        horizonItems.filter(item => item.x >= movingImg.x).length ==
+          horizonItems.length ||
+        horizonItems.filter(item => item.x <= movingImg.x).length ==
+          horizonItems.length;
 
       let verticalItems = withinVertical.filter(i => {
         let cross = withinHorizontal.filter(j => {
@@ -1366,6 +1371,11 @@ export default {
         });
         return cross.length == 0;
       });
+      let verticalOneside =
+        verticalItems.filter(item => item.y >= movingImg.y).length ==
+          verticalItems.length ||
+        verticalItems.filter(item => item.y <= movingImg.y).length ==
+          verticalItems.length;
 
       // let crossItems = withinVertical.filter(i => {
       //   let cross = withinHorizontal.filter(j => {
@@ -1394,23 +1404,67 @@ export default {
       let verticalItem = verticalItems.length > 0 ? verticalItems[0] : null;
 
       if (horizonItem != null) {
-        this.tiling.bonding.offsetX =
-          horizonItem.x > movingImg.x
-            ? horizonItem.x - movingImg.x - movingImg.width
-            : horizonItem.x - movingImg.x + horizonItem.width;
-        if (Math.abs(this.tiling.bonding.offsetX) > movingImg.width) {
-          this.tiling.bonding.offsetX = 0;
+        if (horizontalOneside) {
+          let edgeDis =
+            horizonItem.x > movingImg.x
+              ? movingImg.x
+              : canvas.width - movingImg.x - movingImg.width;
+
+          let itemDis = Math.abs(horizonItem.x - movingImg.x) - movingImg.width;
+
+          this.tiling.bonding.offsetX =
+            edgeDis < itemDis
+              ? horizonItem.x > movingImg.x
+                ? -movingImg.x
+                : canvas.width - movingImg.x - movingImg.width
+              : horizonItem.x > movingImg.x
+              ? horizonItem.x - movingImg.x - movingImg.width
+              : horizonItem.x - movingImg.x + horizonItem.width;
+        } else {
+          this.tiling.bonding.offsetX =
+            horizonItem.x > movingImg.x
+              ? horizonItem.x - movingImg.x - movingImg.width
+              : horizonItem.x - movingImg.x + horizonItem.width;
         }
+      } else {
+        let rightDis = canvas.width - movingImg.x - movingImg.width;
+        let leftDis = movingImg.x;
+        this.tiling.bonding.offsetX = rightDis > leftDis ? -leftDis : rightDis;
+      }
+      if (Math.abs(this.tiling.bonding.offsetX) > movingImg.width) {
+        this.tiling.bonding.offsetX = 0;
       }
 
       if (verticalItem != null) {
-        this.tiling.bonding.offsetY =
-          verticalItem.y > movingImg.y
-            ? verticalItem.y - movingImg.y - movingImg.height
-            : verticalItem.y - movingImg.y + verticalItem.height;
-        if (Math.abs(this.tiling.bonding.offsetY) > movingImg.height) {
-          this.tiling.bonding.offsetY = 0;
+        if (verticalOneside) {
+          let edgeDis =
+            verticalItem.y > movingImg.y
+              ? movingImg.y
+              : canvas.height - movingImg.y - movingImg.height;
+
+          let itemDis = Math.abs(verticalItem.y - movingImg.y) - movingImg.height;
+
+          this.tiling.bonding.offsetY =
+            edgeDis < itemDis
+              ? verticalItem.y > movingImg.y
+                ? -movingImg.y
+                : canvas.height - movingImg.y - movingImg.height
+              : verticalItem.y > movingImg.y
+              ? verticalItem.y - movingImg.y - movingImg.height
+              : verticalItem.y - movingImg.y + verticalItem.height;
+        } else {
+          this.tiling.bonding.offsetY =
+            verticalItem.y > movingImg.y
+              ? verticalItem.y - movingImg.y - movingImg.height
+              : verticalItem.y - movingImg.y + verticalItem.height;
         }
+      } else {
+        let topDis = movingImg.y;
+        let bottomDis = canvas.height - movingImg.y - movingImg.height;
+        this.tiling.bonding.offsetY = topDis > bottomDis ? bottomDis : -topDis;
+      }
+      if (Math.abs(this.tiling.bonding.offsetY) > movingImg.height) {
+        this.tiling.bonding.offsetY = 0;
       }
 
       if (
