@@ -101,11 +101,13 @@ const changeImageLuminance = (imgdata, value) => {
 const imageAverageLuminance = (imgdata) => {
     const data = imgdata.data
     let lum = 0;
+    let lumCount = 0;
     for (let i = 0; i < data.length; i+=4) {
         const hsv = rgb2hsv([data[i], data[i + 1], data[i + 2]])
         lum += hsv[2];
+        lumCount++;
     }
-    return lum / (data.length / 4);
+    return lum / lumCount;
 };
 
 export {

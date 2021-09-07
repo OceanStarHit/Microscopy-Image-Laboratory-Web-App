@@ -1,5 +1,5 @@
 <template>
-  <v-sheet class="drop pa-5" height="600">
+  <v-sheet class="drop pa-5" height="100%">
     <v-row no-gutters>
       <v-col cols="2">
         <v-card class="pa-1">
@@ -277,7 +277,59 @@
           </div>
 
           <!-- Tiling Preview -->
-          <canvas id="canvas" class="mt-15 canvas" ref="canvasElement"></canvas>
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col">
+                <canvas id="canvas" class="canvas" ref="canvasElement"></canvas>
+              </div>
+              <div class="col">
+                <v-slider
+                  :max="scrollBarVerticalMax"
+                  min="0"
+                  step="10"
+                  v-model="tiling.canvasShiftY"
+                  color="grey lighten-2"
+                  thumb-color="light-blue lighten-3"
+                  track-color="grey lighten-2"
+                  background-color="grey"
+                  vertical
+                  @change="performDrawing"
+                ></v-slider>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col">
+                <v-slider
+                  :max="scrollBarHorizontalMax"
+                  min="0"
+                  step="10"
+                  v-model="tiling.canvasShiftX"
+                  @change="performDrawing"
+                  width="100%"
+                  color="grey lighten-2"
+                  thumb-color="light-blue lighten-3"
+                  track-color="grey lighten-2"
+                  background-color="grey lighten-2"
+                  height="1"
+                ></v-slider>
+              </div>
+
+              <div class="col-sm-3">
+                <v-select
+                  :items="tiling.canvasScales"
+                  v-model="tiling.canvasScale"
+                  dense
+                  solo
+                >
+                  <template #selection="{ item }">
+                    {{ item + "%" }}
+                  </template>
+                </v-select>
+              </div>
+
+            </div>
+          </div>
         </div>
       </v-col>
       <v-col cols="2" class="pa-2">
@@ -293,6 +345,8 @@ import OpenPositionViewTab from "./OpenPositionViewTab";
 import { changeImageLuminance, imageAverageLuminance } from "../../../../utils/img-chg";
 import { base64ToArrayBuffer } from "../../../../utils/utils-func";
 import {
+  TILING_CANVAS_SIZE,
+  TILING_SCALE_OPTIONS,
   POSITION_DIALOG_CANVAS_MAX_PIXEL,
   POSITION_DIALOG_COL_COUNT,
   POSITION_DIALOG_CELL_SIZE
@@ -342,8 +396,14 @@ export default {
     tiling: {
       // 平铺图片界面参数设置
       canvas: null,
+      canvasScales: TILING_SCALE_OPTIONS,
+      canvasScale: TILING_SCALE_OPTIONS[1],
+      canvasShiftX: 0,
+      canvasShiftY: 0,
       preview: null,
       canvasScaleRatio: 1,
+      totalImagesWith: TILING_CANVAS_SIZE,
+      totalImagesHeight: TILING_CANVAS_SIZE,
       activeMenuItem: 0,
       bonding: {
         snapToEdge: false,
@@ -463,6 +523,37 @@ export default {
     averageLuminance: 0.0
   }),
 
+  watch: {
+    // whenever question changes, this function will run
+    "tiling.canvasShiftX": function(newV, oV) {
+      this.performDrawing();
+    },
+    "tiling.canvasShiftY": function(newV, oV) {
+      this.performDrawing();
+    },
+    "tiling.canvasScale": function(newV, oV) {
+      let orgPt = this.coordinateTranslateReverse(
+        {
+          x: this.tiling.canvasShiftX,
+          y: this.tiling.canvasShiftY
+        },
+        oV
+      );
+
+      let newSht = this.coordinateTranslate(
+        {
+          x: orgPt.x,
+          y: orgPt.y
+        },
+        newV
+      );
+
+      this.tiling.canvasShiftX = newSht.x;
+      this.tiling.canvasShiftY = newSht.y;
+      this.performDrawing();
+    }
+  },
+
   computed: {
     ...positionModule.mapGetters({
       files: "getFiles",
@@ -472,6 +563,27 @@ export default {
     alignButtonImage() {
       return index =>
         require(`../../../../assets/images/pos_align_${index - 1}.png`);
+    },
+    coordinateScale() {
+      return this.tiling.canvasScale / 100;
+    },
+    scrollBarHorizontalMax() {
+      let translated = this.coordinateTranslate({
+        width: this.tiling.totalImagesWith
+      });
+
+      let rs = translated.width - TILING_CANVAS_SIZE;
+      if (rs < 0) rs = 0;
+      return rs;
+    },
+    scrollBarVerticalMax() {
+      let translated = this.coordinateTranslate({
+        height: this.tiling.totalImagesHeight
+      });
+
+      let rs = translated.height - TILING_CANVAS_SIZE;
+      if (rs < 0) rs = 0;
+      return rs;
     }
   },
 
@@ -561,9 +673,9 @@ export default {
       // let image = await loadImage();
       if (this.files.length > 0) {
         let image = this.files[0].imageData;
-        this.imageWidth = image.width;
-        this.imageHeight = image.height;
-        // console.log(this.files);
+
+        this.imageWidth = image.width * (this.tiling.canvasScale / 100);
+        this.imageHeight = image.height * (this.tiling.canvasScale / 100);
       }
     },
     drawImages() {
@@ -623,11 +735,13 @@ export default {
         this.canvas.width / this.canvas.offsetWidth;
 
       this.performDrawing();
-      if (this.averageLuminance != 0.0) {
+      if (this.averageLuminance != 0.0) 
+      {
+        this.normalizeImgLuminance();
+      } else if (this.luminance != 0.0) {
         this.updateImageLuminance();
       }
     },
-
     updateImageLuminance: function() {
       let c = document.getElementById("canvas");
       if (this.tiling.preview == null) {
@@ -641,14 +755,14 @@ export default {
 
     // 增加图像亮度
     increaseImgLuminance: function() {
-      this.luminance += 0.1;
+      this.luminance += 0.05;
       this.performDrawing();
       this.updateImageLuminance();
     },
 
     // 降低图像亮度
     decreaseImgLuminance() {
-      this.luminance -= 0.1;
+      this.luminance -= 0.05;
       this.performDrawing();
       this.updateImageLuminance();
     },
@@ -667,26 +781,31 @@ export default {
       if (this.tiling.preview == null) {
         this.tiling.preview = c.getContext("2d");
       }
-      this.drawImages2();
 
-      let imageData = this.tiling.preview.getImageData(0, 0, c.width, c.height);
-      this.averageLuminance = imageAverageLuminance(imageData);
-
+      let entireLum = 0;
+      let imgDataArr = [];
+      let imgLumArr = [];
       for (let idx in this.tiling.drawList) {
-        let params = this.tiling.drawList[idx];
-        let imgData = this.img2ImageData(params.image);
-        let imgLum = imageAverageLuminance(imgData);
-        let ratio = (imgLum - this.averageLuminance) / this.averageLuminance;
+        let item = this.tiling.drawList[idx];
+        let img = item.image;
+        let imgData = this.img2ImageData(img);
+        imgDataArr.push(imgData);
+        let imgLum = imageAverageLuminance(imgData);        
+        imgLumArr.push(imgLum);
+        entireLum += imgLum;
+      }
+      this.averageLuminance = entireLum / this.tiling.drawList.length;        
+      // console.log("entire image average lum ", this.averageLuminance);
+      for (let idx in this.tiling.drawList) {
+        let item = this.tiling.drawList[idx];
+        let ratio = (imgLumArr[idx] - this.averageLuminance) / this.averageLuminance;
+        let imgData = imgDataArr[idx];
         changeImageLuminance(imgData, ratio);
-        this.tiling.preview.putImageData(
-          imgData,
-          params.x,
-          params.y,
-          0,
-          0,
-          params.width,
-          params.height
-        );
+        // console.log("current image average lum ", imgLumArr[idx]);
+        if (this.luminance != 0) {
+          changeImageLuminance(imgData, this.luminance);
+        }
+        this.tiling.preview.putImageData(imgData, item.x, item.y, 0, 0,  item.width, item.height); 
       }
     },
 
@@ -713,29 +832,19 @@ export default {
       }
       const tick = 50;
       let d = Math.max(imageWidth, imageHeight) / tick;
-      const width =
-        Math.max(this.imageWidth, this.imageHeight) +
-        d * this.files.length +
-        2 * border;
 
-      if (width < POSITION_DIALOG_CANVAS_MAX_PIXEL) {
-        this.tiling.preview.canvas.width = width;
-      } else {
-        this.tiling.preview.canvas.width = POSITION_DIALOG_CANVAS_MAX_PIXEL;
-        border = (POSITION_DIALOG_CANVAS_MAX_PIXEL * border) / width;
-        let fitSize =
-          ((POSITION_DIALOG_CANVAS_MAX_PIXEL - 2 * border) * tick) /
-          (tick + this.files.length);
-        d = fitSize / tick;
-        if (imageWidth > imageHeight) {
-          imageWidth = fitSize;
-          imageHeight = (imageWidth / this.imageWidth) * this.imageHeight;
-        } else {
-          imageHeight = fitSize;
-          imageWidth = (imageHeight / this.imageHeight) * this.imageWidth;
-        }
-      }
-      this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
+      this.tiling.totalImagesHeight =
+        this.imageHeight + d * this.files.length + 2 * border;
+
+      this.tiling.totalImagesWith =
+        this.imageWidth + d * this.files.length + 2 * border;
+
+      let t = this.coordinateTranslate({
+        height: this.tiling.totalImagesHeight
+      });
+      this.tiling.canvasShiftY = t.height;
+      this.tiling.canvasShiftX = 0;
+
 
       let idx = 0;
       while (idx < this.filesSortByField.length) {
@@ -788,40 +897,17 @@ export default {
         this.tiling.alignment.gapY = 0;
       }
 
-      const width =
-        Math.max(
-          rows * imageHeight + (rows - 1) * gapY,
-          cols * imageWidth + (cols - 1) * gapX
-        ) +
-        2 * border;
+      this.tiling.totalImagesHeight =
+        rows * imageHeight + (rows - 1) * gapY + 2 * border;
 
-      if (width < POSITION_DIALOG_CANVAS_MAX_PIXEL) {
-        this.tiling.preview.canvas.width = width;
-      } else {
-        this.tiling.preview.canvas.width = POSITION_DIALOG_CANVAS_MAX_PIXEL;
-        border = (POSITION_DIALOG_CANVAS_MAX_PIXEL * border) / width;
-        gapX = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapX) / width;
-        gapY = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapY) / width;
-        if (
-          cols * imageWidth + (cols - 1) * gapX >
-          rows * imageHeight + (rows - 1) * gapY
-        ) {
-          imageWidth =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (cols - 1) * gapX) /
-            cols;
-          imageHeight = (imageWidth / this.imageWidth) * this.imageHeight;
-        } else {
-          imageHeight =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (rows - 1) * gapY) /
-            rows;
-          imageWidth = (imageHeight / this.imageHeight) * this.imageWidth;
-        }
-      }
-      this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
+      this.tiling.totalImagesWith =
+        cols * imageWidth + (cols - 1) * gapX + 2 * border;
+
+      let t = this.coordinateTranslate({
+        height: this.tiling.totalImagesHeight
+      });
+      this.tiling.canvasShiftY = t.height;
+      this.tiling.canvasShiftX = 0;
 
       let row = 0,
         idx = 0;
@@ -884,40 +970,17 @@ export default {
         this.tiling.alignment.gapY = 0;
       }
 
-      const width =
-        Math.max(
-          rows * imageHeight + (rows - 1) * gapY,
-          cols * imageWidth + (cols - 1) * gapX
-        ) +
-        2 * border;
+      this.tiling.totalImagesHeight =
+        rows * imageHeight + (rows - 1) * gapY + 2 * border;
 
-      if (width < POSITION_DIALOG_CANVAS_MAX_PIXEL) {
-        this.tiling.preview.canvas.width = width;
-      } else {
-        this.tiling.preview.canvas.width = POSITION_DIALOG_CANVAS_MAX_PIXEL;
-        border = (POSITION_DIALOG_CANVAS_MAX_PIXEL * border) / width;
-        gapX = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapX) / width;
-        gapY = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapY) / width;
-        if (
-          cols * imageWidth + (cols - 1) * gapX >
-          rows * imageHeight + (rows - 1) * gapY
-        ) {
-          imageWidth =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (cols - 1) * gapX) /
-            cols;
-          imageHeight = (imageWidth / this.imageWidth) * this.imageHeight;
-        } else {
-          imageHeight =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (rows - 1) * gapY) /
-            rows;
-          imageWidth = (imageHeight / this.imageHeight) * this.imageWidth;
-        }
-      }
-      this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
+      this.tiling.totalImagesWith =
+        cols * imageWidth + (cols - 1) * gapX + 2 * border;
+
+      let t = this.coordinateTranslate({
+        height: this.tiling.totalImagesHeight
+      });
+      this.tiling.canvasShiftY = t.height;
+      this.tiling.canvasShiftX = 0;
 
       let row = 0,
         idx = 0;
@@ -987,44 +1050,22 @@ export default {
         gapY = 0;
         this.tiling.alignment.gapY = 0;
       }
-      const width =
-        Math.max(
-          this.tiling.alignment.rows * imageHeight +
-            (this.tiling.alignment.rows - 1) * gapY,
-          this.tiling.alignment.cols * imageWidth +
-            (this.tiling.alignment.cols - 1) * gapX
-        ) +
+
+      this.tiling.totalImagesHeight =
+        this.tiling.alignment.rows * imageHeight +
+        (this.tiling.alignment.rows - 1) * gapY +
         2 * border;
 
-      if (width < POSITION_DIALOG_CANVAS_MAX_PIXEL) {
-        this.tiling.preview.canvas.width = width;
-      } else {
-        this.tiling.preview.canvas.width = POSITION_DIALOG_CANVAS_MAX_PIXEL;
-        border = (POSITION_DIALOG_CANVAS_MAX_PIXEL * border) / width;
-        gapX = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapX) / width;
-        gapY = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapY) / width;
-        if (
-          this.tiling.alignment.cols * imageWidth +
-            (this.tiling.alignment.cols - 1) * gapX >
-          this.tiling.alignment.rows * imageHeight +
-            (this.tiling.alignment.rows - 1) * gapY
-        ) {
-          imageWidth =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (this.tiling.alignment.cols - 1) * gapX) /
-            this.tiling.alignment.cols;
-          imageHeight = (imageWidth / this.imageWidth) * this.imageHeight;
-        } else {
-          imageHeight =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (this.tiling.alignment.rows - 1) * gapY) /
-            this.tiling.alignment.rows;
-          imageWidth = (imageHeight / this.imageHeight) * this.imageWidth;
-        }
-      }
-      this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
+      this.tiling.totalImagesWith =
+        this.tiling.alignment.cols * imageWidth +
+        (this.tiling.alignment.cols - 1) * gapX +
+        2 * border;
+
+      let t = this.coordinateTranslate({
+        height: this.tiling.totalImagesHeight
+      });
+      this.tiling.canvasShiftY = t.height;
+      this.tiling.canvasShiftX = 0;
 
       let c = 0,
         dir = 1,
@@ -1110,44 +1151,23 @@ export default {
         gapY = 0;
         this.tiling.alignment.gapY = 0;
       }
-      const width =
-        Math.max(
-          this.tiling.alignment.rows * imageHeight +
-            (this.tiling.alignment.rows - 1) * gapY,
-          this.tiling.alignment.cols * imageWidth +
-            (this.tiling.alignment.cols - 1) * gapX
-        ) +
+
+      this.tiling.totalImagesHeight =
+        this.tiling.alignment.rows * imageHeight +
+        (this.tiling.alignment.rows - 1) * gapY +
         2 * border;
 
-      if (width < POSITION_DIALOG_CANVAS_MAX_PIXEL) {
-        this.tiling.preview.canvas.width = width;
-      } else {
-        this.tiling.preview.canvas.width = POSITION_DIALOG_CANVAS_MAX_PIXEL;
-        border = (POSITION_DIALOG_CANVAS_MAX_PIXEL * border) / width;
-        gapX = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapX) / width;
-        gapY = (POSITION_DIALOG_CANVAS_MAX_PIXEL * gapY) / width;
-        if (
-          this.tiling.alignment.cols * imageWidth +
-            (this.tiling.alignment.cols - 1) * gapX >
-          this.tiling.alignment.rows * imageHeight +
-            (this.tiling.alignment.rows - 1) * gapY
-        ) {
-          imageWidth =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (this.tiling.alignment.cols - 1) * gapX) /
-            this.tiling.alignment.cols;
-          imageHeight = (imageWidth / this.imageWidth) * this.imageHeight;
-        } else {
-          imageHeight =
-            (POSITION_DIALOG_CANVAS_MAX_PIXEL -
-              2 * border -
-              (this.tiling.alignment.rows - 1) * gapY) /
-            this.tiling.alignment.rows;
-          imageWidth = (imageHeight / this.imageHeight) * this.imageWidth;
-        }
-      }
-      this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
+      this.tiling.totalImagesWith =
+        this.tiling.alignment.cols * imageWidth +
+        (this.tiling.alignment.cols - 1) * gapX +
+        2 * border;
+
+      let t = this.coordinateTranslate({
+        height: this.tiling.totalImagesHeight
+      });
+      this.tiling.canvasShiftY = t.height;
+      this.tiling.canvasShiftX = 0;
+
       let r = 0,
         dir = 1,
         idx = 0;
@@ -1203,7 +1223,52 @@ export default {
       }
     },
 
+    coordinateTranslate(params, scale=this.coordinateScale) {
+      let canvasShiftY =
+        this.tiling.totalImagesHeight * scale -
+        TILING_CANVAS_SIZE -
+        this.tiling.canvasShiftY;
+
+      if (canvasShiftY < 0) canvasShiftY = 0;
+
+      let copy = Object.assign({}, params);
+
+      if (typeof copy.x !== "undefined")
+        copy.x = copy.x * scale - this.tiling.canvasShiftX;
+      if (typeof copy.y !== "undefined")
+        copy.y = copy.y * scale - canvasShiftY;
+      if (typeof copy.width !== "undefined")
+        copy.width = copy.width * scale;
+      if (typeof copy.height !== "undefined")
+        copy.height = copy.height * scale;
+      return copy;
+    },
+
+    coordinateTranslateReverse(params, scale=this.coordinateScale) {
+      let canvasShiftY =
+        this.tiling.totalImagesHeight * scale -
+        TILING_CANVAS_SIZE -
+        this.tiling.canvasShiftY;
+
+      if (canvasShiftY < 0) canvasShiftY = 0;
+
+      let copy = Object.assign({}, params);
+      if (typeof copy.x !== "undefined")
+        copy.x = (copy.x + this.tiling.canvasShiftX) / scale;
+      if (typeof copy.y !== "undefined")
+        copy.y = (copy.y + canvasShiftY) / scale;
+      if (typeof copy.width !== "undefined")
+        copy.width = copy.width / scale;
+      if (typeof copy.height !== "undefined")
+        copy.height = copy.height / scale;
+      return copy;
+    },
+
     performDrawing() {
+      this.tiling.preview.canvas.width = TILING_CANVAS_SIZE;
+      this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
+      // console.log("canvas width: " + this.tiling.preview.canvas.width);
+
       this.tiling.preview.clearRect(
         0,
         0,
@@ -1211,9 +1276,13 @@ export default {
         this.tiling.preview.canvas.height
       );
 
+      // console.log("this.coordinateScale: " + this.coordinateScale);
       for (let idx in this.tiling.drawList) {
-        let params = this.tiling.drawList[idx];
-        if (params.occupied) {
+        let params = this.coordinateTranslate(this.tiling.drawList[idx]);
+        if (
+          params.x < this.tiling.preview.canvas.width &&
+          params.y < this.tiling.preview.canvas.height
+        ) {
           this.tiling.preview.drawImage(
             params.image,
             params.x,
@@ -1233,12 +1302,15 @@ export default {
 
         // console.log(line);
         // draw a red line
+        let leftTop = this.coordinateTranslate({ x: line.x1, y: line.y1 });
+        let bottomRight = this.coordinateTranslate({ x: line.x2, y: line.y3 });
+
         this.tiling.preview.beginPath();
-        this.tiling.preview.moveTo(line.x1, line.y1);
-        this.tiling.preview.lineTo(line.x1, line.y2);
-        this.tiling.preview.lineTo(line.x2, line.y2);
-        this.tiling.preview.lineTo(line.x2, line.y1);
-        this.tiling.preview.lineTo(line.x1, line.y1);
+        this.tiling.preview.moveTo(leftTop.x, leftTop.y);
+        this.tiling.preview.lineTo(leftTop.x, bottomRight.y);
+        this.tiling.preview.lineTo(bottomRight.x, bottomRight.y);
+        this.tiling.preview.lineTo(bottomRight.x, leftTop.y);
+        this.tiling.preview.lineTo(leftTop.x, leftTop.y);
         this.tiling.preview.stroke();
       }
     },
@@ -1247,6 +1319,7 @@ export default {
       const screenWidth = this.canvas.offsetWidth;
       const canvasWidth = this.canvas.width;
       this.tiling.canvasScaleRatio = canvasWidth / screenWidth;
+
       const scaleRatio = this.tiling.canvasScaleRatio;
 
       const rect = this.canvas.getBoundingClientRect();
@@ -1259,32 +1332,29 @@ export default {
       const { mouseX, mouseY } = this.getCursorXY(e);
       let drawList = [...this.tiling.drawList].reverse();
       for (let idx in drawList) {
-        let params = drawList[idx];
-        if (params.occupied) {
-          if (mouseX > params.x && mouseX < params.x + params.width) {
-            if (mouseY > params.y && mouseY < params.y + params.height) {
-              // Start cursor position which is used to calculate the dragging offset.
-              this.tiling.mouse.startX = mouseX;
-              this.tiling.mouse.startY = mouseY;
-              this.tiling.mouse.imgOriginX = params.x;
-              this.tiling.mouse.imgOriginY = params.y;
-              this.tiling.mouse.catchImg = true;
+        let params = this.coordinateTranslate(drawList[idx]);
+        if (mouseX > params.x && mouseX < params.x + params.width) {
+          if (mouseY > params.y && mouseY < params.y + params.height) {
+            // Start cursor position which is used to calculate the dragging offset.
+            this.tiling.mouse.startX = mouseX;
+            this.tiling.mouse.startY = mouseY;
+            this.tiling.mouse.imgOriginX = drawList[idx].x;
+            this.tiling.mouse.imgOriginY = drawList[idx].y;
+            this.tiling.mouse.catchImg = true;
 
-              // Place the image being dragging upfront.
-              let movingImg = this.tiling.drawList[drawList.length - idx - 1];
-              movingImg.drawingOrder = this.drawingOrder;
-              this.drawingOrder++;
-              this.tiling.drawList = [...this.tiling.drawList].sort(
-                function compareFn(f, e) {
-                  return f.drawingOrder - e.drawingOrder;
-                }
-              );
+            // Place the image being dragging upfront.
+            let movingImg = this.tiling.drawList[drawList.length - idx - 1];
+            movingImg.drawingOrder = this.drawingOrder;
+            this.drawingOrder++;
+            this.tiling.drawList = [...this.tiling.drawList].sort(
+              function compareFn(f, e) {
+                return f.drawingOrder - e.drawingOrder;
+              }
+            );
 
-              // The image that wille be dragged - the last one on the top.
-              this.tiling.mouse.draggingImgIdx =
-                this.tiling.drawList.length - 1;
-              break;
-            }
+            // The image that wille be dragged - the last one on the top.
+            this.tiling.mouse.draggingImgIdx = this.tiling.drawList.length - 1;
+            break;
           }
         }
       }
@@ -1319,10 +1389,13 @@ export default {
 
         let movingImg = this.tiling.drawList[this.tiling.drawList.length - 1];
 
-        let newImgX =
-          this.tiling.mouse.imgOriginX + mouseX - this.tiling.mouse.startX;
-        let newImgY =
-          this.tiling.mouse.imgOriginY + mouseY - this.tiling.mouse.startY;
+        let movingParam = this.coordinateTranslateReverse({
+          width: mouseX - this.tiling.mouse.startX,
+          height: mouseY - this.tiling.mouse.startY
+        });
+
+        let newImgX = this.tiling.mouse.imgOriginX + movingParam.width;
+        let newImgY = this.tiling.mouse.imgOriginY + movingParam.height;
 
         movingImg.x = Math.round(newImgX);
         movingImg.y = Math.round(newImgY);
@@ -1403,12 +1476,15 @@ export default {
       let horizonItem = horizonItems.length > 0 ? horizonItems[0] : null;
       let verticalItem = verticalItems.length > 0 ? verticalItems[0] : null;
 
+      // console.log("horizonItem : " + horizonItem.orgIdx + " verticalItem: " + verticalItem.orgIdx);
+
+
       if (horizonItem != null) {
         if (horizontalOneside) {
           let edgeDis =
             horizonItem.x > movingImg.x
               ? movingImg.x
-              : canvas.width - movingImg.x - movingImg.width;
+              : this.tiling.totalImagesWith - movingImg.x - movingImg.width;
 
           let itemDis = Math.abs(horizonItem.x - movingImg.x) - movingImg.width;
 
@@ -1416,7 +1492,7 @@ export default {
             edgeDis < itemDis
               ? horizonItem.x > movingImg.x
                 ? -movingImg.x
-                : canvas.width - movingImg.x - movingImg.width
+                : this.tiling.totalImagesWith - movingImg.x - movingImg.width
               : horizonItem.x > movingImg.x
               ? horizonItem.x - movingImg.x - movingImg.width
               : horizonItem.x - movingImg.x + horizonItem.width;
@@ -1427,7 +1503,7 @@ export default {
               : horizonItem.x - movingImg.x + horizonItem.width;
         }
       } else {
-        let rightDis = canvas.width - movingImg.x - movingImg.width;
+        let rightDis = this.tiling.totalImagesWith - movingImg.x - movingImg.width;
         let leftDis = movingImg.x;
         this.tiling.bonding.offsetX = rightDis > leftDis ? -leftDis : rightDis;
       }
@@ -1440,7 +1516,7 @@ export default {
           let edgeDis =
             verticalItem.y > movingImg.y
               ? movingImg.y
-              : canvas.height - movingImg.y - movingImg.height;
+              : this.tiling.totalImagesWith - movingImg.y - movingImg.height;
 
           let itemDis = Math.abs(verticalItem.y - movingImg.y) - movingImg.height;
 
@@ -1448,7 +1524,7 @@ export default {
             edgeDis < itemDis
               ? verticalItem.y > movingImg.y
                 ? -movingImg.y
-                : canvas.height - movingImg.y - movingImg.height
+                : this.tiling.totalImagesWith - movingImg.y - movingImg.height
               : verticalItem.y > movingImg.y
               ? verticalItem.y - movingImg.y - movingImg.height
               : verticalItem.y - movingImg.y + verticalItem.height;
@@ -1460,7 +1536,8 @@ export default {
         }
       } else {
         let topDis = movingImg.y;
-        let bottomDis = canvas.height - movingImg.y - movingImg.height;
+        let bottomDis =
+          this.tiling.totalImagesWith - movingImg.y - movingImg.height;
         this.tiling.bonding.offsetY = topDis > bottomDis ? bottomDis : -topDis;
       }
       if (Math.abs(this.tiling.bonding.offsetY) > movingImg.height) {
@@ -1543,7 +1620,7 @@ export default {
             that.drawImages2();
             that.drawingIntervalNeedRedraw = false;
           }
-        }, 300);
+        }, 1000);
       }
     });
   },
@@ -1571,7 +1648,7 @@ export default {
 }
 
 .control-panel {
-  width: calc(100% - 450px);
+  width: calc(100% - 520px);
 }
 
 .control-panel .inside {

@@ -146,11 +146,16 @@ const position = {
         }
 
         if (imageData.startsWith("data:image")) {
-          resizeImage(imageData, function(resizedImageData) {
-            commit("addImageData", {
+          commit("addImageData", {
+            index: index,
+            imageData: imageData,
+            doneCB
+          });
+
+          generateThumbnail(imageData, function(thumbnailData) {
+            commit("addImageThumbnailData", {
               index: index,
-              imageData: resizedImageData,
-              doneCB
+              thumbnailData: thumbnailData
             });
           });
         }
@@ -224,6 +229,13 @@ const position = {
       Vue.set(state.files[payload.index], "imageData", img);
       state.filesUpdatedCount.c = state.filesUpdatedCount.c + 1;
       if (payload.doneCB) payload.doneCB();
+    },
+    addImageThumbnailData(state, payload) {
+      Vue.set(
+        state.files[payload.index],
+        "thumbnailData",
+        payload.thumbnailData
+      );
     },
     addMetaData(state, payload) {
       Vue.set(state.files[payload.index], "metaData", payload.metaData);
@@ -460,14 +472,14 @@ function changeSelects(commit, state, params) {
   commit("changeSelects", newSelects);
 }
 
-function resizeImage(imageData, finishCB) {
+function generateThumbnail(imageData, finishCB) {
   var img = new Image();
   img.src = imageData;
 
   img.onload = function() {
     if (this.width == 0) return;
 
-    let targetWidth = 100;
+    let targetWidth = 30;
     let targetHeight = Math.round(this.height * (targetWidth / this.width));
     // console.log("Resized: " + targetWidth + "x" + targetHeight);
 

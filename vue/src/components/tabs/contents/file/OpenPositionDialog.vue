@@ -50,9 +50,11 @@
                   class="px-4"
                 >
                   <img
+                    v-if="file.thumbnailData"
                     :id="'images_' + idx"
-                    :src="file.imageData.src"
+                    :src="file.thumbnailData"
                     class="mx-auto"
+                    width="120"
                   />
                   <p class="ma-2 text-center text-caption">
                     {{ file.name }}

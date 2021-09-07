@@ -25,3 +25,7 @@ export const POSITION_DIALOG_CANVAS_MAX_PIXEL = 4096;
 export const POSITION_DIALOG_COL_COUNT = 19;
 export const POSITION_DIALOG_CELL_SIZE = 100;
 export const POSITION_DIALOG_STROKE_WIDTH = 8;
+
+// Tiling
+export const TILING_CANVAS_SIZE = 450;
+export const TILING_SCALE_OPTIONS = [2, 5, 10, 20, 50, 100];
