@@ -210,6 +210,16 @@
               <v-card-title class="pa-1">Bonding</v-card-title>
               <div class="inside">
                 <v-checkbox
+                  v-model="tiling.bonding.notSnapToEdge"
+                  label="None"
+                  color="primary"
+                  :value="true"
+                  hide-details
+                  :disabled="
+                    tiling.alignment.disables[tiling.alignment.activeMode].chkLR
+                  "
+                ></v-checkbox>
+                <v-checkbox
                   v-model="tiling.bonding.snapToEdge"
                   label="Snap To Edge"
                   color="primary"
@@ -218,8 +228,18 @@
                   :disabled="
                     tiling.alignment.disables[tiling.alignment.activeMode].chkLR
                   "
-                  @change="changeSnapToEdge"
                 ></v-checkbox>
+                <v-checkbox
+                  v-model="tiling.bonding.patternMatch"
+                  label="Pattern Match"
+                  color="primary"
+                  :value="true"
+                  hide-details
+                  :disabled="
+                    tiling.alignment.disables[tiling.alignment.activeMode].chkLR
+                  "
+                ></v-checkbox>
+
               </div>
             </v-card>
             <!-- Shading -->
@@ -342,7 +362,12 @@
 <script>
 import { createNamespacedHelpers } from "vuex";
 import OpenPositionViewTab from "./OpenPositionViewTab";
-import { changeImageLuminance, imageAverageLuminance } from "../../../../utils/img-chg";
+import {
+  changeImageLuminance,
+  imageAverageLuminance,
+  getImageEdge
+} from "../../../../utils/img-chg";
+import { matchPixcels } from "../../../../utils/pattern-match";
 import { base64ToArrayBuffer } from "../../../../utils/utils-func";
 import {
   TILING_CANVAS_SIZE,
@@ -406,7 +431,9 @@ export default {
       totalImagesHeight: TILING_CANVAS_SIZE,
       activeMenuItem: 0,
       bonding: {
+        notSnapToEdge: true,
         snapToEdge: false,
+        patternMatch: false,
         lines: [],
         offsetX: 0,
         offsetY: 0
@@ -551,6 +578,27 @@ export default {
       this.tiling.canvasShiftX = newSht.x;
       this.tiling.canvasShiftY = newSht.y;
       this.performDrawing();
+    },
+    "tiling.bonding.notSnapToEdge": function(newV, oV) {
+      if (newV) {
+        this.tiling.bonding.snapToEdge = false;
+        this.tiling.bonding.patternMatch = false;
+        this.performDrawing();
+      }
+    },
+    "tiling.bonding.snapToEdge": function(newV, oV) {
+      if (newV) {
+        this.tiling.bonding.notSnapToEdge = false;
+        this.tiling.bonding.patternMatch = false;
+        this.performDrawing();
+      }
+    },
+    "tiling.bonding.patternMatch": function(newV, oV) {
+      if (newV) {
+        this.tiling.bonding.notSnapToEdge = false;
+        this.tiling.bonding.snapToEdge = false;
+        this.performDrawing();
+      }
     }
   },
 
@@ -665,9 +713,6 @@ export default {
         this.tiling.edit.oldFileItem = _selectedIndex;
       }
     },
-    changeSnapToEdge() {
-      this.performDrawing();
-    },
     async getImageSize() {
       // 得到每个小图片的尺寸
       // let image = await loadImage();
@@ -773,7 +818,9 @@ export default {
       cvs.width = image.width;
       cvs.height = image.height;
       ctx.drawImage(image, 0, 0, cvs.width, cvs.height);
-      return ctx.getImageData(0,0, cvs.width, cvs.height);
+      let rs = ctx.getImageData(0,0, cvs.width, cvs.height);
+      cvs.remove();
+      return rs;
     },
 
     normalizeImgLuminance() {
@@ -858,6 +905,7 @@ export default {
           width: imageWidth,
           height: imageHeight,
           image,
+          imageDataCache: null,
           occupied: true,
           drawingOrder: this.drawingOrder,
           orgIdx: idx
@@ -927,6 +975,7 @@ export default {
             width: imageWidth,
             height: imageHeight,
             image,
+            imageDataCache: null,
             occupied: true,
             drawingOrder: this.drawingOrder,
             orgIdx: idx
@@ -1001,6 +1050,7 @@ export default {
             width: imageWidth,
             height: imageHeight,
             image,
+            imageDataCache: null,
             occupied: true,
             drawingOrder: this.drawingOrder,
             orgIdx: idx
@@ -1104,6 +1154,7 @@ export default {
             width: imageWidth,
             height: imageHeight,
             image,
+            imageDataCache: null,
             occupied: true,
             drawingOrder: this.drawingOrder,
             orgIdx: idx
@@ -1207,6 +1258,7 @@ export default {
               width: imageWidth,
               height: imageHeight,
               image,
+              imageDataCache: null,
               occupied: true,
               drawingOrder: this.drawingOrder,
               orgIdx: idx
@@ -1281,7 +1333,9 @@ export default {
         let params = this.coordinateTranslate(this.tiling.drawList[idx]);
         if (
           params.x < this.tiling.preview.canvas.width &&
-          params.y < this.tiling.preview.canvas.height
+          params.y < this.tiling.preview.canvas.height &&
+          params.x + params.width >= 0 &&
+          params.y + params.height >= 0
         ) {
           this.tiling.preview.drawImage(
             params.image,
@@ -1364,7 +1418,10 @@ export default {
       if (this.tiling.mouse.catchImg) {
         this.tiling.mouse.catchImg = false;
 
-        if (this.tiling.bonding.snapToEdge) {
+        if (
+          this.tiling.bonding.offsetX != 0 ||
+          this.tiling.bonding.offsetY != 0
+        ) {
           // Move image if bonding turned on.
           let movingImg = this.tiling.drawList[this.tiling.drawList.length - 1];
           if (this.tiling.bonding.offsetX != 0) {
@@ -1400,7 +1457,10 @@ export default {
         movingImg.x = Math.round(newImgX);
         movingImg.y = Math.round(newImgY);
 
-        if (this.tiling.bonding.snapToEdge) {
+        if (
+          this.tiling.bonding.snapToEdge ||
+          this.tiling.bonding.patternMatch
+        ) {
           this.calculateBondingOffsets(movingImg);
         }
 
@@ -1410,6 +1470,7 @@ export default {
       }
     },
 
+    // All coordinates are in real HD image sizes.
     calculateBondingOffsets(movingImg) {
       let withinHorizontal = this.tiling.drawList.filter(item => {
         return (
@@ -1507,6 +1568,7 @@ export default {
         let leftDis = movingImg.x;
         this.tiling.bonding.offsetX = rightDis > leftDis ? -leftDis : rightDis;
       }
+
       if (Math.abs(this.tiling.bonding.offsetX) > movingImg.width) {
         this.tiling.bonding.offsetX = 0;
       }
@@ -1518,7 +1580,8 @@ export default {
               ? movingImg.y
               : this.tiling.totalImagesWith - movingImg.y - movingImg.height;
 
-          let itemDis = Math.abs(verticalItem.y - movingImg.y) - movingImg.height;
+          let itemDis =
+            Math.abs(verticalItem.y - movingImg.y) - movingImg.height;
 
           this.tiling.bonding.offsetY =
             edgeDis < itemDis
@@ -1540,8 +1603,19 @@ export default {
           this.tiling.totalImagesWith - movingImg.y - movingImg.height;
         this.tiling.bonding.offsetY = topDis > bottomDis ? bottomDis : -topDis;
       }
+
       if (Math.abs(this.tiling.bonding.offsetY) > movingImg.height) {
         this.tiling.bonding.offsetY = 0;
+      }
+
+      if (this.tiling.bonding.patternMatch) {
+        let partternMatchOffsets = this.calculatePatternMatch(
+          movingImg,
+          horizonItems,
+          verticalItems
+        );
+        this.tiling.bonding.offsetX = partternMatchOffsets.offsetX;
+        this.tiling.bonding.offsetY = partternMatchOffsets.offsetY;
       }
 
       if (
@@ -1558,6 +1632,110 @@ export default {
       } else {
         this.tiling.bonding.lines = [];
       }
+    },
+
+    // Apply pattern matching algorithms
+    calculatePatternMatch(movingImg, horizonImgs, verticalImgs) {
+      // Get row Image data
+      if (movingImg.imageDataCache == null) {
+        movingImg.imageDataCache = this.img2ImageData(movingImg.image);
+      }
+      for (let idx in horizonImgs) {
+        let img = horizonImgs[idx];
+        if (img.imageDataCache == null) {
+          img.imageDataCache = this.img2ImageData(img.image);
+        }
+      }
+      for (let idx in verticalImgs) {
+        let img = verticalImgs[idx];
+
+        if (img.imageDataCache == null) {
+          img.imageDataCache = this.img2ImageData(img.image);
+        }
+      }
+      // Get row Image data end....
+
+      // Get the vertical matching line
+      const verticalMatchingLine = [];
+      var verticalMatchingLineY = 0;
+      var verticalLine = [];
+      if (horizonImgs.length > 0) {
+        horizonImgs = [...horizonImgs].sort(function(a, b) {
+          return a.y - b.y;
+        });
+        verticalMatchingLineY = horizonImgs[0].y;
+
+        horizonImgs.forEach(function(img, index, arr) {
+          if (img.x > movingImg.x) {
+            verticalMatchingLine.push(...getImageEdge(img.imageDataCache, 4));
+          } else {
+            verticalMatchingLine.push(...getImageEdge(img.imageDataCache, 2));
+          }
+        });
+        console.log(
+          "verticalMatchingLine.length: " + verticalMatchingLine.length
+        );
+
+        if (horizonImgs[0].x > movingImg.x) {
+          verticalLine = getImageEdge(movingImg.imageDataCache, 2);
+        } else {
+          verticalLine = getImageEdge(movingImg.imageDataCache, 4);
+        }
+      }
+
+      // Get the horizontal matching line
+      const horizontalMatchingLine = [];
+      var horizontalMatchingLineX = 0;
+      var horizontalLine = [];
+      if (verticalImgs.length > 0) {
+        verticalImgs = [...verticalImgs].sort(function(a, b) {
+          return a.x - b.x;
+        });
+        horizontalMatchingLineX = verticalImgs[0].x;
+
+        verticalImgs.forEach(function(img, index, arr) {
+          if (img.y > movingImg.y) {
+            horizontalMatchingLine.push(...getImageEdge(img.imageDataCache, 1));
+          } else {
+            horizontalMatchingLine.push(...getImageEdge(img.imageDataCache, 3));
+          }
+        });
+        // console.log(
+        //   "horizontalMatchingLine.length: " + horizontalMatchingLine.length
+        // );
+
+        if (verticalImgs[0].y > movingImg.y) {
+          horizontalLine = getImageEdge(movingImg.imageDataCache, 3);
+        } else {
+          horizontalLine = getImageEdge(movingImg.imageDataCache, 1);
+        }
+      }
+
+      // console.log("verticalMatchingLine: " + verticalMatchingLine.length);
+      // console.log("verticalLine: " + verticalLine.length);
+
+      // console.log("horizontalMatchingLine: " + horizontalMatchingLine.length);
+      // console.log("horizontalLine: " + horizontalLine.length);
+
+      var offsetY = 0;
+      if (verticalMatchingLine.length > 0) {
+        let verticalPMOffset = matchPixcels(verticalMatchingLine, verticalLine);
+        offsetY = verticalMatchingLineY + verticalPMOffset - movingImg.y;
+      }
+
+      var offsetX = 0;
+      if (horizontalMatchingLine.length > 0) {
+        let horizontalPMOffset = matchPixcels(
+          horizontalMatchingLine,
+          horizontalLine
+        );
+        offsetX = horizontalMatchingLineX + horizontalPMOffset - movingImg.x;
+      }
+
+      return {
+        offsetX: offsetX,
+        offsetY: offsetY
+      };
     },
 
     mouseLeave() {

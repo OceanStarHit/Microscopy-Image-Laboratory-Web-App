@@ -98,6 +98,54 @@ const changeImageLuminance = (imgdata, value) => {
     return imgdata;
 };
 
+function getImgRow(imgPixcels, row, channel) {
+  let startPox = imgPixcels.width * channel * row;
+  let endPox = startPox + imgPixcels.width * channel;
+  let theRow = imgPixcels.data.slice(startPox, endPox);
+
+  let rs = [];
+  for (let i = 0; i < imgPixcels.width; i++) {
+    let pixValues = [];
+    for (let j = 0; j < channel; j++) {
+      pixValues.push(theRow[i * channel + j]);
+    }
+    rs.push(pixValues);
+  }
+  return rs;
+}
+
+function getImgColumn(imgPixcels, column, channel) {
+  let rs = [];
+  let startPox = column * channel;
+  for (let lineNum = 0; lineNum < imgPixcels.height; lineNum++) {
+    let pickPox = lineNum * imgPixcels.width * channel + startPox;
+
+    let pixVals = [];
+    for (let i = 0; i < channel; i++) {
+      pixVals.push(imgPixcels.data[pickPox + i]);
+    }
+    rs.push(pixVals);
+  }
+  return rs;
+}
+
+/*
+    Parameter Edge: 1 for top, 2 for right, 3 for bottom, 4 for left.
+*/
+const getImageEdge = (imgPixcels, edge, channel = 4, _width = 1) => {
+  switch (edge) {
+    case 1:
+      return getImgRow(imgPixcels, 0, channel);
+    case 2:
+      return getImgColumn(imgPixcels, imgPixcels.width - 1, channel);
+    case 3:
+      return getImgRow(imgPixcels, imgPixcels.height - 1, channel);
+    default:
+      // assume the edge is 4
+      return getImgColumn(imgPixcels, 0, channel);
+  }
+};
+
 const imageAverageLuminance = (imgdata) => {
     const data = imgdata.data
     let lum = 0;
@@ -114,5 +162,6 @@ export {
     rgb2hsv,
     hsv2rgb,
     changeImageLuminance,
-    imageAverageLuminance
+    imageAverageLuminance,
+  getImageEdge
 };
