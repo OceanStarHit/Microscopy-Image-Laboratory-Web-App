@@ -240,6 +240,9 @@
                   "
                 ></v-checkbox>
 
+                <v-btn elevation="2" class="mt-5" @click="autoPatternMathing"
+                  >Auto</v-btn
+                >
               </div>
             </v-card>
             <!-- Shading -->
@@ -367,7 +370,13 @@ import {
   imageAverageLuminance,
   getImageEdge
 } from "../../../../utils/img-chg";
-import { matchPixcels } from "../../../../utils/pattern-match";
+import {
+  matchPixcels,
+  imgXDistance,
+  imgYDistance,
+  imgVerticalDistance,
+  imgHorizontalDistance
+} from "../../../../utils/pattern-match";
 import { base64ToArrayBuffer } from "../../../../utils/utils-func";
 import {
   TILING_CANVAS_SIZE,
@@ -1069,7 +1078,7 @@ export default {
       this.drawInit("ByXYZ");
     },
 
-    drawByColumns() {
+    drawByColumns(patternMatch = false) {
       // 固定列数排列
       this.drawInit("ByColumns", false); // 初始化画布，不删除宽高
 
@@ -1170,7 +1179,7 @@ export default {
       }
     },
 
-    drawByRows() {
+    drawByRows(patternMatch = false) {
       // 固定行数排列
       this.drawInit("ByRows", false);
 
@@ -1472,44 +1481,50 @@ export default {
 
     // All coordinates are in real HD image sizes.
     calculateBondingOffsets(movingImg) {
+      this.tiling.bonding.offsetX = 0;
+      this.tiling.bonding.offsetY = 0;
+
       let withinHorizontal = this.tiling.drawList.filter(item => {
-        return (
-          (item.y >= movingImg.y && item.y < movingImg.y + movingImg.height) ||
-          (item.y + item.height > movingImg.y &&
-            item.y + item.height <= movingImg.y + movingImg.height)
-        );
+        return imgYDistance(item, movingImg) < movingImg.height / 3;
+        // return (
+        //   (item.y >= movingImg.y && item.y < movingImg.y + movingImg.height) ||
+        //   (item.y + item.height > movingImg.y &&
+        //     item.y + item.height <= movingImg.y + movingImg.height)
+        // );
       });
+      // console.log("withinHorizontal: " + withinHorizontal.map(i => i.orgIdx));
       let withinVertical = this.tiling.drawList.filter(item => {
-        return (
-          (item.x >= movingImg.x && item.x < movingImg.x + movingImg.width) ||
-          (item.x + item.width > movingImg.x &&
-            item.x + item.width <= movingImg.x + movingImg.width)
-        );
+        return imgXDistance(item, movingImg) < movingImg.width / 3;
+        // return (
+        //   (item.x >= movingImg.x && item.x < movingImg.x + movingImg.width) ||
+        //   (item.x + item.width > movingImg.x &&
+        //     item.x + item.width <= movingImg.x + movingImg.width)
+        // );
       });
 
-      let horizonItems = withinHorizontal.filter(i => {
+      let horizonItemsAll = withinHorizontal.filter(i => {
         let cross = withinVertical.filter(j => {
           return j.orgIdx == i.orgIdx;
         });
         return cross.length == 0;
       });
       let horizontalOneside =
-        horizonItems.filter(item => item.x >= movingImg.x).length ==
-          horizonItems.length ||
-        horizonItems.filter(item => item.x <= movingImg.x).length ==
-          horizonItems.length;
+        horizonItemsAll.filter(item => item.x >= movingImg.x).length ==
+          horizonItemsAll.length ||
+        horizonItemsAll.filter(item => item.x <= movingImg.x).length ==
+          horizonItemsAll.length;
 
-      let verticalItems = withinVertical.filter(i => {
+      let verticalItemsAll = withinVertical.filter(i => {
         let cross = withinHorizontal.filter(j => {
           return j.orgIdx == i.orgIdx;
         });
         return cross.length == 0;
       });
       let verticalOneside =
-        verticalItems.filter(item => item.y >= movingImg.y).length ==
-          verticalItems.length ||
-        verticalItems.filter(item => item.y <= movingImg.y).length ==
-          verticalItems.length;
+        verticalItemsAll.filter(item => item.y >= movingImg.y).length ==
+          verticalItemsAll.length ||
+        verticalItemsAll.filter(item => item.y <= movingImg.y).length ==
+          verticalItemsAll.length;
 
       // let crossItems = withinVertical.filter(i => {
       //   let cross = withinHorizontal.filter(j => {
@@ -1518,27 +1533,44 @@ export default {
       //   return cross.length != 0;
       // });
 
-      let minHorizonDistance = Math.min(...horizonItems.map(item => {
-          return Math.abs(item.x - movingImg.x);
+      let minHorizonDistance = Math.min(
+        ...horizonItemsAll.map(item => {
+          return imgHorizontalDistance(item, movingImg);
         })
       );
-      horizonItems = horizonItems.filter(
-        item => Math.abs(item.x - movingImg.x) == minHorizonDistance
-      );
+      let horizonItems = horizonItemsAll.filter(item => {
+        return imgHorizontalDistance(item, movingImg) == minHorizonDistance;
+      });
 
-      let minVerticalDistance = Math.min(...verticalItems.map(item => {
-          return Math.abs(item.y - movingImg.y);
+      let minVerticalDistance = Math.min(
+        ...verticalItemsAll.map(item => {
+          return imgVerticalDistance(item, movingImg);
         })
       );
-      verticalItems = verticalItems.filter(
-        item => Math.abs(item.y - movingImg.y) == minVerticalDistance
+      let verticalItems = verticalItemsAll.filter(
+        item => imgVerticalDistance(item, movingImg) == minVerticalDistance
       );
 
       let horizonItem = horizonItems.length > 0 ? horizonItems[0] : null;
       let verticalItem = verticalItems.length > 0 ? verticalItems[0] : null;
 
-      // console.log("horizonItem : " + horizonItem.orgIdx + " verticalItem: " + verticalItem.orgIdx);
+      // if (horizonItems.length == 1) {
+      //   console.log("Strange 1!!!");
+      //   console.log(horizonItemsAll.map(i => imgXDistance(i, movingImg)));
+      //   console.log("min dis:" + minHorizonDistance);
+      // }
+      // if (verticalItems.length == 1) {
+      //   console.log("Strange 1!!!");
+      //   console.log(verticalItemsAll.map(i => imgYDistance(i, movingImg)));
+      //   console.log("min dis:" + minVerticalDistance);
+      // }
 
+      // console.log(
+      //   "horizonItems.len : " +
+      //     horizonItems.length +
+      //     "\n  verticalItems.len: " +
+      //     verticalItems.length
+      // );
 
       if (horizonItem != null) {
         if (horizontalOneside) {
@@ -1547,7 +1579,7 @@ export default {
               ? movingImg.x
               : this.tiling.totalImagesWith - movingImg.x - movingImg.width;
 
-          let itemDis = Math.abs(horizonItem.x - movingImg.x) - movingImg.width;
+          let itemDis = imgXDistance(horizonItem, movingImg);
 
           this.tiling.bonding.offsetX =
             edgeDis < itemDis
@@ -1616,6 +1648,10 @@ export default {
         );
         this.tiling.bonding.offsetX = partternMatchOffsets.offsetX;
         this.tiling.bonding.offsetY = partternMatchOffsets.offsetY;
+
+        // console.log("PM: " + this.tiling.bonding.offsetY);
+      } else {
+        // console.log("SN: " + this.tiling.bonding.offsetY);
       }
 
       if (
@@ -1636,6 +1672,32 @@ export default {
 
     // Apply pattern matching algorithms
     calculatePatternMatch(movingImg, horizonImgs, verticalImgs) {
+      // console.log("calculatePatternMatch");
+      // console.log("horizonImgs Ys: " + horizonImgs.map(i => i.y));
+      if (horizonImgs.length > 1) {
+        horizonImgs = [...horizonImgs]
+          .sort(function(a, b) {
+            return Math.abs(a.y - movingImg.y) - Math.abs(b.y - movingImg.y);
+          })
+          .slice(0, 1);
+      } else {
+        console.log("horizonImgs.length is 1");
+      }
+      // console.log("hImage picked Y: " + horizonImgs[0].y);
+
+      // console.log("verticalImgs Xs: " + verticalImgs.map(i => i.x));
+
+      if (verticalImgs.length > 1) {
+        verticalImgs = [...verticalImgs]
+          .sort(function(a, b) {
+            return Math.abs(a.x - movingImg.x) - Math.abs(b.x - movingImg.x);
+          })
+          .slice(0, 1);
+      } else {
+        console.log("verticalImgs.length is 1");
+      }
+      // console.log("vImage picked X: " + verticalImgs[0].x);
+
       // Get row Image data
       if (movingImg.imageDataCache == null) {
         movingImg.imageDataCache = this.img2ImageData(movingImg.image);
@@ -1663,6 +1725,11 @@ export default {
         horizonImgs = [...horizonImgs].sort(function(a, b) {
           return a.y - b.y;
         });
+
+        // console.log("org idx: ");
+        // console.log(horizonImgs.map(i => i.orgIdx));
+        // console.log(horizonImgs.map(i => i.y));
+
         verticalMatchingLineY = horizonImgs[0].y;
 
         horizonImgs.forEach(function(img, index, arr) {
@@ -1672,9 +1739,9 @@ export default {
             verticalMatchingLine.push(...getImageEdge(img.imageDataCache, 2));
           }
         });
-        console.log(
-          "verticalMatchingLine.length: " + verticalMatchingLine.length
-        );
+        // console.log(
+        //   "verticalMatchingLine.length: " + verticalMatchingLine.length
+        // );
 
         if (horizonImgs[0].x > movingImg.x) {
           verticalLine = getImageEdge(movingImg.imageDataCache, 2);
@@ -1719,12 +1786,14 @@ export default {
 
       var offsetY = 0;
       if (verticalMatchingLine.length > 0) {
+        // console.log("verticalMatchingLine about to call matchPixcels");
         let verticalPMOffset = matchPixcels(verticalMatchingLine, verticalLine);
         offsetY = verticalMatchingLineY + verticalPMOffset - movingImg.y;
       }
 
       var offsetX = 0;
       if (horizontalMatchingLine.length > 0) {
+        // console.log("horizontalMatchingLine about to call matchPixcels");
         let horizontalPMOffset = matchPixcels(
           horizontalMatchingLine,
           horizontalLine
@@ -1740,6 +1809,25 @@ export default {
 
     mouseLeave() {
       this.tiling.mouse.catchImg = false;
+    },
+
+    autoPatternMathing() {
+      let that = this;
+      this.tiling.drawList.forEach(function(item) {
+        that.calculateBondingOffsets(item);
+        if (that.tiling.bonding.offsetX != 0) {
+          item.x += that.tiling.bonding.offsetX;
+        }
+        if (that.tiling.bonding.offsetY != 0) {
+          item.y += that.tiling.bonding.offsetY;
+        }
+      });
+
+      this.performDrawing();
+      // if (this.tiling.alignment.rows > 0 && this.tiling.alignment.cols > 0) {
+      //   const r = this.tiling.alignment.rows;
+      //   const c = this.tiling.alignment.cols;
+      // }
     }
   },
 
