@@ -1,5 +1,6 @@
 <template>
   <v-sheet class="drop pa-5" height="100%">
+    <flash-message></flash-message>
     <v-row no-gutters>
       <v-col cols="2">
         <v-card class="pa-1">
@@ -249,16 +250,32 @@
             <v-card v-else-if="tiling.activeMenuItem == 3" flat>
               <v-card-title class="pa-1">Shading</v-card-title>
               <div class="inside">
-                <v-icon color="yellow">mdi-weather-sunny</v-icon>
-                <v-btn
-                  class="px-0"
-                  min-width="34"
-                  :height="34"
-                  text
-                  color="teal"
-                  @click="normalizeImgLuminance"
-                  >Normalize</v-btn
-                >
+                <v-row class="mt-4 mr-4">
+                  <v-col cols="6">
+                    <v-btn
+                      class="px-0"
+                      min-width="34"
+                      :height="34"
+                      text
+                      color="teal"
+                      @click="normalizeImgLuminance"
+                      >Normalize</v-btn
+                    >
+                  </v-col>
+                </v-row>
+                <v-row class="mt-4 mr-4">
+                  <v-col cols="6">
+                    <v-btn
+                      class="px-0"
+                      min-width="34"
+                      :height="34"
+                      text
+                      color="teal"
+                      @click="correctLighting"
+                      >Correct</v-btn
+                    >
+                  </v-col>
+                </v-row>
               </div>
             </v-card>
             <!-- Display -->
@@ -350,7 +367,6 @@
                   </template>
                 </v-select>
               </div>
-
             </div>
           </div>
         </div>
@@ -368,7 +384,8 @@ import OpenPositionViewTab from "./OpenPositionViewTab";
 import {
   changeImageLuminance,
   imageAverageLuminance,
-  getImageEdge
+  getImageEdge,
+  balanceLighting
 } from "../../../../utils/img-chg";
 import {
   matchPixcels,
@@ -554,7 +571,7 @@ export default {
     curTileIdx: -1,
     tilingFiles: [],
     tilingData: [],
-    progressBarMaxValue: 0,
+    // progressBarMaxValue: 0,
     luminance: 0.0,
     averageLuminance: 0.0
   }),
@@ -789,12 +806,12 @@ export default {
         this.canvas.width / this.canvas.offsetWidth;
 
       this.performDrawing();
-      if (this.averageLuminance != 0.0) 
-      {
-        this.normalizeImgLuminance();
-      } else if (this.luminance != 0.0) {
-        this.updateImageLuminance();
-      }
+      // if (this.averageLuminance != 0.0)
+      // {
+      //   this.normalizeImgLuminance();
+      // } else if (this.luminance != 0.0) {
+      //   this.updateImageLuminance();
+      // }
     },
     updateImageLuminance: function() {
       let c = document.getElementById("canvas");
@@ -803,7 +820,6 @@ export default {
       }
       let imageData = this.tiling.preview.getImageData(0, 0, c.width, c.height);
       imageData = changeImageLuminance(imageData, this.luminance);
-      // this.tiling.preview.clearRect(0,0,c.width,c.height);
       this.tiling.preview.putImageData(imageData, 0, 0);
     },
 
@@ -811,58 +827,136 @@ export default {
     increaseImgLuminance: function() {
       this.luminance += 0.05;
       this.performDrawing();
-      this.updateImageLuminance();
+      // this.updateImageLuminance();
     },
 
     // 降低图像亮度
     decreaseImgLuminance() {
       this.luminance -= 0.05;
       this.performDrawing();
-      this.updateImageLuminance();
+      // this.updateImageLuminance();
     },
 
-    img2ImageData(image){
+    img2ImageData(params) {
       var cvs = document.createElement("canvas");
-      var ctx = cvs.getContext('2d');
-      cvs.width = image.width;
-      cvs.height = image.height;
-      ctx.drawImage(image, 0, 0, cvs.width, cvs.height);
-      let rs = ctx.getImageData(0,0, cvs.width, cvs.height);
+      var ctx = cvs.getContext("2d");
+
+      cvs.width = params.width;
+      cvs.height = params.height;
+      ctx.drawImage(params.image, 0, 0, cvs.width, cvs.height);
+
+      let rs = ctx.getImageData(0, 0, cvs.width, cvs.height);
+
       cvs.remove();
       return rs;
     },
+    imageData2ImgUri(imgData, width, height) {
+      var cvs = document.createElement("canvas");
+      var ctx = cvs.getContext("2d");
 
+      cvs.width = width;
+      cvs.height = height;
+
+      ctx.putImageData(imgData, 0, 0, 0, 0, width, height);
+      let rs = cvs.toDataURL();
+
+      cvs.remove();
+      return rs;
+    },
+    correctLighting() {
+      // let lastImg = null;
+
+      let that = this;
+      var idx = 0;
+      // this.$parent.progressBarMaxValue = that.tiling.drawList.length;
+      // this.$parent.progressBarValue = 0;
+      console.log(this.$parent.progressBarMaxValue);
+      console.log(this.$parent.progressBarValue);
+
+      let hd = setInterval(function() {
+        console.log("idx: " + idx);
+        if (idx < that.tiling.drawList.length) {
+          console.log("Start correctLighting");
+
+          let img = that.tiling.drawList[idx];
+          let imgData = that.img2ImageData(img);
+          if ("srgb" != imgData.colorSpace) {
+            that.flashError("Color Space not supported: " + imgData.colorSpace);
+            clearInterval(hd);
+            return;
+          }
+
+          let newImgData = balanceLighting(imgData);
+          img.image.src = that.imageData2ImgUri(
+            newImgData,
+            img.width,
+            img.height
+          );
+          // lastImg = img.image;
+          console.log("End correctLighting");
+
+          if (idx == that.tiling.drawList.length - 1) {
+            img.image.onload = function() {
+              that.performDrawing();
+            };
+          }
+        } else {
+          clearInterval(hd);
+        }
+        idx++;
+      }, 1);
+
+      // for (let idx in this.tiling.drawList) {
+      //   console.log("Start correctLighting");
+
+      //   let img = this.tiling.drawList[idx];
+      //   let imgData = this.img2ImageData(img);
+      //   if ("srgb" != imgData.colorSpace) {
+      //     this.flashError("Color Space not supported: " + imgData.colorSpace);
+      //     return;
+      //   }
+
+      //   let newImgData = balanceLighting(imgData);
+      //   img.image.src = this.imageData2ImgUri(
+      //     newImgData,
+      //     img.width,
+      //     img.height
+      //   );
+      //   lastImg = img.image;
+      //   console.log("End correctLighting");
+      // }
+      // if (lastImg) {
+      //   let that = this;
+      //   lastImg.onload = function() {
+      //     that.performDrawing();
+      //   };
+      // }
+      // this.performDrawing();
+    },
     normalizeImgLuminance() {
-      let c = document.getElementById("canvas");
-      if (this.tiling.preview == null) {
-        this.tiling.preview = c.getContext("2d");
-      }
-
       let entireLum = 0;
       let imgDataArr = [];
       let imgLumArr = [];
       for (let idx in this.tiling.drawList) {
-        let item = this.tiling.drawList[idx];
-        let img = item.image;
-        let imgData = this.img2ImageData(img);
+        let item = this.coordinateTranslate(this.tiling.drawList[idx]);
+        let imgData = this.img2ImageData(item);
         imgDataArr.push(imgData);
-        let imgLum = imageAverageLuminance(imgData);        
+        let imgLum = imageAverageLuminance(imgData);
         imgLumArr.push(imgLum);
         entireLum += imgLum;
       }
-      this.averageLuminance = entireLum / this.tiling.drawList.length;        
+      this.averageLuminance = entireLum / this.tiling.drawList.length;
       // console.log("entire image average lum ", this.averageLuminance);
       for (let idx in this.tiling.drawList) {
         let item = this.tiling.drawList[idx];
-        let ratio = (imgLumArr[idx] - this.averageLuminance) / this.averageLuminance;
-        let imgData = imgDataArr[idx];
-        changeImageLuminance(imgData, ratio);
-        // console.log("current image average lum ", imgLumArr[idx]);
-        if (this.luminance != 0) {
-          changeImageLuminance(imgData, this.luminance);
-        }
-        this.tiling.preview.putImageData(imgData, item.x, item.y, 0, 0,  item.width, item.height); 
+        let ratio =
+          (imgLumArr[idx] - this.averageLuminance) / this.averageLuminance;
+        item.lumRatio = ratio;
+        // let imgData = imgDataArr[idx];
+        // changeImageLuminance(imgData, ratio + this.luminance);
+        // this.tiling.preview.putImageData(imgData, item.x, item.y, 0, 0,  item.width, item.height);
       }
+      this.performDrawing();
     },
 
     drawInit(mode, setNull = true) {
@@ -900,7 +994,6 @@ export default {
       });
       this.tiling.canvasShiftY = t.height;
       this.tiling.canvasShiftX = 0;
-
 
       let idx = 0;
       while (idx < this.filesSortByField.length) {
@@ -1284,7 +1377,7 @@ export default {
       }
     },
 
-    coordinateTranslate(params, scale=this.coordinateScale) {
+    coordinateTranslate(params, scale = this.coordinateScale) {
       let canvasShiftY =
         this.tiling.totalImagesHeight * scale -
         TILING_CANVAS_SIZE -
@@ -1296,16 +1389,15 @@ export default {
 
       if (typeof copy.x !== "undefined")
         copy.x = copy.x * scale - this.tiling.canvasShiftX;
-      if (typeof copy.y !== "undefined")
-        copy.y = copy.y * scale - canvasShiftY;
+      if (typeof copy.y !== "undefined") copy.y = copy.y * scale - canvasShiftY;
       if (typeof copy.width !== "undefined")
-        copy.width = copy.width * scale;
+        copy.width = Math.ceil(copy.width * scale);
       if (typeof copy.height !== "undefined")
-        copy.height = copy.height * scale;
+        copy.height = Math.ceil(copy.height * scale);
       return copy;
     },
 
-    coordinateTranslateReverse(params, scale=this.coordinateScale) {
+    coordinateTranslateReverse(params, scale = this.coordinateScale) {
       let canvasShiftY =
         this.tiling.totalImagesHeight * scale -
         TILING_CANVAS_SIZE -
@@ -1318,10 +1410,8 @@ export default {
         copy.x = (copy.x + this.tiling.canvasShiftX) / scale;
       if (typeof copy.y !== "undefined")
         copy.y = (copy.y + canvasShiftY) / scale;
-      if (typeof copy.width !== "undefined")
-        copy.width = copy.width / scale;
-      if (typeof copy.height !== "undefined")
-        copy.height = copy.height / scale;
+      if (typeof copy.width !== "undefined") copy.width = copy.width / scale;
+      if (typeof copy.height !== "undefined") copy.height = copy.height / scale;
       return copy;
     },
 
@@ -1346,10 +1436,19 @@ export default {
           params.x + params.width >= 0 &&
           params.y + params.height >= 0
         ) {
-          this.tiling.preview.drawImage(
-            params.image,
+          let imgData = this.img2ImageData(params);
+          // console.log(params.width, params.height);
+          if (params.lumRatio && params.lumRatio != 0) {
+            changeImageLuminance(imgData, params.lumRatio + this.luminance);
+          } else if (this.luminance != 0) {
+            changeImageLuminance(imgData, this.luminance);
+          }
+          this.tiling.preview.putImageData(
+            imgData,
             params.x,
             params.y,
+            0,
+            0,
             params.width,
             params.height
           );
@@ -1363,8 +1462,7 @@ export default {
           1 * this.tiling.canvasScaleRatio
         );
 
-        // console.log(line);
-        // draw a red line
+        // Draw a green box
         let leftTop = this.coordinateTranslate({ x: line.x1, y: line.y1 });
         let bottomRight = this.coordinateTranslate({ x: line.x2, y: line.y3 });
 
@@ -1596,7 +1694,8 @@ export default {
               : horizonItem.x - movingImg.x + horizonItem.width;
         }
       } else {
-        let rightDis = this.tiling.totalImagesWith - movingImg.x - movingImg.width;
+        let rightDis =
+          this.tiling.totalImagesWith - movingImg.x - movingImg.width;
         let leftDis = movingImg.x;
         this.tiling.bonding.offsetX = rightDis > leftDis ? -leftDis : rightDis;
       }
@@ -1700,19 +1799,19 @@ export default {
 
       // Get row Image data
       if (movingImg.imageDataCache == null) {
-        movingImg.imageDataCache = this.img2ImageData(movingImg.image);
+        movingImg.imageDataCache = this.img2ImageData(movingImg);
       }
       for (let idx in horizonImgs) {
         let img = horizonImgs[idx];
         if (img.imageDataCache == null) {
-          img.imageDataCache = this.img2ImageData(img.image);
+          img.imageDataCache = this.img2ImageData(img);
         }
       }
       for (let idx in verticalImgs) {
         let img = verticalImgs[idx];
 
         if (img.imageDataCache == null) {
-          img.imageDataCache = this.img2ImageData(img.image);
+          img.imageDataCache = this.img2ImageData(img);
         }
       }
       // Get row Image data end....
@@ -1907,6 +2006,7 @@ export default {
   }
 };
 </script>
+
 <style scoped>
 .isDragging {
   background-color: #e0f2f1;
