@@ -1,17 +1,5 @@
 <template>
   <tab-item title="View">
-    <v-row justify="center">
-      <v-container class="max-width pagenation">
-        <v-pagination
-          v-model="curPageIdx"
-          class="my-4 pagenation"
-          total-visible="5"
-          :length="allData.length"
-          @input="handlePageChange"
-        ></v-pagination>
-      </v-container>
-    </v-row>
-    <v-divider></v-divider>
     <Vessel />
     <v-divider></v-divider>
     <Objective />

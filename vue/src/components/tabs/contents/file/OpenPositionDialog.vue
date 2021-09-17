@@ -64,7 +64,10 @@
             </v-sheet>
           </v-tab-item>
           <v-tab-item value="tabs-tiling" class="v-tab-item" eager>
-            <Tiling />
+            <Tiling
+              @set-progress-max="setProgressMax"
+              @set-progress-current="setProgressCurrent"
+            />
           </v-tab-item>
           <v-tab-item value="tabs-metadata" class="v-tab-item">
             <v-sheet
@@ -285,7 +288,6 @@ export default {
       default: false
     }
   },
-
   data: () => ({
     // ctxHeight,
     // ctxWidth,
@@ -1086,6 +1088,14 @@ export default {
       return pattern.start == -1
         ? ""
         : filename.substring(pattern.start, pattern.end);
+    },
+
+    setProgressMax(maxValue) {
+      console.log("in setProgressMax: " + maxValue);
+      this.progressBarMaxValue = maxValue;
+    },
+    setProgressCurrent(currValue) {
+      this.progressBarValue = currValue;
     }
   }
 };

@@ -868,13 +868,12 @@ export default {
 
       let that = this;
       var idx = 0;
-      // this.$parent.progressBarMaxValue = that.tiling.drawList.length;
-      // this.$parent.progressBarValue = 0;
-      console.log(this.$parent.progressBarMaxValue);
-      console.log(this.$parent.progressBarValue);
+      that.$emit("set-progress-max", that.tiling.drawList.length);
+      that.$emit("set-progress-current", 0);
 
       let hd = setInterval(function() {
-        console.log("idx: " + idx);
+        // console.log("idx: " + idx);
+        that.$emit("set-progress-current", idx);
         if (idx < that.tiling.drawList.length) {
           console.log("Start correctLighting");
 
@@ -904,7 +903,7 @@ export default {
           clearInterval(hd);
         }
         idx++;
-      }, 1);
+      }, 100);
 
       // for (let idx in this.tiling.drawList) {
       //   console.log("Start correctLighting");
