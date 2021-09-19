@@ -819,7 +819,14 @@ export default {
         this.tiling.preview = c.getContext("2d");
       }
       let imageData = this.tiling.preview.getImageData(0, 0, c.width, c.height);
-      imageData = changeImageLuminance(imageData, this.luminance);
+      imgData = new ImageData(
+        new Uint8ClampedArray(
+          this.$wasm.change_image_luminance(imgData.data, this.luminance)
+        ),
+        imgData.width,
+        imgData.height
+      );
+      // imageData = changeImageLuminance(imageData, this.luminance);
       this.tiling.preview.putImageData(imageData, 0, 0);
     },
 
@@ -868,14 +875,19 @@ export default {
 
       let that = this;
       var idx = 0;
-      that.$emit("set-progress-max", that.tiling.drawList.length);
       that.$emit("set-progress-current", 0);
+      that.$emit("set-progress-max", that.tiling.drawList.length - 1);
 
-      let hd = setInterval(function() {
-        // console.log("idx: " + idx);
-        that.$emit("set-progress-current", idx);
-        if (idx < that.tiling.drawList.length) {
-          console.log("Start correctLighting");
+      // let hd = setInterval(function() {
+      // console.log("idx: " + idx);
+
+      function sleep(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
+      }
+      async function go() {
+        while (idx < that.tiling.drawList.length) {
+          that.$emit("set-progress-current", idx);
+          // console.log("Start correctLighting");
 
           let img = that.tiling.drawList[idx];
           let imgData = that.img2ImageData(img);
@@ -885,25 +897,43 @@ export default {
             return;
           }
 
+          console.log("Get image data in memory");
+
+          // let newImgData = new ImageData(
+          //   new Uint8ClampedArray(that.$wasm.balance_lighting(imgData.data)),
+          //   imgData.width,
+          //   imgData.height
+          // );
           let newImgData = balanceLighting(imgData);
+
+          console.log("Finish the shading operation");
+
           img.image.src = that.imageData2ImgUri(
             newImgData,
             img.width,
             img.height
           );
           // lastImg = img.image;
-          console.log("End correctLighting");
+          // console.log("End correctLighting");
 
           if (idx == that.tiling.drawList.length - 1) {
             img.image.onload = function() {
               that.performDrawing();
             };
           }
-        } else {
-          clearInterval(hd);
+
+          idx++;
+
+          await sleep(300);
         }
-        idx++;
-      }, 100);
+      };
+      go();
+
+      //    else {
+      //     clearInterval(hd);
+      //   }
+      //   idx++;
+      // }, 100);
 
       // for (let idx in this.tiling.drawList) {
       //   console.log("Start correctLighting");
@@ -1438,9 +1468,25 @@ export default {
           let imgData = this.img2ImageData(params);
           // console.log(params.width, params.height);
           if (params.lumRatio && params.lumRatio != 0) {
-            changeImageLuminance(imgData, params.lumRatio + this.luminance);
+            let dataVector = this.$wasm.change_image_luminance(
+              imgData.data,
+              params.lumRatio + this.luminance
+            );
+            imgData = new ImageData(
+              new Uint8ClampedArray(dataVector),
+              imgData.width,
+              imgData.height
+            );
           } else if (this.luminance != 0) {
-            changeImageLuminance(imgData, this.luminance);
+            let dataVector = this.$wasm.change_image_luminance(
+              imgData.data,
+              this.luminance
+            );
+            imgData = new ImageData(
+              new Uint8ClampedArray(dataVector),
+              imgData.width,
+              imgData.height
+            );
           }
           this.tiling.preview.putImageData(
             imgData,

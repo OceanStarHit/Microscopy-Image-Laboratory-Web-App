@@ -45,14 +45,16 @@ const balanceLighting = imgData => {
     // let medLights = median(lightValues);
 
     for (let idx in hsvData) {
+      
       let hsv = hsvData[idx];
-      if (hsv.v > thredhold) hsv.v = thredhold;
-
-      let newRgb = tinycolor(hsv).toRgb();
-      let toChangePox = idx * 4;
-      imgData.data[toChangePox] = newRgb.r;
-      imgData.data[toChangePox + 1] = newRgb.g;
-      imgData.data[toChangePox + 2] = newRgb.b;
+      if (hsv.v > thredhold) {
+        hsv.v = thredhold;
+        let toChangePox = idx * 4;
+        let newRgb = tinycolor(hsv).toRgb();
+        imgData.data[toChangePox] = newRgb.r;
+        imgData.data[toChangePox + 1] = newRgb.g;
+        imgData.data[toChangePox + 2] = newRgb.b;  
+      }
     }
   }
 
