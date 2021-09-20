@@ -1,9 +1,140 @@
 import tinycolor from "tinycolor2";
+import { GPU } from "gpu.js";
 
 function median(arr) {
   arr = [...arr].sort((a, b) => a - b);
   return (arr[(arr.length - 1) >> 1] + arr[arr.length >> 1]) / 2;
 }
+
+const gpu = new GPU();
+const balanceLightingGPU = rgbData => {
+  // sample 300 points to calculate the average lights.
+  let sampleStep = Math.floor(rgbData.length / 4 / 300) * 4;
+  let sampleTotalV = 0;
+  let sampleCount = 0;
+  for (let i = 0; i < rgbData.length; i += sampleStep) {
+    let r = rgbData[i];
+    let g = rgbData[i + 1];
+    let b = rgbData[i + 2];
+    let hsv = rgb2hsv([r, g, b]);
+    sampleTotalV += hsv.v;
+    sampleCount++;
+  }
+
+  if (sampleCount == 0) return rgbData;
+
+  let avgV = sampleTotalV / sampleCount;
+
+  const removeLightSpots = gpu
+    .createKernel(function(rgbData, avgV) {
+      let pixIdx = this.thread.x;
+      let r = rgbData[pixIdx * 4] / 255;
+      let g = rgbData[pixIdx * 4 + 1] / 255;
+      let b = rgbData[pixIdx * 4 + 2] / 255;
+
+      let h = 0;
+      let s = 0;
+      let v = r > g ? (r > b ? r : b) : g > b ? g : b; // max
+      let min = r < g ? (r < b ? r : b) : g < b ? g : b; // min
+      let diff = v - min;
+
+      if (diff === 0) {
+        h = s = 0;
+      } else {
+        s = diff / v;
+        let rr = (v - r) / 6 / diff + 1 / 2;
+        let gg = (v - g) / 6 / diff + 1 / 2;
+        let bb = (v - b) / 6 / diff + 1 / 2;
+
+        if (r === v) {
+          h = bb - gg;
+        } else if (g === v) {
+          h = 1 / 3 + rr - bb;
+        } else if (b === v) {
+          h = 2 / 3 + gg - rr;
+        }
+        if (h < 0) {
+          h += 1;
+        } else if (h > 1) {
+          h -= 1;
+        }
+      }
+      let thredhold = (avgV + 0.8) / 2;
+      thredhold = 0.8;
+      // remove light spot
+      if (v > thredhold) {
+        v = thredhold;
+        let _l = Math.round(h * 360);
+        let _m = Math.round(s * 100);
+        let _n = Math.round(v * 100);
+        let newR = 0;
+        let newG = 0;
+        let newB = 0;
+        if (_m === 0) {
+          _l = _m = _n = Math.round((255 * _n) / 100);
+          newR = _l;
+          newG = _m;
+          newB = _n;
+        } else {
+          _m = _m / 100;
+          _n = _n / 100;
+          let p = Math.floor(_l / 60) % 6;
+          let f = _l / 60 - p;
+          let a = _n * (1 - _m);
+          let b = _n * (1 - _m * f);
+          let c = _n * (1 - _m * (1 - f));
+          if (p == 0) {
+              newR = _n;
+              newG = c;
+              newB = a;
+          } else if (p == 1) {
+            newR = b;
+            newG = _n;
+            newB = a;
+          } else if (p == 2) {
+            newR = a;
+            newG = _n;
+            newB = c;
+          } else if (p == 3) {
+            newR = a;
+            newG = b;
+            newB = _n;
+          }  else if (p == 4) {
+            newR = c;
+            newG = a;
+            newB = _n;
+          }  else if (p == 5) {
+            newR = _n;
+            newG = a;
+            newB = b;
+          } 
+  
+          newR = Math.round(255 * newR);
+          newG = Math.round(255 * newG);
+          newB = Math.round(255 * newB);
+        }
+        return [newR, newG, newB, 255];
+      } else {
+        return [
+          rgbData[pixIdx * 4],
+          rgbData[pixIdx * 4 + 1],
+          rgbData[pixIdx * 4 + 2],
+          rgbData[pixIdx * 4 + 3]
+        ];
+      }
+    })
+    .setOutput([rgbData.length / 4]);
+
+  let rs = [];
+  rgbData = removeLightSpots(rgbData, avgV);
+  for (let idx in rgbData) {
+    rs.push(rgbData[idx][0]);
+    rs.push(rgbData[idx][1]);
+    rs.push(rgbData[idx][2]);
+    rs.push(rgbData[idx][3]);
+  }
+  return rs;
+};
 
 const balanceLighting = imgData => {
   if (imgData.colorSpace == "srgb") {
@@ -45,7 +176,6 @@ const balanceLighting = imgData => {
     // let medLights = median(lightValues);
 
     for (let idx in hsvData) {
-      
       let hsv = hsvData[idx];
       if (hsv.v > thredhold) {
         hsv.v = thredhold;
@@ -53,7 +183,7 @@ const balanceLighting = imgData => {
         let newRgb = tinycolor(hsv).toRgb();
         imgData.data[toChangePox] = newRgb.r;
         imgData.data[toChangePox + 1] = newRgb.g;
-        imgData.data[toChangePox + 2] = newRgb.b;  
+        imgData.data[toChangePox + 2] = newRgb.b;
       }
     }
   }
@@ -238,5 +368,6 @@ export {
   changeImageLuminance,
   imageAverageLuminance,
   getImageEdge,
-  balanceLighting
+  balanceLighting,
+  balanceLightingGPU
 };

@@ -385,7 +385,8 @@ import {
   changeImageLuminance,
   imageAverageLuminance,
   getImageEdge,
-  balanceLighting
+  balanceLighting,
+  balanceLightingGPU
 } from "../../../../utils/img-chg";
 import {
   matchPixcels,
@@ -819,14 +820,14 @@ export default {
         this.tiling.preview = c.getContext("2d");
       }
       let imageData = this.tiling.preview.getImageData(0, 0, c.width, c.height);
-      imgData = new ImageData(
-        new Uint8ClampedArray(
-          this.$wasm.change_image_luminance(imgData.data, this.luminance)
-        ),
-        imgData.width,
-        imgData.height
-      );
-      // imageData = changeImageLuminance(imageData, this.luminance);
+      // imgData = new ImageData(
+      //   new Uint8ClampedArray(
+      //     this.$wasm.change_image_luminance(imgData.data, this.luminance)
+      //   ),
+      //   imgData.width,
+      //   imgData.height
+      // );
+      imageData = changeImageLuminance(imageData, this.luminance);
       this.tiling.preview.putImageData(imageData, 0, 0);
     },
 
@@ -882,7 +883,7 @@ export default {
       // console.log("idx: " + idx);
 
       function sleep(ms) {
-          return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise(resolve => setTimeout(resolve, ms));
       }
       async function go() {
         while (idx < that.tiling.drawList.length) {
@@ -904,7 +905,13 @@ export default {
           //   imgData.width,
           //   imgData.height
           // );
-          let newImgData = balanceLighting(imgData);
+
+          let newData = balanceLightingGPU(imgData.data);
+          let newImgData = new ImageData(
+            new Uint8ClampedArray(newData),
+            imgData.width,
+            imgData.height
+          );
 
           console.log("Finish the shading operation");
 
@@ -1468,25 +1475,30 @@ export default {
           let imgData = this.img2ImageData(params);
           // console.log(params.width, params.height);
           if (params.lumRatio && params.lumRatio != 0) {
-            let dataVector = this.$wasm.change_image_luminance(
-              imgData.data,
+            // let dataVector = this.$wasm.change_image_luminance(
+            //   imgData.data,
+            //   params.lumRatio + this.luminance
+            // );
+            // imgData = new ImageData(
+            //   new Uint8ClampedArray(dataVector),
+            //   imgData.width,
+            //   imgData.height
+            // );
+            imgData = changeImageLuminance(
+              imgData,
               params.lumRatio + this.luminance
             );
-            imgData = new ImageData(
-              new Uint8ClampedArray(dataVector),
-              imgData.width,
-              imgData.height
-            );
           } else if (this.luminance != 0) {
-            let dataVector = this.$wasm.change_image_luminance(
-              imgData.data,
-              this.luminance
-            );
-            imgData = new ImageData(
-              new Uint8ClampedArray(dataVector),
-              imgData.width,
-              imgData.height
-            );
+            // let dataVector = this.$wasm.change_image_luminance(
+            //   imgData.data,
+            //   this.luminance
+            // );
+            // imgData = new ImageData(
+            //   new Uint8ClampedArray(dataVector),
+            //   imgData.width,
+            //   imgData.height
+            // );
+            imgData = changeImageLuminance(imgData, this.luminance);
           }
           this.tiling.preview.putImageData(
             imgData,
