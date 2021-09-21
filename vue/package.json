@@ -15,7 +15,6 @@
         "eslint-plugin-html": "^6.2.0",
         "gpu.js": "^2.11.4",
         "log-timestamp": "^0.3.0",
-        "mathjs": "^9.4.5",
         "openseadragon": "^2.4.2",
         "save": "^2.4.0",
         "tiff.js": "^1.0.0",

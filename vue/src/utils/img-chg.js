@@ -1,6 +1,5 @@
 import tinycolor from "tinycolor2";
 import { GPU } from "gpu.js";
-import math from "mathjs";
 
 function getStandardDeviation(array) {
   const n = array.length;
