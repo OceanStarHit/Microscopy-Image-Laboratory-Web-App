@@ -906,20 +906,16 @@ export default {
           //   imgData.height
           // );
 
-          let newData = balanceLightingGPU(imgData.data);
-          let newImgData = new ImageData(
-            new Uint8ClampedArray(newData),
-            imgData.width,
-            imgData.height
-          );
+          balanceLightingGPU(imgData.data);
+          // let newImgData = new ImageData(
+          //   new Uint8ClampedArray(newData),
+          //   imgData.width,
+          //   imgData.height
+          // );
 
           console.log("Finish the shading operation");
 
-          img.image.src = that.imageData2ImgUri(
-            newImgData,
-            img.width,
-            img.height
-          );
+          img.image.src = that.imageData2ImgUri(imgData, img.width, img.height);
           // lastImg = img.image;
           // console.log("End correctLighting");
 

@@ -116,9 +116,7 @@
       :is-full-page="true"
       :opacity="0.8"
     >
-      <v-container 
-        class="text-center loading-progress-bar"
-      >
+      <v-container class="text-center loading-progress-bar">
         <v-progress-linear
           color="light-blue"
           height="15"
@@ -126,10 +124,8 @@
           striped
         ></v-progress-linear>
         <div class="title mt-4 teal--text">In update ...</div>
-        
       </v-container>
     </loading>
-
 
     <loading
       :active.sync="loading"
@@ -201,13 +197,15 @@ export default {
     },
     loading_bar_value: function() {
       let v = 0;
-      if(this.loading_count_max != 0) {
-        v = 100 * ((this.loading_count_max - this.loading_count) / this.loading_count_max); 
+      if (this.loading_count_max != 0) {
+        v =
+          100 *
+          ((this.loading_count_max - this.loading_count) /
+            this.loading_count_max);
       }
       console.log(this.loading_count_max + " " + this.loading_count + " " + v);
-      return v; 
+      return v;
     }
-
   },
 
   mounted() {

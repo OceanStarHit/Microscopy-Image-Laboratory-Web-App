@@ -1,32 +1,47 @@
 import tinycolor from "tinycolor2";
 import { GPU } from "gpu.js";
+import math from "mathjs";
 
-function median(arr) {
-  arr = [...arr].sort((a, b) => a - b);
-  return (arr[(arr.length - 1) >> 1] + arr[arr.length >> 1]) / 2;
+function getStandardDeviation(array) {
+  const n = array.length;
+  const mean = array.reduce((a, b) => a + b) / n;
+  return Math.sqrt(
+    array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n
+  );
+}
+function getMean(array) {
+  const n = array.length;
+  const mean = array.reduce((a, b) => a + b) / n;
+  return mean;
 }
 
 const gpu = new GPU();
 const balanceLightingGPU = rgbData => {
   // sample 300 points to calculate the average lights.
   let sampleStep = Math.floor(rgbData.length / 4 / 300) * 4;
-  let sampleTotalV = 0;
-  let sampleCount = 0;
+  let sampleVs = [];
   for (let i = 0; i < rgbData.length; i += sampleStep) {
     let r = rgbData[i];
     let g = rgbData[i + 1];
     let b = rgbData[i + 2];
     let hsv = rgb2hsv([r, g, b]);
-    sampleTotalV += hsv.v;
-    sampleCount++;
+    sampleVs.push(hsv[2]);
   }
 
-  if (sampleCount == 0) return rgbData;
+  if (sampleVs.length == 0) return rgbData;
 
-  let avgV = sampleTotalV / sampleCount;
+  let avgV = getMean(sampleVs);
+  let stdV = getStandardDeviation(sampleVs);
 
-  const removeLightSpots = gpu
-    .createKernel(function(rgbData, avgV) {
+  let thredhold = avgV / 100;
+  if (stdV > 3) {
+    thredhold = (avgV + stdV) / 100.0;
+  }
+
+  console.log("avgV: " + avgV + " stdV: " + stdV + " thredhold: " + thredhold);
+  let outputLen = rgbData.length / 4;
+  let removeLightSpotKernel = gpu
+    .createKernel(function(rgbData, thredhold) {
       let pixIdx = this.thread.x;
       let r = rgbData[pixIdx * 4] / 255;
       let g = rgbData[pixIdx * 4 + 1] / 255;
@@ -59,8 +74,8 @@ const balanceLightingGPU = rgbData => {
           h -= 1;
         }
       }
-      let thredhold = (avgV + 0.8) / 2;
-      thredhold = 0.8;
+      // let thredhold = (avgV + 0.8) / 2;
+      // thredhold = 0.8;
       // remove light spot
       if (v > thredhold) {
         v = thredhold;
@@ -84,9 +99,9 @@ const balanceLightingGPU = rgbData => {
           let b = _n * (1 - _m * f);
           let c = _n * (1 - _m * (1 - f));
           if (p == 0) {
-              newR = _n;
-              newG = c;
-              newB = a;
+            newR = _n;
+            newG = c;
+            newB = a;
           } else if (p == 1) {
             newR = b;
             newG = _n;
@@ -99,16 +114,16 @@ const balanceLightingGPU = rgbData => {
             newR = a;
             newG = b;
             newB = _n;
-          }  else if (p == 4) {
+          } else if (p == 4) {
             newR = c;
             newG = a;
             newB = _n;
-          }  else if (p == 5) {
+          } else if (p == 5) {
             newR = _n;
             newG = a;
             newB = b;
-          } 
-  
+          }
+
           newR = Math.round(255 * newR);
           newG = Math.round(255 * newG);
           newB = Math.round(255 * newB);
@@ -123,17 +138,16 @@ const balanceLightingGPU = rgbData => {
         ];
       }
     })
-    .setOutput([rgbData.length / 4]);
+    .setOutput([outputLen]);
 
-  let rs = [];
-  rgbData = removeLightSpots(rgbData, avgV);
-  for (let idx in rgbData) {
-    rs.push(rgbData[idx][0]);
-    rs.push(rgbData[idx][1]);
-    rs.push(rgbData[idx][2]);
-    rs.push(rgbData[idx][3]);
+  let newData = removeLightSpotKernel(rgbData, thredhold);
+
+  for (let idx in newData) {
+    rgbData[idx * 4] = newData[idx][0];
+    rgbData[idx * 4 + 1] = newData[idx][1];
+    rgbData[idx * 4 + 2] = newData[idx][2];
+    rgbData[idx * 4 + 3] = newData[idx][3];
   }
-  return rs;
 };
 
 const balanceLighting = imgData => {
@@ -167,8 +181,8 @@ const balanceLighting = imgData => {
 
     let thredhold = (threholdavg + threholdFix) / 2;
 
-    if (threholdavg > threholdFix) {
-      thredhold = threholdFix;
+    if (threholdavg > thredhold) {
+      thredhold = thredhold;
     }
 
     // console.log(brightnesses);

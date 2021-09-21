@@ -1,7 +1,9 @@
 # Build stage
-FROM node:12 as build-stage
+FROM ubuntu as build-stage
 
 WORKDIR /code/ui
+
+RUN apt-get update && apt-get install -y nodejs && apt-get install -y npm
 
 RUN npm install -g @vue/cli @vue/cli-service @vue/cli-service-global
 
