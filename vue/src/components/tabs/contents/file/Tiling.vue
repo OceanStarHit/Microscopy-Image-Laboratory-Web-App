@@ -1802,10 +1802,14 @@ export default {
           horizonItems,
           verticalItems
         );
-        this.tiling.bonding.offsetX = partternMatchOffsets.offsetX;
-        this.tiling.bonding.offsetY = partternMatchOffsets.offsetY;
-
-        // console.log("PM: " + this.tiling.bonding.offsetY);
+        if (
+          Math.abs(this.tiling.bonding.offsetX) >
+          Math.abs(this.tiling.bonding.offsetY)
+        ) {
+          this.tiling.bonding.offsetX = partternMatchOffsets.offsetX;
+        } else {
+          this.tiling.bonding.offsetY = partternMatchOffsets.offsetY;
+        }
       } else {
         // console.log("SN: " + this.tiling.bonding.offsetY);
       }

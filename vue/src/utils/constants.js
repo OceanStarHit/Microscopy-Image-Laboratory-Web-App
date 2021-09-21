@@ -28,4 +28,4 @@ export const POSITION_DIALOG_STROKE_WIDTH = 8;
 
 // Tiling
 export const TILING_CANVAS_SIZE = 450;
-export const TILING_SCALE_OPTIONS = [2, 5, 10, 20, 50, 100];
+export const TILING_SCALE_OPTIONS = [0.5, 2, 5, 10, 20, 50, 100];
