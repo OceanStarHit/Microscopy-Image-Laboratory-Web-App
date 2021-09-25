@@ -16,14 +16,15 @@
         "gpu.js": "^2.11.4",
         "log-timestamp": "^0.3.0",
         "openseadragon": "^2.4.2",
+        "percentile": "^1.5.0",
         "save": "^2.4.0",
         "tiff.js": "^1.0.0",
         "tinycolor2": "1.4.2",
-        "vue": "^2.6.14",
+        "vue": "^2.6.11",
         "vue-flash-message": "0.7.2",
         "vue-loading-overlay": "^3.4.2",
         "vue-router": "3.0",
-        "vuetify": "^2.5.8",
+        "vuetify": "^2.4.0",
         "vuex": "^3.6.2"
     },
     "devDependencies": {

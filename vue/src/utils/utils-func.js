@@ -88,5 +88,6 @@ export {
   tiffImage,
   enumerateDirectory,
   isOverlapped,
-  loadImage
+  loadImage,
+  base64ToArrayBuffer
 };

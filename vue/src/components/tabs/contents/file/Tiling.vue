@@ -282,26 +282,56 @@
             <v-card v-else-if="tiling.activeMenuItem == 4" flat>
               <v-card-title class="pa-1">Display</v-card-title>
               <div class="inside">
-                <v-icon color="yellow">mdi-weather-sunny</v-icon>
-                <v-btn
-                  class="px-0"
-                  min-width="34"
-                  :height="34"
-                  text
-                  color="teal"
-                  @click="decreaseImgLuminance"
-                  >-</v-btn
-                >
-                <v-icon color="yellow">mdi-weather-sunny</v-icon>
-                <v-btn
-                  class="px-0"
-                  min-width="34"
-                  :height="34"
-                  text
-                  color="teal"
-                  @click="increaseImgLuminance"
-                  >+</v-btn
-                >
+                <v-row class="mt-4 mr-4">
+                  <v-col cols="6">
+                    <v-icon color="yellow">mdi-weather-sunny</v-icon>
+                    <v-btn
+                      class="px-0"
+                      min-width="34"
+                      :height="34"
+                      text
+                      color="teal"
+                      @click="decreaseImgLuminance"
+                      >-</v-btn
+                    >
+                    <v-icon color="yellow">mdi-weather-sunny</v-icon>
+                    <v-btn
+                      class="px-0"
+                      min-width="34"
+                      :height="34"
+                      text
+                      color="teal"
+                      @click="increaseImgLuminance"
+                      >+</v-btn
+                    >
+                  </v-col>
+                </v-row>
+                <v-row class="mt-4 mr-4">
+                  <v-col cols="6">
+                    <v-btn
+                      class="px-0"
+                      min-width="34"
+                      :height="34"
+                      text
+                      color="teal"
+                      @click="resetImgLuminance"
+                      >Reset</v-btn
+                    >
+                  </v-col>
+                </v-row>
+                <v-row class="mt-4 mr-4">
+                  <v-col cols="6">
+                    <v-btn
+                      class="px-0"
+                      min-width="34"
+                      :height="34"
+                      text
+                      color="teal"
+                      @click="bestFit"
+                      >BestFit</v-btn
+                    >
+                  </v-col>
+                </v-row>
               </div>
             </v-card>
             <!-- Result -->
@@ -386,7 +416,8 @@ import {
   imageAverageLuminance,
   getImageEdge,
   balanceLighting,
-  balanceLightingGPU
+  autoFitLuminance,
+  balanceLightingGPU2
 } from "../../../../utils/img-chg";
 import {
   matchPixcels,
@@ -450,8 +481,8 @@ export default {
       canvas: null,
       canvasScales: TILING_SCALE_OPTIONS,
       canvasScale: TILING_SCALE_OPTIONS[1],
-      canvasShiftX: 0,
-      canvasShiftY: 0,
+      canvasShiftX: 0, // X 方向上的位移
+      canvasShiftY: 0, // Y 方向上的位移
       preview: null,
       canvasScaleRatio: 1,
       totalImagesWith: TILING_CANVAS_SIZE,
@@ -574,7 +605,8 @@ export default {
     tilingData: [],
     // progressBarMaxValue: 0,
     luminance: 0.0,
-    averageLuminance: 0.0
+    averageLuminance: 0.0,
+    autoFit: false
   }),
 
   watch: {
@@ -742,12 +774,16 @@ export default {
     },
     async getImageSize() {
       // 得到每个小图片的尺寸
+      // 得到第一个小图片的尺寸
       // let image = await loadImage();
       if (this.files.length > 0) {
         let image = this.files[0].imageData;
 
         this.imageWidth = image.width * (this.tiling.canvasScale / 100);
         this.imageHeight = image.height * (this.tiling.canvasScale / 100);
+        console.log(
+          `IMAGE WIDTH = ${this.imageWidth}; IMAGE HEIGHT = ${this.imageHeight}`
+        );
       }
     },
     drawImages() {
@@ -760,7 +796,8 @@ export default {
       ) {
         this.imageWidth = this.filesSortByField[0].imageData.width;
         this.imageHeight = this.filesSortByField[0].imageData.height;
-
+        console.log("ImageWidth = ", this.imageWidth);
+        console.log("ImageHeight = ", this.imageHeight);
         if (this.imageWidth && this.imageHeight) {
         } else {
           console.log("no image width");
@@ -777,6 +814,7 @@ export default {
       this.tiling.drawList = [];
 
       if (this.filesSortByField && this.filesSortByField.length) {
+        console.log("TILING => ", this.tiling);
         switch (this.tiling.alignment.activeMode) {
           case 0:
             this.drawCascade(); // 瀑布展示
@@ -842,9 +880,19 @@ export default {
     decreaseImgLuminance() {
       this.luminance -= 0.05;
       this.performDrawing();
+      this.autoFit = false;
       // this.updateImageLuminance();
     },
-
+    bestFit(e) {
+      this.autoFit = true;
+      this.performDrawing();
+    },
+    // 重置图像亮度
+    resetImgLuminance() {
+      this.luminance = 0.0;
+      this.autoFit = false;
+      this.performDrawing();
+    },
     img2ImageData(params) {
       var cvs = document.createElement("canvas");
       var ctx = cvs.getContext("2d");
@@ -872,8 +920,6 @@ export default {
       return rs;
     },
     correctLighting() {
-      // let lastImg = null;
-
       let that = this;
       var idx = 0;
       that.$emit("set-progress-current", 0);
@@ -898,26 +944,19 @@ export default {
             return;
           }
 
-          console.log("Get image data in memory");
+          console.log("Get image daxta in memory");
 
-          // let newImgData = new ImageData(
-          //   new Uint8ClampedArray(that.$wasm.balance_lighting(imgData.data)),
-          //   imgData.width,
-          //   imgData.height
-          // );
+          let newImgData = new ImageData(
+            new Uint8ClampedArray(balanceLightingGPU2(img.image)),
+            imgData.width,
+            imgData.height
+          );
 
-          balanceLightingGPU(imgData.data);
-          // let newImgData = new ImageData(
-          //   new Uint8ClampedArray(newData),
-          //   imgData.width,
-          //   imgData.height
-          // );
-
-          console.log("Finish the shading operation");
-
-          img.image.src = that.imageData2ImgUri(imgData, img.width, img.height);
-          // lastImg = img.image;
-          // console.log("End correctLighting");
+          img.image.src = that.imageData2ImgUri(
+            newImgData,
+            imgData.width,
+            imgData.height
+          );
 
           if (idx == that.tiling.drawList.length - 1) {
             img.image.onload = function() {
@@ -929,7 +968,7 @@ export default {
 
           await sleep(300);
         }
-      };
+      }
       go();
 
       //    else {
@@ -1311,12 +1350,10 @@ export default {
       if (this.tiling.alignment.cols == null) {
         this.tiling.alignment.cols = Math.floor(Math.sqrt(this.files.length));
       }
-      this.tiling.alignment.rows =
-        Math.floor(this.files.length / this.tiling.alignment.cols) +
-        (this.files.length / this.tiling.alignment.cols ==
-        Math.floor(this.files.length / this.tiling.alignment.cols)
-          ? 0
-          : 1);
+
+      this.tiling.alignment.rows = Math.ceil(
+        this.files.length / this.tiling.alignment.cols
+      );
 
       let imageWidth = this.imageWidth,
         imageHeight = this.imageHeight;
@@ -1350,6 +1387,7 @@ export default {
       let t = this.coordinateTranslate({
         height: this.tiling.totalImagesHeight
       });
+      this.tiling.canvasShiftY = t.height;
       this.tiling.canvasShiftY = t.height;
       this.tiling.canvasShiftX = 0;
 
@@ -1494,7 +1532,10 @@ export default {
             //   imgData.width,
             //   imgData.height
             // );
-            imgData = changeImageLuminance(imgData, this.luminance);
+            // imgData = changeImageLuminance(imgData, this.luminance);
+            changeImageLuminance(imgData, this.luminance);
+          } else if (this.autoFit) {
+            autoFitLuminance(imgData);
           }
           this.tiling.preview.putImageData(
             imgData,
@@ -1603,6 +1644,7 @@ export default {
     mouseMove(e) {
       if (this.tiling.mouse.catchImg) {
         const { mouseX, mouseY } = this.getCursorXY(e);
+        // console.log(`X = ${mouseX}, Y = ${mouseY}`);
 
         let movingImg = this.tiling.drawList[this.tiling.drawList.length - 1];
 
@@ -1623,10 +1665,21 @@ export default {
         ) {
           this.calculateBondingOffsets(movingImg);
         }
-
         this.performDrawing();
-
-        // this.drawingIntervalNeedPerformingDrawing = true;
+      }
+    },
+    mouseScroll(e) {
+      console.log(e);
+      const wheelDelta = e?.wheelDelta;
+      const { mouseX, mouseY } = this.getCursorXY(e);
+      if (wheelDelta > 0) {
+        if (this.tiling.canvasScale < 100) {
+          this.tiling.canvasScale += 1;
+        }
+      } else {
+        if (this.tiling.canvasScale > 1) {
+          this.tiling.canvasScale -= 1;
+        }
       }
     },
 
@@ -1991,6 +2044,7 @@ export default {
     this.filesWatch = this.$store.watch(
       (state, getters) => getters["files/position/getFilesUpdatedCount"],
       async count => {
+        console.log("COUNT 执行 ", count);
         if (this.tiling.preview) {
           this.drawImages();
         }
@@ -2022,13 +2076,22 @@ export default {
         this.canvas.addEventListener("mouseup", this.mouseUp); // 鼠标释放弹起
         this.canvas.addEventListener("mousemove", this.mouseMove);
         this.canvas.addEventListener("mouseleave", this.mouseLeave);
+        this.canvas.addEventListener("mousewheel", this.mouseScroll);
       }
 
       if (this.files && this.files.length) {
         this.getImageSize();
-        this.drawImages();
+        this.drawImages(); // 刷新drawingIntervalNeedRedraw
       }
-
+      console.log(
+        "drawingIntervalNeedPerformingDrawing = ",
+        this.drawingIntervalNeedPerformingDrawing
+      );
+      console.log(
+        "drawingIntervalNeedRedraw = ",
+        this.drawingIntervalNeedRedraw
+      );
+      console.log("filesSortByField => ", this.filesSortByField);
       if (this.drawingIntervalHd == null) {
         let that = this;
         this.drawingIntervalHd = setInterval(function() {
@@ -2057,6 +2120,7 @@ export default {
       this.canvas.removeEventListener("mouseup", this.mouseUp); // 鼠标释放弹起
       this.canvas.removeEventListener("mousemove", this.mouseMove);
       this.canvas.removeEventListener("mouseleave", this.mouseLeave);
+      this.canvas?.removeEventListener("mousescroll", this.mouseScroll);
 
       // console.log("drag events removed");
     }

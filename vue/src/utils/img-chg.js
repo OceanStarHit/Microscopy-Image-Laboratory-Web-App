@@ -1,5 +1,7 @@
 import tinycolor from "tinycolor2";
-import { GPU } from "gpu.js";
+import percentile from "percentile";
+import { GPU, input } from "gpu.js";
+import { rfft2d, irfft2d } from "./kissfft";
 
 function getStandardDeviation(array) {
   const n = array.length;
@@ -14,130 +16,245 @@ function getMean(array) {
   return mean;
 }
 
+function rgb2hsv_diffc(c, v, diff) {
+  return (v - c) / 6 / diff + 1 / 2;
+}
+
+const rgb2hsv = arr => {
+  let rr = 0;
+  let gg = 0;
+  let bb = 0;
+  let r = arr[0] / 255;
+  let g = arr[1] / 255;
+  let b = arr[2] / 255;
+  let h = 0;
+  let s = 0;
+  let v = Math.max(Math.max(r, g), b);
+  let diff = v - Math.min(Math.min(r, g), b);
+
+  if (diff === 0) {
+    h = s = 0;
+  } else {
+    s = diff / v;
+    rr = rgb2hsv_diffc(r, v, diff);
+    gg = rgb2hsv_diffc(g, v, diff);
+    bb = rgb2hsv_diffc(b, v, diff);
+
+    if (r === v) {
+      h = bb - gg;
+    } else if (g === v) {
+      h = 1 / 3 + rr - bb;
+    } else if (b === v) {
+      h = 2 / 3 + gg - rr;
+    }
+    if (h < 0) {
+      h += 1;
+    } else if (h > 1) {
+      h -= 1;
+    }
+  }
+  return [Math.round(h * 360), Math.round(s * 100), Math.round(v * 100)];
+};
+
+const hsv2rgb = hsv => {
+  let _l = hsv[0];
+  let _m = hsv[1];
+  let _n = hsv[2];
+  let newR = 0;
+  let newG = 0;
+  let newB = 0;
+  if (_m === 0) {
+    _l = _m = _n = Math.round((255 * _n) / 100);
+    newR = _l;
+    newG = _m;
+    newB = _n;
+  } else {
+    _m = _m / 100;
+    _n = _n / 100;
+    let p = Math.floor(_l / 60) % 6;
+    let f = _l / 60 - p;
+    let a = _n * (1 - _m);
+    let b = _n * (1 - _m * f);
+    let c = _n * (1 - _m * (1 - f));
+    if (p == 0) {
+      newR = _n;
+      newG = c;
+      newB = a;
+    } else if (p == 1) {
+      newR = b;
+      newG = _n;
+      newB = a;
+    } else if (p == 2) {
+      newR = a;
+      newG = _n;
+      newB = c;
+    } else if (p == 3) {
+      newR = a;
+      newG = b;
+      newB = _n;
+    } else if (p == 4) {
+      newR = c;
+      newG = a;
+      newB = _n;
+    } else if (p == 5) {
+      newR = _n;
+      newG = a;
+      newB = b;
+    }
+    newR = Math.round(255 * newR);
+    newG = Math.round(255 * newG);
+    newB = Math.round(255 * newB);
+  }
+  return [newR, newG, newB, 255];
+};
+
+function rgb2yuv(R, G, B) {
+  let Y = 0.257 * R + 0.504 * G + 0.098 * B + 16;
+  let V = 0.439 * R - 0.368 * G - 0.071 * B + 128;
+  let U = -(0.148 * R) - 0.291 * G + 0.439 * B + 128;
+
+  return [Y, U, V];
+}
+
+function yuv2rgb(Y, U, V) {
+  let B = 1.164 * (Y - 16) + 2.018 * (U - 128);
+  let G = 1.164 * (Y - 16) - 0.813 * (V - 128) - 0.391 * (U - 128);
+  let R = 1.164 * (Y - 16) + 1.596 * (V - 128);
+
+  return [R, G, B];
+}
+
 const gpu = new GPU();
-const balanceLightingGPU = rgbData => {
-  // sample 300 points to calculate the average lights.
-  let sampleStep = Math.floor(rgbData.length / 4 / 300) * 4;
-  let sampleVs = [];
-  for (let i = 0; i < rgbData.length; i += sampleStep) {
-    let r = rgbData[i];
-    let g = rgbData[i + 1];
-    let b = rgbData[i + 2];
-    let hsv = rgb2hsv([r, g, b]);
-    sampleVs.push(hsv[2]);
-  }
-
-  if (sampleVs.length == 0) return rgbData;
-
-  let avgV = getMean(sampleVs);
-  let stdV = getStandardDeviation(sampleVs);
-
-  let thredhold = avgV / 100;
-  if (stdV > 3) {
-    thredhold = (avgV + stdV) / 100.0;
-  }
-
-  console.log("avgV: " + avgV + " stdV: " + stdV + " thredhold: " + thredhold);
-  let outputLen = rgbData.length / 4;
-  let removeLightSpotKernel = gpu
-    .createKernel(function(rgbData, thredhold) {
-      let pixIdx = this.thread.x;
-      let r = rgbData[pixIdx * 4] / 255;
-      let g = rgbData[pixIdx * 4 + 1] / 255;
-      let b = rgbData[pixIdx * 4 + 2] / 255;
-
-      let h = 0;
-      let s = 0;
-      let v = r > g ? (r > b ? r : b) : g > b ? g : b; // max
-      let min = r < g ? (r < b ? r : b) : g < b ? g : b; // min
-      let diff = v - min;
-
-      if (diff === 0) {
-        h = s = 0;
-      } else {
-        s = diff / v;
-        let rr = (v - r) / 6 / diff + 1 / 2;
-        let gg = (v - g) / 6 / diff + 1 / 2;
-        let bb = (v - b) / 6 / diff + 1 / 2;
-
-        if (r === v) {
-          h = bb - gg;
-        } else if (g === v) {
-          h = 1 / 3 + rr - bb;
-        } else if (b === v) {
-          h = 2 / 3 + gg - rr;
-        }
-        if (h < 0) {
-          h += 1;
-        } else if (h > 1) {
-          h -= 1;
-        }
-      }
-      // let thredhold = (avgV + 0.8) / 2;
-      // thredhold = 0.8;
-      // remove light spot
-      if (v > thredhold) {
-        v = thredhold;
-        let _l = Math.round(h * 360);
-        let _m = Math.round(s * 100);
-        let _n = Math.round(v * 100);
-        let newR = 0;
-        let newG = 0;
-        let newB = 0;
-        if (_m === 0) {
-          _l = _m = _n = Math.round((255 * _n) / 100);
-          newR = _l;
-          newG = _m;
-          newB = _n;
-        } else {
-          _m = _m / 100;
-          _n = _n / 100;
-          let p = Math.floor(_l / 60) % 6;
-          let f = _l / 60 - p;
-          let a = _n * (1 - _m);
-          let b = _n * (1 - _m * f);
-          let c = _n * (1 - _m * (1 - f));
-          if (p == 0) {
-            newR = _n;
-            newG = c;
-            newB = a;
-          } else if (p == 1) {
-            newR = b;
-            newG = _n;
-            newB = a;
-          } else if (p == 2) {
-            newR = a;
-            newG = _n;
-            newB = c;
-          } else if (p == 3) {
-            newR = a;
-            newG = b;
-            newB = _n;
-          } else if (p == 4) {
-            newR = c;
-            newG = a;
-            newB = _n;
-          } else if (p == 5) {
-            newR = _n;
-            newG = a;
-            newB = b;
-          }
-
-          newR = Math.round(255 * newR);
-          newG = Math.round(255 * newG);
-          newB = Math.round(255 * newB);
-        }
-        return [newR, newG, newB, 255];
-      } else {
-        return [
-          rgbData[pixIdx * 4],
-          rgbData[pixIdx * 4 + 1],
-          rgbData[pixIdx * 4 + 2],
-          rgbData[pixIdx * 4 + 3]
-        ];
-      }
+const balanceLightingGPU2 = img => {
+  const hsvKernel = gpu
+    .createKernel(function(img) {
+      let rgb = img[this.thread.y][this.thread.x];
+      return rgb2yuv(rgb[0] * 255, rgb[1] * 255, rgb[2] * 255);
     })
-    .setOutput([outputLen]);
+    .setOutput([img.width, img.height])
+    .setFunctions([rgb2hsv, rgb2hsv_diffc, rgb2yuv]);
+  let hsvImg = hsvKernel(img);
+  hsvKernel.destroy();
+
+  // console.log("hsvImg");
+  // console.log(hsvImg);
+
+  // const rgbKernel = gpu
+  //   .createKernel(function(img, width) {
+  //     let pi = Math.floor(this.thread.x / 4);
+  //     let ro = Math.floor(pi / width);
+  //     let co = pi % width;
+
+  //     let rgb = yuv2rgb(img[ro][co][0], img[ro][co][1], img[ro][co][2]);
+  //     return [rgb[0], rgb[1], rgb[2], 255][this.thread.x % 4];
+  //   })
+  //   .setOutput([img.width * img.height * 4])
+  //   .setFunctions([hsv2rgb, yuv2rgb]);
+  // let rgbImg = rgbKernel(hsvImg, img.width);
+  // console.log("rgbImg");
+  // console.log(rgbImg);
+  // rgbKernel.destroy();
+  // return rgbImg;
+
+  const logKernel = gpu
+    .createKernel(function(img2, width) {
+      let row = Math.floor(this.thread.x / width);
+      let col = this.thread.x % width;
+
+      // return img[row][col];
+      // let r = values[2];
+      // let v = 1; //Math.log1p(r);
+      return Math.log1p(img2[row][col][0]);
+      // return Math.log1p(v);
+    })
+    .setOutput([img.width * img.height]);
+  let logValues = logKernel(hsvImg, img.width);
+  // console.log("logValues");
+  // console.log(logValues);
+  logKernel.destroy();
+
+  let fftValues = rfft2d(logValues, img.width, img.height);
+
+  const butterworthFilterKernel = gpu
+    .createKernel(function(width, height, p0, p1, a, b) {
+      let x = this.thread.x % width;
+      let y = Math.floor(this.thread.x / width);
+
+      let P = Math.floor(width / 2);
+      let Q = Math.floor(height / 2);
+      let U = y;
+      let V = x;
+
+      // FFtShift
+      let halfWidth = Math.ceil(width / 2);
+      let halfHeight = Math.ceil(height / 2);
+      V = (V + halfWidth) % width;
+      U = (U + halfHeight) % height;
+
+      let Duv = Math.pow(U - P, 2) + Math.pow(V - Q, 2);
+
+      let H = 1 / (1 + Math.pow(Duv / Math.pow(p0, 2), p1));
+      return a + b * (1 - H);
+    })
+    .setOutput([img.width * img.height]);
+  let waterFilter = butterworthFilterKernel(
+    img.width,
+    img.height,
+    180,
+    2,
+    0.25,
+    0.8
+  );
+  butterworthFilterKernel.destroy();
+
+  // apply the filter
+  for (let i = 0; i < fftValues.length; i++) {
+    fftValues[i] = fftValues[i] * waterFilter[Math.floor(i / 2)];
+  }
+
+  // let newlogValues = irfft2d(flattenFft, img.width, img.height);
+  let newlogValues = irfft2d(fftValues, img.width, img.height);
+
+  // Exp
+  const expKernel = gpu
+    .createKernel(function(logImg) {
+      return Math.exp(logImg[this.thread.x]) - 1;
+    })
+    .setOutput([newlogValues.length]);
+  let filteredData = expKernel(newlogValues);
+  expKernel.destroy();
+
+  // console.log(filteredData);
+
+  // console.log("w: " + img.width + " h: " + img.height);
+  const renderKernel = gpu
+    .createKernel(function(hsvImg, data, width, height) {
+      let pixIdx = Math.floor(this.thread.x / 4);
+
+      let row = Math.floor(pixIdx / width);
+      row = height - row; // ?
+
+      let col = Math.floor(pixIdx % width);
+
+      let u = hsvImg[row][col][1];
+      let v = hsvImg[row][col][2];
+      let y = data[row * width + col];
+      let rgb = yuv2rgb(y, u, v);
+
+      return [rgb[0], rgb[1], rgb[2], 255][this.thread.x % 4];
+    })
+    .setFunctions([yuv2rgb])
+    .setOutput([img.width * img.height * 4]);
+
+  let rs = renderKernel(hsvImg, filteredData, img.width, img.height);
+  // console.log(rs);
+  renderKernel.destroy();
+  return rs;
+};
+
+const balanceLightingGPU = rgbData => {
+  let outputLen = rgbData.length / 4;
+  let removeLightSpotKernel = gpuKernel.setOutput([outputLen]);
 
   let newData = removeLightSpotKernel(rgbData, thredhold);
 
@@ -204,104 +321,6 @@ const balanceLighting = imgData => {
   return imgData;
 };
 
-const rgb2hsv = arr => {
-  let rr;
-  let gg;
-  let bb;
-  let r = arr[0] / 255;
-  let g = arr[1] / 255;
-  let b = arr[2] / 255;
-  let h;
-  let s;
-  let v = Math.max(r, g, b);
-  let diff = v - Math.min(r, g, b);
-  let diffc = function(c) {
-    return (v - c) / 6 / diff + 1 / 2;
-  };
-
-  if (diff === 0) {
-    h = s = 0;
-  } else {
-    s = diff / v;
-    rr = diffc(r);
-    gg = diffc(g);
-    bb = diffc(b);
-
-    if (r === v) {
-      h = bb - gg;
-    } else if (g === v) {
-      h = 1 / 3 + rr - bb;
-    } else if (b === v) {
-      h = 2 / 3 + gg - rr;
-    }
-    if (h < 0) {
-      h += 1;
-    } else if (h > 1) {
-      h -= 1;
-    }
-  }
-  return [Math.round(h * 360), Math.round(s * 100), Math.round(v * 100)];
-};
-
-const hsv2rgb = hsv => {
-  let _l = hsv[0];
-  let _m = hsv[1];
-  let _n = hsv[2];
-  let newR;
-  let newG;
-  let newB;
-  if (_m === 0) {
-    _l = _m = _n = Math.round((255 * _n) / 100);
-    newR = _l;
-    newG = _m;
-    newB = _n;
-  } else {
-    _m = _m / 100;
-    _n = _n / 100;
-    let p = Math.floor(_l / 60) % 6;
-    let f = _l / 60 - p;
-    let a = _n * (1 - _m);
-    let b = _n * (1 - _m * f);
-    let c = _n * (1 - _m * (1 - f));
-    switch (p) {
-      case 0:
-        newR = _n;
-        newG = c;
-        newB = a;
-        break;
-      case 1:
-        newR = b;
-        newG = _n;
-        newB = a;
-        break;
-      case 2:
-        newR = a;
-        newG = _n;
-        newB = c;
-        break;
-      case 3:
-        newR = a;
-        newG = b;
-        newB = _n;
-        break;
-      case 4:
-        newR = c;
-        newG = a;
-        newB = _n;
-        break;
-      case 5:
-        newR = _n;
-        newG = a;
-        newB = b;
-        break;
-    }
-    newR = Math.round(255 * newR);
-    newG = Math.round(255 * newG);
-    newB = Math.round(255 * newB);
-  }
-  return [newR, newG, newB];
-};
-
 const changeImageLuminance = (imgdata, value) => {
   const data = imgdata.data;
   for (let i = 0; i < data.length; i += 4) {
@@ -314,6 +333,8 @@ const changeImageLuminance = (imgdata, value) => {
   }
   return imgdata;
 };
+
+// const bestImageLuminance
 
 function getImgRow(imgPixcels, row, channel) {
   let startPox = imgPixcels.width * channel * row;
@@ -375,6 +396,72 @@ const imageAverageLuminance = imgdata => {
   return lum / lumCount;
 };
 
+const test_fit = imgData => {
+  const data = imgData.data;
+  // console.log("DATA.slice(1, 100)", data.slice(0, 100));
+  const [min_percentile, max_percentile] = percentile([1, 99], data);
+  // console.log("MAX_PERCENTILE =>", max_percentile);
+  // console.log("MIN_PERCENTILE => ", min_percentile);
+  const normalize = x => {
+    const max = 255 * 0.9;
+    const min = 255 * 0.1;
+    return (x - min) / (max - min);
+  };
+  for (let i = 0; i < data.length; i += 4) {
+    let flag = true;
+    data.slice(i, i + 4).forEach(index => {
+      if (data[i + index] < min_percentile) {
+        data[i + index] = min_percentile;
+        flag = false;
+      } else if (data[i + index] > max_percentile) {
+        data[i + index] = max_percentile;
+        flag = false;
+      }
+    });
+    if (!flag) continue;
+    data[i] *= normalize(data[i]);
+    data[i + 1] *= normalize(data[i + 1]);
+    data[i + 2] *= normalize(data[i + 2]);
+  }
+  return imgData;
+};
+
+/**
+ * 去掉BGR灰度直方图两侧较大亮度值, 自动适配Gamma
+ * @param imgData
+ */
+const autoFitLuminance = imgData => {
+  return test_fit(imgData);
+  // const data = imgData.data;
+  // let lumArray = [];
+  // for (let i = 0; i < data.length; i += 4) {
+  //   const hsv = rgb2hsv([data[i], data[i + 1], data[i + 2]]);
+  //   lumArray.push(hsv[2]);
+  // }
+  // const [min_percentile, max_percentile] = percentile([1, 99], lumArray);
+  // for (let i = 0; i < lumArray.length; i++) {
+  //   if (lumArray[i] < min_percentile) {
+  //     lumArray[i] = min_percentile;
+  //     continue;
+  //   }
+  //   if (lumArray[i] > max_percentile) {
+  //     lumArray[i] = max_percentile;
+  //     continue;
+  //   }
+  //   const dst =
+  //     (lumArray[i] - min_percentile) / (max_percentile - min_percentile);
+  //   const hsv = rgb2hsv([data[i * 4], data[i * 4 + 1], data[i * 4 + 2]]);
+  //   hsv[2] = lumArray[i] * dst;
+  //   const rgb = hsv2rgb([...hsv]);
+  //   data[i * 4] = rgb[0];
+  //   data[i * 4 + 1] = rgb[1];
+  //   data[i * 4 + 2] = rgb[2];
+  // }
+  // return imgData;
+};
+
+// const LUT = (imgData, gamma) => {};
+
 export {
   rgb2hsv,
   hsv2rgb,
@@ -382,5 +469,7 @@ export {
   imageAverageLuminance,
   getImageEdge,
   balanceLighting,
-  balanceLightingGPU
+  balanceLightingGPU,
+  balanceLightingGPU2,
+  autoFitLuminance
 };
