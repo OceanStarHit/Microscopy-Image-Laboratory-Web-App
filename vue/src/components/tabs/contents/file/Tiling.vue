@@ -210,40 +210,70 @@
             <v-card v-else-if="tiling.activeMenuItem == 2" flat>
               <v-card-title class="pa-1">Bonding</v-card-title>
               <div class="inside">
-                <v-checkbox
-                  v-model="tiling.bonding.notSnapToEdge"
-                  label="None"
-                  color="primary"
-                  :value="true"
-                  hide-details
-                  :disabled="
-                    tiling.alignment.disables[tiling.alignment.activeMode].chkLR
-                  "
-                ></v-checkbox>
-                <v-checkbox
-                  v-model="tiling.bonding.snapToEdge"
-                  label="Snap To Edge"
-                  color="primary"
-                  :value="true"
-                  hide-details
-                  :disabled="
-                    tiling.alignment.disables[tiling.alignment.activeMode].chkLR
-                  "
-                ></v-checkbox>
-                <v-checkbox
-                  v-model="tiling.bonding.patternMatch"
-                  label="Pattern Match"
-                  color="primary"
-                  :value="true"
-                  hide-details
-                  :disabled="
-                    tiling.alignment.disables[tiling.alignment.activeMode].chkLR
-                  "
-                ></v-checkbox>
-
-                <v-btn elevation="2" class="mt-5" @click="autoPatternMathing"
-                  >Auto</v-btn
-                >
+                <v-row class="mr-4">
+                  <v-checkbox
+                    v-model="tiling.bonding.notSnapToEdge"
+                    label="None"
+                    color="primary"
+                    :value="true"
+                    hide-details
+                    :disabled="
+                      tiling.alignment.disables[tiling.alignment.activeMode]
+                        .chkLR
+                    "
+                  ></v-checkbox>
+                </v-row>
+                <v-row class="mr-4">
+                  <v-checkbox
+                    v-model="tiling.bonding.snapToEdge"
+                    label="Snap To Edge"
+                    color="primary"
+                    :value="true"
+                    hide-details
+                    :disabled="
+                      tiling.alignment.disables[tiling.alignment.activeMode]
+                        .chkLR
+                    "
+                  ></v-checkbox>
+                </v-row>
+                <v-row class="mr-4">
+                  <v-checkbox
+                    v-model="tiling.bonding.patternMatch"
+                    label="Pattern Match"
+                    color="primary"
+                    :value="true"
+                    hide-details
+                    :disabled="
+                      tiling.alignment.disables[tiling.alignment.activeMode]
+                        .chkLR
+                    "
+                  ></v-checkbox>
+                </v-row>
+                <v-row class="mr-4" v-if="tiling.bonding.patternMatch">
+                  <v-col cols="4">
+                    <v-text-field
+                      v-model="tiling.bonding.overlayX"
+                      class="range-field"
+                      label="Overlap X"
+                      type="number"
+                      outlined
+                      dense
+                    />
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      v-model="tiling.bonding.overlayY"
+                      class="range-field"
+                      label="Overlap Y"
+                      type="number"
+                      outlined
+                      dense
+                    />
+                  </v-col>
+                  <v-btn elevation="2" class="mt-5" @click="autoPatternMathing">
+                    Auto</v-btn
+                  >
+                </v-row>
               </div>
             </v-card>
             <!-- Shading -->
@@ -363,7 +393,7 @@
                   track-color="grey lighten-2"
                   background-color="grey"
                   vertical
-                  @change="performDrawing"
+                  @change="onCanvasMoved"
                 ></v-slider>
               </div>
             </div>
@@ -375,20 +405,30 @@
                   min="0"
                   step="10"
                   v-model="tiling.canvasShiftX"
-                  @change="performDrawing"
                   width="100%"
                   color="grey lighten-2"
                   thumb-color="light-blue lighten-3"
                   track-color="grey lighten-2"
                   background-color="grey lighten-2"
+                  @change="onCanvasMoved"
                   height="1"
                 ></v-slider>
               </div>
 
-              <div class="col-sm-3">
+              <div class="col-sm-3" style="position: relative;">
+                <v-btn
+                  style="position: absolute; top: 0; width: 100%; height: 38px;"
+                >
+                  {{ scaleRate + "%" }}
+                  <v-icon right>
+                    mdi-pencil
+                  </v-icon>
+                </v-btn>
                 <v-select
+                  style="position: absolute; top: 0; width: 100%; height: 38px;opacity: 0;"
                   :items="tiling.canvasScales"
                   v-model="tiling.canvasScale"
+                  @change="onScaleChange"
                   dense
                   solo
                 >
@@ -417,7 +457,8 @@ import {
   getImageEdge,
   balanceLighting,
   autoFitLuminance,
-  balanceLightingGPU2
+  balanceLightingGPU2,
+  shadingCorrection
 } from "../../../../utils/img-chg";
 import {
   matchPixcels,
@@ -457,6 +498,10 @@ export default {
     imageWidth: 0,
     imageHeight: 0,
 
+    scrollX: TILING_CANVAS_SIZE / 2,
+    scrollY: TILING_CANVAS_SIZE / 2,
+    scrollStep: 0,
+    frontScale: TILING_SCALE_OPTIONS[1] / 100,
     tilingMenus: [
       "Edit",
       "Alignment",
@@ -480,7 +525,7 @@ export default {
       // 平铺图片界面参数设置
       canvas: null,
       canvasScales: TILING_SCALE_OPTIONS,
-      canvasScale: TILING_SCALE_OPTIONS[1],
+      canvasScale: TILING_SCALE_OPTIONS[1] / 100,
       canvasShiftX: 0, // X 方向上的位移
       canvasShiftY: 0, // Y 方向上的位移
       preview: null,
@@ -494,7 +539,9 @@ export default {
         patternMatch: false,
         lines: [],
         offsetX: 0,
-        offsetY: 0
+        offsetY: 0,
+        overlayX: 25,
+        overlayY: 25
       },
       edit: {
         activeFileItem: -1,
@@ -574,6 +621,7 @@ export default {
         ]
       },
       mouse: {
+        moveTime: undefined,
         catchImg: false,
         draggingImgIdx: -1,
         startX: -1,
@@ -606,7 +654,9 @@ export default {
     // progressBarMaxValue: 0,
     luminance: 0.0,
     averageLuminance: 0.0,
-    autoFit: false
+    autoFit: false,
+    translateX: 0,
+    translateY: 0
   }),
 
   watch: {
@@ -617,27 +667,9 @@ export default {
     "tiling.canvasShiftY": function(newV, oV) {
       this.performDrawing();
     },
-    "tiling.canvasScale": function(newV, oV) {
-      let orgPt = this.coordinateTranslateReverse(
-        {
-          x: this.tiling.canvasShiftX,
-          y: this.tiling.canvasShiftY
-        },
-        oV
-      );
-
-      let newSht = this.coordinateTranslate(
-        {
-          x: orgPt.x,
-          y: orgPt.y
-        },
-        newV
-      );
-
-      this.tiling.canvasShiftX = newSht.x;
-      this.tiling.canvasShiftY = newSht.y;
-      this.performDrawing();
-    },
+    // "tiling.canvasScale": function(newV, oV) {
+    //   // 通过原缩放比例对canvasShiftX和canvasShiftY坐标进行还原
+    // },
     "tiling.bonding.notSnapToEdge": function(newV, oV) {
       if (newV) {
         this.tiling.bonding.snapToEdge = false;
@@ -658,6 +690,10 @@ export default {
         this.tiling.bonding.snapToEdge = false;
         this.performDrawing();
       }
+    },
+    scrollBarHorizontalMax(newValue, oldValue) {
+      console.log("NEW VALUE => ", newValue);
+      console.log("OLD VALUE => ", oldValue);
     }
   },
 
@@ -671,30 +707,47 @@ export default {
       return index =>
         require(`../../../../assets/images/pos_align_${index - 1}.png`);
     },
+    scaleRate() {
+      return (this.coordinateScale * 100).toFixed(0);
+    },
     coordinateScale() {
-      return this.tiling.canvasScale / 100;
+      return this.tiling.canvasScale;
+      // return this.tiling.canvasScale / 100;
+    },
+    maxAndMinPoint() {
+      let xMax = 0;
+      let yMax = 0;
+      let xMin = 0;
+      let yMin = 0;
+      for (let img of this.tiling.drawList) {
+        const { width, height, x, y } = this.coordinateTranslate(img);
+        const xPoint = x + width;
+        const yPoint = y + height;
+        if (xPoint > xMax) xMax = xPoint;
+        if (yPoint > yMax) yMax = yPoint;
+        if (x < xMin) xMin = x;
+        if (y < yMin) yMin = y;
+      }
+      return { xMin, xMax, yMin, yMax };
     },
     scrollBarHorizontalMax() {
-      let translated = this.coordinateTranslate({
-        width: this.tiling.totalImagesWith
-      });
-
-      let rs = translated.width - TILING_CANVAS_SIZE;
-      if (rs < 0) rs = 0;
-      return rs;
+      const gap = this.maxAndMinPoint.xMax - TILING_CANVAS_SIZE;
+      return gap < 0 ? 0 : gap;
     },
     scrollBarVerticalMax() {
-      let translated = this.coordinateTranslate({
-        height: this.tiling.totalImagesHeight
-      });
-
-      let rs = translated.height - TILING_CANVAS_SIZE;
-      if (rs < 0) rs = 0;
-      return rs;
+      const gap = this.maxAndMinPoint.yMax - TILING_CANVAS_SIZE;
+      return gap < 0 ? 0 : gap;
+    },
+    overflowCanvas() {
+      return this.scrollBarHorizontalMax > 0 || this.scrollBarVerticalMax > 0;
     }
   },
 
   methods: {
+    onCanvasMoved() {
+      // console.log(this.scrollBarHorizontalMax);
+      // console.log("Canvas Moved ");
+    },
     changeAlignMode() {
       this.drawImages();
     },
@@ -717,6 +770,12 @@ export default {
     },
     inputTilingGapY() {
       this.drawImages();
+    },
+    onScaleChange(val) {
+      console.log("val = ", val)
+      this.tiling.canvasScale = val / 100;
+      this.performDrawing();
+      // this.zoom();
     },
     pickImageFile(_selectedIndex) {
       const POSITION_DIALOG_STROKE_WIDTH = 2;
@@ -773,17 +832,10 @@ export default {
       }
     },
     async getImageSize() {
-      // 得到每个小图片的尺寸
-      // 得到第一个小图片的尺寸
-      // let image = await loadImage();
       if (this.files.length > 0) {
         let image = this.files[0].imageData;
-
-        this.imageWidth = image.width * (this.tiling.canvasScale / 100);
-        this.imageHeight = image.height * (this.tiling.canvasScale / 100);
-        console.log(
-          `IMAGE WIDTH = ${this.imageWidth}; IMAGE HEIGHT = ${this.imageHeight}`
-        );
+        this.imageWidth = image.width * this.coordinateScale;
+        this.imageHeight = image.height * this.coordinateScale;
       }
     },
     drawImages() {
@@ -796,8 +848,7 @@ export default {
       ) {
         this.imageWidth = this.filesSortByField[0].imageData.width;
         this.imageHeight = this.filesSortByField[0].imageData.height;
-        console.log("ImageWidth = ", this.imageWidth);
-        console.log("ImageHeight = ", this.imageHeight);
+
         if (this.imageWidth && this.imageHeight) {
         } else {
           console.log("no image width");
@@ -814,7 +865,7 @@ export default {
       this.tiling.drawList = [];
 
       if (this.filesSortByField && this.filesSortByField.length) {
-        console.log("TILING => ", this.tiling);
+        console.log("ALIGNMENT = ", this.tiling.alignment.activeMode);
         switch (this.tiling.alignment.activeMode) {
           case 0:
             this.drawCascade(); // 瀑布展示
@@ -887,16 +938,22 @@ export default {
       this.autoFit = true;
       this.performDrawing();
     },
-    // 重置图像亮度
+    /**
+     * 重置亮度
+     */
     resetImgLuminance() {
       this.luminance = 0.0;
       this.autoFit = false;
       this.performDrawing();
     },
+    /**
+     * image对象转ImageData对象
+     * @param params
+     * @returns {ImageData}
+     */
     img2ImageData(params) {
       var cvs = document.createElement("canvas");
       var ctx = cvs.getContext("2d");
-
       cvs.width = params.width;
       cvs.height = params.height;
       ctx.drawImage(params.image, 0, 0, cvs.width, cvs.height);
@@ -946,8 +1003,10 @@ export default {
 
           console.log("Get image daxta in memory");
 
+          // shadingCorrection(img.image);
+
           let newImgData = new ImageData(
-            new Uint8ClampedArray(balanceLightingGPU2(img.image)),
+            new Uint8ClampedArray(shadingCorrection(img.image)),
             imgData.width,
             imgData.height
           );
@@ -970,39 +1029,6 @@ export default {
         }
       }
       go();
-
-      //    else {
-      //     clearInterval(hd);
-      //   }
-      //   idx++;
-      // }, 100);
-
-      // for (let idx in this.tiling.drawList) {
-      //   console.log("Start correctLighting");
-
-      //   let img = this.tiling.drawList[idx];
-      //   let imgData = this.img2ImageData(img);
-      //   if ("srgb" != imgData.colorSpace) {
-      //     this.flashError("Color Space not supported: " + imgData.colorSpace);
-      //     return;
-      //   }
-
-      //   let newImgData = balanceLighting(imgData);
-      //   img.image.src = this.imageData2ImgUri(
-      //     newImgData,
-      //     img.width,
-      //     img.height
-      //   );
-      //   lastImg = img.image;
-      //   console.log("End correctLighting");
-      // }
-      // if (lastImg) {
-      //   let that = this;
-      //   lastImg.onload = function() {
-      //     that.performDrawing();
-      //   };
-      // }
-      // this.performDrawing();
     },
     normalizeImgLuminance() {
       let entireLum = 0;
@@ -1029,11 +1055,12 @@ export default {
       }
       this.performDrawing();
     },
-
+    /**
+     * 初始化画布, 清空行和列
+     * @param mode
+     * @param setNull
+     */
     drawInit(mode, setNull = true) {
-      // 初始化画布
-      // console.log(mode);
-
       if (setNull) {
         this.tiling.alignment.rows = null;
         this.tiling.alignment.cols = null;
@@ -1242,8 +1269,11 @@ export default {
       this.drawInit("ByXYZ");
     },
 
+    /**
+     * 固定列数排列
+     * @param patternMatch
+     */
     drawByColumns(patternMatch = false) {
-      // 固定列数排列
       this.drawInit("ByColumns", false); // 初始化画布，不删除宽高
 
       if (this.tiling.alignment.rows == null) {
@@ -1387,6 +1417,7 @@ export default {
       let t = this.coordinateTranslate({
         height: this.tiling.totalImagesHeight
       });
+
       this.tiling.canvasShiftY = t.height;
       this.tiling.canvasShiftY = t.height;
       this.tiling.canvasShiftX = 0;
@@ -1427,6 +1458,8 @@ export default {
             this.tiling.drawList.push({
               x,
               y,
+              drawX: x,
+              drawY: y,
               width: imageWidth,
               height: imageHeight,
               image,
@@ -1446,24 +1479,31 @@ export default {
         dir *= -1;
       }
     },
-
-    coordinateTranslate(params, scale = this.coordinateScale) {
-      let canvasShiftY =
-        this.tiling.totalImagesHeight * scale -
-        TILING_CANVAS_SIZE -
-        this.tiling.canvasShiftY;
-
-      if (canvasShiftY < 0) canvasShiftY = 0;
-
+    getScaledImage(imgData) {
+      const copyImg = Object.assign({}, imgData);
+      copyImg.width = copyImg.width * this.coordinateScale;
+      copyImg.height = copyImg.height * this.coordinateScale;
+      return copyImg;
+    },
+    /**
+     * 获取当前x,y坐标
+     * @param x
+     * @param y
+     * @returns {number[]}
+     */
+    getPosition(x, y) {
+      return [this.coordinateScale * x, this.coordinateScale * y];
+    },
+    coordinateTranslate: function(params, scale = this.coordinateScale) {
       let copy = Object.assign({}, params);
-
-      if (typeof copy.x !== "undefined")
-        copy.x = copy.x * scale - this.tiling.canvasShiftX;
-      if (typeof copy.y !== "undefined") copy.y = copy.y * scale - canvasShiftY;
       if (typeof copy.width !== "undefined")
-        copy.width = Math.ceil(copy.width * scale);
+        copy.width = copy.width * this.tiling.canvasScale;
       if (typeof copy.height !== "undefined")
-        copy.height = Math.ceil(copy.height * scale);
+        copy.height = copy.height * this.tiling.canvasScale;
+      if (typeof copy.x !== "undefined")
+        copy.x = copy.x * this.tiling.canvasScale + this.translateX;
+      if (typeof copy.y !== "undefined")
+        copy.y = copy.y * this.tiling.canvasScale + this.translateY;
       return copy;
     },
 
@@ -1476,30 +1516,71 @@ export default {
       if (canvasShiftY < 0) canvasShiftY = 0;
 
       let copy = Object.assign({}, params);
-      if (typeof copy.x !== "undefined")
-        copy.x = (copy.x + this.tiling.canvasShiftX) / scale;
-      if (typeof copy.y !== "undefined")
-        copy.y = (copy.y + canvasShiftY) / scale;
       if (typeof copy.width !== "undefined") copy.width = copy.width / scale;
       if (typeof copy.height !== "undefined") copy.height = copy.height / scale;
+      if (typeof copy.x !== "undefined")
+        copy.x = copy.x / this.tiling.canvasScale + this.translateX;
+      if (typeof copy.y !== "undefined")
+        copy.y = copy.y / this.tiling.canvasScale + this.translateY;
       return copy;
     },
 
     performDrawing() {
-      this.tiling.preview.canvas.width = TILING_CANVAS_SIZE;
-      this.tiling.preview.canvas.height = this.tiling.preview.canvas.width;
-      // console.log("canvas width: " + this.tiling.preview.canvas.width);
-
+      const ctx = this.tiling.preview;
       this.tiling.preview.clearRect(
         0,
         0,
-        this.tiling.preview.canvas.width,
-        this.tiling.preview.canvas.height
+        TILING_CANVAS_SIZE,
+        TILING_CANVAS_SIZE
       );
+      console.log(
+        "TRANSLATE X = ",
+        this.translateX,
+        "TRANSLATE Y = ",
+        this.translateY
+      );
+      // ctx.save();
+      // ctx.translate(this.translateX, this.translateY);
+      // ctx.scale(this.tiling.canvasScale, this.tiling.canvasScale);
+      // console.log("Scale = ", this.tiling.canvasScale);
+      // for (let params of this.tiling.drawList) {
+      //   params = this.coordinateTranslate(params);
+      //   ctx.drawImage(
+      //     params.image,
+      //     params.x,
+      //     params.y,
+      //     params.width,
+      //     params.height
+      //   );
+      // const imgData = ctx.getImageData(params.x, params.y, params.width, params.height);
+      // ctx.clearRect(params.x, params.y, params.width, params.height);
+      // // let imgData = this.img2ImageData(params);
+      // this.tiling.preview.putImageData(
+      //   imgData,
+      //   params.x,
+      //   params.y,
+      //   0,
+      //   0,
+      //   params.width,
+      //   params.height
+      // );
+      // }
+      // let imgData = this.img2ImageData(params);
+      // this.tiling.preview.putImageData(
+      //   imgData,
+      //   params.x,
+      //   params.y,
+      //   0,
+      //   0,
+      //   params.width,
+      //   params.height
+      // );
 
-      // console.log("this.coordinateScale: " + this.coordinateScale);
+      // ctx.restore();
+
       for (let idx in this.tiling.drawList) {
         let params = this.coordinateTranslate(this.tiling.drawList[idx]);
+        // const params = this.tiling.drawList[idx];
         if (
           params.x < this.tiling.preview.canvas.width &&
           params.y < this.tiling.preview.canvas.height &&
@@ -1507,32 +1588,12 @@ export default {
           params.y + params.height >= 0
         ) {
           let imgData = this.img2ImageData(params);
-          // console.log(params.width, params.height);
           if (params.lumRatio && params.lumRatio != 0) {
-            // let dataVector = this.$wasm.change_image_luminance(
-            //   imgData.data,
-            //   params.lumRatio + this.luminance
-            // );
-            // imgData = new ImageData(
-            //   new Uint8ClampedArray(dataVector),
-            //   imgData.width,
-            //   imgData.height
-            // );
             imgData = changeImageLuminance(
               imgData,
               params.lumRatio + this.luminance
             );
           } else if (this.luminance != 0) {
-            // let dataVector = this.$wasm.change_image_luminance(
-            //   imgData.data,
-            //   this.luminance
-            // );
-            // imgData = new ImageData(
-            //   new Uint8ClampedArray(dataVector),
-            //   imgData.width,
-            //   imgData.height
-            // );
-            // imgData = changeImageLuminance(imgData, this.luminance);
             changeImageLuminance(imgData, this.luminance);
           } else if (this.autoFit) {
             autoFitLuminance(imgData);
@@ -1548,7 +1609,6 @@ export default {
           );
         }
       }
-
       for (let lineIdx in this.tiling.bonding.lines) {
         let line = this.tiling.bonding.lines[lineIdx];
         this.tiling.preview.strokeStyle = "green";
@@ -1618,7 +1678,6 @@ export default {
     mouseUp() {
       if (this.tiling.mouse.catchImg) {
         this.tiling.mouse.catchImg = false;
-
         if (
           this.tiling.bonding.offsetX != 0 ||
           this.tiling.bonding.offsetY != 0
@@ -1642,45 +1701,51 @@ export default {
     },
 
     mouseMove(e) {
-      if (this.tiling.mouse.catchImg) {
-        const { mouseX, mouseY } = this.getCursorXY(e);
-        // console.log(`X = ${mouseX}, Y = ${mouseY}`);
+      if (!this.tiling.mouse.catchImg) return;
+      if (
+        this.tiling.mouse.moveTime &&
+        Date.now() - this.tiling.mouse.moveTime < 16
+      )
+        return; // throttle
+      const { mouseX, mouseY } = this.getCursorXY(e);
 
-        let movingImg = this.tiling.drawList[this.tiling.drawList.length - 1];
+      let movingImg = this.tiling.drawList[this.tiling.drawList.length - 1];
+      let movingParam = this.coordinateTranslateReverse({
+        width: mouseX - this.tiling.mouse.startX,
+        height: mouseY - this.tiling.mouse.startY
+      });
 
-        let movingParam = this.coordinateTranslateReverse({
-          width: mouseX - this.tiling.mouse.startX,
-          height: mouseY - this.tiling.mouse.startY
-        });
+      let newImgX = this.tiling.mouse.imgOriginX + movingParam.width;
+      let newImgY = this.tiling.mouse.imgOriginY + movingParam.height;
 
-        let newImgX = this.tiling.mouse.imgOriginX + movingParam.width;
-        let newImgY = this.tiling.mouse.imgOriginY + movingParam.height;
+      movingImg.x = newImgX;
+      movingImg.y = newImgY;
 
-        movingImg.x = Math.round(newImgX);
-        movingImg.y = Math.round(newImgY);
-
-        if (
-          this.tiling.bonding.snapToEdge ||
-          this.tiling.bonding.patternMatch
-        ) {
-          this.calculateBondingOffsets(movingImg);
-        }
-        this.performDrawing();
+      if (this.tiling.bonding.snapToEdge || this.tiling.bonding.patternMatch) {
+        this.calculateBondingOffsets(movingImg);
       }
+      this.performDrawing();
     },
     mouseScroll(e) {
-      console.log(e);
-      const wheelDelta = e?.wheelDelta;
-      const { mouseX, mouseY } = this.getCursorXY(e);
-      if (wheelDelta > 0) {
-        if (this.tiling.canvasScale < 100) {
-          this.tiling.canvasScale += 1;
-        }
+      e.preventDefault();
+      e.stopPropagation();
+      const { wheelDelta, offsetX, offsetY } = e;
+      const step = wheelDelta > 0 ? 0.01 : -0.01;
+      const currentScale = this.tiling.canvasScale + step;
+      this.tiling.canvasScale = currentScale;
+      if (this.overflowCanvas) {
+        this.translateX =
+          offsetX -
+          ((offsetX - this.translateX) * currentScale) / this.frontScale;
+        this.translateY =
+          offsetY -
+          ((offsetY - this.translateY) * currentScale) / this.frontScale;
       } else {
-        if (this.tiling.canvasScale > 1) {
-          this.tiling.canvasScale -= 1;
-        }
+        this.translateX = 0;
+        this.translateY = 0;
       }
+      this.performDrawing();
+      this.frontScale = currentScale;
     },
 
     // All coordinates are in real HD image sizes.
@@ -2022,6 +2087,8 @@ export default {
 
     autoPatternMathing() {
       let that = this;
+      that.drawImages2();
+
       this.tiling.drawList.forEach(function(item) {
         that.calculateBondingOffsets(item);
         if (that.tiling.bonding.offsetX != 0) {
@@ -2044,8 +2111,11 @@ export default {
     this.filesWatch = this.$store.watch(
       (state, getters) => getters["files/position/getFilesUpdatedCount"],
       async count => {
-        console.log("COUNT 执行 ", count);
         if (this.tiling.preview) {
+          this.translateX = 0;
+          this.translateY = 0;
+          this.frontScale = 1;
+          this.tiling.canvasScale = TILING_SCALE_OPTIONS[2] / 100;
           this.drawImages();
         }
       }
@@ -2070,6 +2140,8 @@ export default {
     this.$nextTick(function() {
       if (this.tiling.preview == null) {
         this.canvas = document.getElementById("canvas");
+        this.canvas.width = TILING_CANVAS_SIZE;
+        this.canvas.height = TILING_CANVAS_SIZE;
         this.tiling.preview = this.canvas.getContext("2d");
 
         this.canvas.addEventListener("mousedown", this.mouseDown); // 鼠标按下
@@ -2083,25 +2155,15 @@ export default {
         this.getImageSize();
         this.drawImages(); // 刷新drawingIntervalNeedRedraw
       }
-      console.log(
-        "drawingIntervalNeedPerformingDrawing = ",
-        this.drawingIntervalNeedPerformingDrawing
-      );
-      console.log(
-        "drawingIntervalNeedRedraw = ",
-        this.drawingIntervalNeedRedraw
-      );
-      console.log("filesSortByField => ", this.filesSortByField);
+
       if (this.drawingIntervalHd == null) {
         let that = this;
         this.drawingIntervalHd = setInterval(function() {
           if (that.drawingIntervalNeedPerformingDrawing) {
-            // console.log("Need performing drawing!");
             that.performDrawing();
             that.drawingIntervalNeedPerformingDrawing = false;
           }
           if (that.drawingIntervalNeedRedraw) {
-            // console.log("Need redraw!");
             that.drawImages2();
             that.drawingIntervalNeedRedraw = false;
           }

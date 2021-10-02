@@ -125,6 +125,82 @@ function yuv2rgb(Y, U, V) {
 }
 
 const gpu = new GPU();
+
+const shadingCorrection = img => {
+  const hsvKernel = gpu
+    .createKernel(function(img) {
+      let rgb = img[this.thread.y][this.thread.x];
+      return rgb2yuv(rgb[0] * 255, rgb[1] * 255, rgb[2] * 255);
+    })
+    .setOutput([img.width, img.height])
+    .setFunctions([rgb2yuv]);
+  let hsvImg = hsvKernel(img);
+  hsvKernel.destroy();
+
+  let totalH = 0;
+  for (let i = 0; i < img.width; i++) {
+    for (let j = 0; j < img.height; j++) {
+      totalH = totalH + hsvImg[j][i][0];
+    }
+  }
+  let level = totalH / (img.width * img.height);
+
+  const rollingBallKernel = gpu
+    .createKernel(function(img, width, height, level) {
+      let radius = 200; //Math.floor(width / 60);
+      let yStart = this.thread.y - radius;
+      let yEnd = this.thread.y + radius;
+
+      let xStart = this.thread.x - radius;
+      let xEnd = this.thread.x + radius;
+
+      let total = 0;
+      let count = 0;
+      for (let y = yStart; y < yEnd; y = y + 10) {
+        for (let x = xStart; x < xEnd; x = x + 10) {
+          if (y >= 0 && x >= 0 && y < height && x < width) {
+            let h = img[y][x][0];
+            total = total + h;
+            count = count + 1;
+          }
+        }
+      }
+
+      let y = img[this.thread.y][this.thread.x][0];
+      let u = img[this.thread.y][this.thread.x][1];
+      let v = img[this.thread.y][this.thread.x][2];
+      let avg = Math.round(total / count);
+
+      y = y + level - avg;
+      if (y > level) {
+        y = level + (y - level) * 1.1;
+      } else {
+        y = level - (level - y) * 1.1;
+      }
+
+      let rgb = yuv2rgb(y, u, v);
+      let r = Math.round(rgb[0]);
+      let g = Math.round(rgb[1]);
+      let b = Math.round(rgb[2]);
+      return [r, g, b, 255];
+    })
+    .setOutput([img.width, img.height])
+    .setFunctions([yuv2rgb]);
+
+  let resultImg = rollingBallKernel(hsvImg, img.width, img.height, level);
+
+  let rs = [];
+  for (let row = img.height - 1; row >= 0; row--) {
+    for (let col = 0; col < img.width; col++) {
+      rs.push(resultImg[row][col][0]);
+      rs.push(resultImg[row][col][1]);
+      rs.push(resultImg[row][col][2]);
+      rs.push(resultImg[row][col][3]);
+    }
+  }
+  return rs;
+};
+
 const balanceLightingGPU2 = img => {
   const hsvKernel = gpu
     .createKernel(function(img) {
@@ -132,10 +208,9 @@ const balanceLightingGPU2 = img => {
       return rgb2yuv(rgb[0] * 255, rgb[1] * 255, rgb[2] * 255);
     })
     .setOutput([img.width, img.height])
-    .setFunctions([rgb2hsv, rgb2hsv_diffc, rgb2yuv]);
+    .setFunctions([rgb2yuv]);
   let hsvImg = hsvKernel(img);
   hsvKernel.destroy();
-
   // console.log("hsvImg");
   // console.log(hsvImg);
 
@@ -398,13 +473,10 @@ const imageAverageLuminance = imgdata => {
 
 const test_fit = imgData => {
   const data = imgData.data;
-  // console.log("DATA.slice(1, 100)", data.slice(0, 100));
   const [min_percentile, max_percentile] = percentile([1, 99], data);
-  // console.log("MAX_PERCENTILE =>", max_percentile);
-  // console.log("MIN_PERCENTILE => ", min_percentile);
+  const max = 255 * 0.9;
+  const min = 255 * 0.1;
   const normalize = x => {
-    const max = 255 * 0.9;
-    const min = 255 * 0.1;
     return (x - min) / (max - min);
   };
   for (let i = 0; i < data.length; i += 4) {
@@ -471,5 +543,6 @@ export {
   balanceLighting,
   balanceLightingGPU,
   balanceLightingGPU2,
-  autoFitLuminance
+  autoFitLuminance,
+  shadingCorrection
 };

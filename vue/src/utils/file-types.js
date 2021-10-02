@@ -162,7 +162,6 @@ export const FILE_TYPES = [
   ".tiff",
   ".tnb",
   ".top",
-  ".txt",
   ".v",
   ".vff",
   ".vms",
