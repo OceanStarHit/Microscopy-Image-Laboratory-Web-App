@@ -188,6 +188,7 @@ const shadingCorrection = img => {
     .setFunctions([yuv2rgb]);
 
   let resultImg = rollingBallKernel(hsvImg, img.width, img.height, level);
+  rollingBallKernel.destroy();
 
   let rs = [];
   for (let row = img.height - 1; row >= 0; row--) {

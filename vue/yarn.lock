@@ -5503,6 +5503,11 @@ interpret@^1.0.0:
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-1.4.0.tgz#665ab8bc4da27a774a40584e812e3e0fa45b1a1e"
   integrity sha512-agE4QfB2Lkp9uICn7BAqoscw4SZP9kTE2hxiFI3jBPmXJfdqiahTbUuKGsMoN2GtqL9AxhYioAcVvgsb1HvRbA==
 
+iobuffer@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/iobuffer/-/iobuffer-5.0.3.tgz#31a640b4e33659955bbf57ce796324334265dacf"
+  integrity sha512-0SNk4hbHVXx9oE27vTJY+oiI0txkhBdQV12RvILd/7XuIhBZ0TkImq5EnhFYCcRcDff8jpFhZ9C2Sg+NIo3ZMQ==
+
 ip-regex@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/ip-regex/-/ip-regex-2.1.0.tgz#fa78bf5d2e6913c911ce9f819ee5146bb6d844e9"
@@ -7149,6 +7154,11 @@ p-try@^2.0.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/p-try/-/p-try-2.2.0.tgz#cb2868540e313d61de58fafbe35ce9004d5540e6"
   integrity sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==
+
+pako@^2.0.3:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/pako/-/pako-2.0.4.tgz#6cebc4bbb0b6c73b0d5b8d7e8476e2b2fbea576d"
+  integrity sha512-v8tweI900AUkZN6heMU/4Uy4cXRc2AYNRggVmTR+dEncawDJgCdLMximOVA2p4qO57WMynangsfGRb5WD6L1Bg==
 
 pako@~1.0.5:
   version "1.0.11"
@@ -9310,6 +9320,14 @@ tiff.js@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/tiff.js/-/tiff.js-1.0.0.tgz#31696dd884d911ed9a4191e78bd90fb33af948bb"
   integrity sha512-P+ZWp1hcpEIx/Pzuc+REh0+isGXk5kfnFEJKRPq1trMbZW49eD/QGDT8Y4KamIK2ZXU+DcYr47auaO93akVP3A==
+
+tiff@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/tiff/-/tiff-5.0.0.tgz#b324c148bf56665d317f166629f1897619a6df5d"
+  integrity sha512-oOYMvVaojIHgsf0IRd09ic8EdKt1W6k5vmgubY1lbqC2aekmt4SaNp849c1ewQkJ8K2t9k75VK/blZ1oK96zgA==
+  dependencies:
+    iobuffer "^5.0.3"
+    pako "^2.0.3"
 
 tildify@^1.2.0:
   version "1.2.0"

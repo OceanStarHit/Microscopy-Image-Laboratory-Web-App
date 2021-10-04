@@ -252,7 +252,7 @@
                 <v-row class="mr-4" v-if="tiling.bonding.patternMatch">
                   <v-col cols="4">
                     <v-text-field
-                      v-model="tiling.bonding.overlayX"
+                      v-model="tiling.bonding.overlapX"
                       class="range-field"
                       label="Overlap X"
                       type="number"
@@ -262,7 +262,7 @@
                   </v-col>
                   <v-col cols="4">
                     <v-text-field
-                      v-model="tiling.bonding.overlayY"
+                      v-model="tiling.bonding.overlapY"
                       class="range-field"
                       label="Overlap Y"
                       type="number"
@@ -540,8 +540,8 @@ export default {
         lines: [],
         offsetX: 0,
         offsetY: 0,
-        overlayX: 25,
-        overlayY: 25
+        overlapX: 25,
+        overlapY: 25
       },
       edit: {
         activeFileItem: -1,
@@ -1178,7 +1178,9 @@ export default {
             imageDataCache: null,
             occupied: true,
             drawingOrder: this.drawingOrder,
-            orgIdx: idx
+            orgIdx: idx,
+            row: row,
+            col: col
           });
           this.drawingOrder++;
 
@@ -1253,7 +1255,9 @@ export default {
             imageDataCache: null,
             occupied: true,
             drawingOrder: this.drawingOrder,
-            orgIdx: idx
+            orgIdx: idx,
+            row: row,
+            col: col
           });
           this.drawingOrder++;
 
@@ -1360,7 +1364,9 @@ export default {
             imageDataCache: null,
             occupied: true,
             drawingOrder: this.drawingOrder,
-            orgIdx: idx
+            orgIdx: idx,
+            col: col,
+            row: row
           });
           this.drawingOrder++;
 
@@ -1466,7 +1472,9 @@ export default {
               imageDataCache: null,
               occupied: true,
               drawingOrder: this.drawingOrder,
-              orgIdx: idx
+              orgIdx: idx,
+              row: row,
+              col: col
             });
             this.drawingOrder++;
           }
@@ -1497,9 +1505,9 @@ export default {
     coordinateTranslate: function(params, scale = this.coordinateScale) {
       let copy = Object.assign({}, params);
       if (typeof copy.width !== "undefined")
-        copy.width = copy.width * this.tiling.canvasScale;
+        copy.width = Math.ceil(copy.width * this.tiling.canvasScale);
       if (typeof copy.height !== "undefined")
-        copy.height = copy.height * this.tiling.canvasScale;
+        copy.height = Math.ceil(copy.height * this.tiling.canvasScale);
       if (typeof copy.x !== "undefined")
         copy.x = copy.x * this.tiling.canvasScale + this.translateX;
       if (typeof copy.y !== "undefined")
@@ -1533,54 +1541,8 @@ export default {
         TILING_CANVAS_SIZE,
         TILING_CANVAS_SIZE
       );
-      console.log(
-        "TRANSLATE X = ",
-        this.translateX,
-        "TRANSLATE Y = ",
-        this.translateY
-      );
-      // ctx.save();
-      // ctx.translate(this.translateX, this.translateY);
-      // ctx.scale(this.tiling.canvasScale, this.tiling.canvasScale);
-      // console.log("Scale = ", this.tiling.canvasScale);
-      // for (let params of this.tiling.drawList) {
-      //   params = this.coordinateTranslate(params);
-      //   ctx.drawImage(
-      //     params.image,
-      //     params.x,
-      //     params.y,
-      //     params.width,
-      //     params.height
-      //   );
-      // const imgData = ctx.getImageData(params.x, params.y, params.width, params.height);
-      // ctx.clearRect(params.x, params.y, params.width, params.height);
-      // // let imgData = this.img2ImageData(params);
-      // this.tiling.preview.putImageData(
-      //   imgData,
-      //   params.x,
-      //   params.y,
-      //   0,
-      //   0,
-      //   params.width,
-      //   params.height
-      // );
-      // }
-      // let imgData = this.img2ImageData(params);
-      // this.tiling.preview.putImageData(
-      //   imgData,
-      //   params.x,
-      //   params.y,
-      //   0,
-      //   0,
-      //   params.width,
-      //   params.height
-      // );
-
-      // ctx.restore();
-
       for (let idx in this.tiling.drawList) {
         let params = this.coordinateTranslate(this.tiling.drawList[idx]);
-        // const params = this.tiling.drawList[idx];
         if (
           params.x < this.tiling.preview.canvas.width &&
           params.y < this.tiling.preview.canvas.height &&
@@ -1731,7 +1693,7 @@ export default {
       e.stopPropagation();
       const { wheelDelta, offsetX, offsetY } = e;
       const step = wheelDelta > 0 ? 0.01 : -0.01;
-      const currentScale = this.tiling.canvasScale + step;
+      const currentScale = +(this.tiling.canvasScale + step).toFixed(2);
       this.tiling.canvasScale = currentScale;
       if (this.overflowCanvas) {
         this.translateX =
@@ -2085,26 +2047,240 @@ export default {
       this.tiling.mouse.catchImg = false;
     },
 
-    autoPatternMathing() {
+    doMatch(item1, item2, direction, overlap) {
+      let horizontalMatch = direction == 0;
+      let img1 = cv.imread(item1.image);
+      let img2 = cv.imread(item2.image);
+
+      let totalRow = Math.min(img1.rows, img2.rows);
+      let totalCol = Math.min(img1.cols, img2.cols);
+      let overlapDepth = horizontalMatch ? totalCol : totalRow;
+      let loopDepth = horizontalMatch ? totalRow : totalCol;
+
+      if (overlap > overlapDepth) overlap = overlapDepth;
+
+      const tryOffset = Math.ceil(overlapDepth / 10);
+      let matchRes = [];
+      for (let i = -tryOffset; i <= tryOffset; i++) {
+        matchRes.push([]);
+      }
+
+      let step = Math.round(overlap / 5);
+      if (step == 0) step = 1;
+      for (let overlapPt2 = 0; overlapPt2 < overlap; overlapPt2 += step) {
+        let overlapPt1 = overlapDepth - overlap + overlapPt2;
+
+        for (let ofs = -tryOffset; ofs <= tryOffset; ofs++) {
+          // console.log("ofs: " + ofs + " c1:" + c1 + " c2:" + c2);
+          for (let loopPt1 = 0; loopPt1 < loopDepth; loopPt1++) {
+            let loopPt2 = loopPt1 - ofs;
+
+            if (
+              loopPt1 < 0 ||
+              loopPt2 < 0 ||
+              loopPt1 >= loopDepth ||
+              loopPt2 >= loopDepth
+            ) {
+              continue;
+            }
+
+            // console.log("(" + r1 + "," + c1 + ") - (" + r2 + "," + c2 + ")");
+            let pixel1 = horizontalMatch
+              ? img1.ucharPtr(loopPt1, overlapPt1)
+              : img1.ucharPtr(overlapPt1, loopPt1);
+            let pixel2 = horizontalMatch
+              ? img2.ucharPtr(loopPt2, overlapPt2)
+              : img2.ucharPtr(overlapPt2, loopPt2);
+
+            let totalDiff = 0;
+            for (let i = 0; i < 3; i++) {
+              totalDiff += Math.abs(pixel1[i] - pixel2[i]);
+            }
+            matchRes[ofs + tryOffset].push(totalDiff);
+          }
+        }
+      }
+
+      // console.log(matchRes);
+      matchRes = matchRes.map(diffs => {
+        let total = diffs.reduce((prev, curr) => {
+          return prev + curr;
+        }, 0);
+        return Math.round((total / diffs.length) * 10000);
+      });
+
+      let minDiff = Math.min(...matchRes);
+      let bestOff = matchRes.findIndex(element => {
+        return element == minDiff;
+      });
+      bestOff = bestOff - tryOffset;
+
+      // console.log(matchRes);
+      // console.log("minDiff: " + minDiff);
+      // console.log("bestIdx: " + bestOff);
+
+      img1.delete();
+      img2.delete();
+      return bestOff;
+    },
+
+    async autoPatternMathing() {
       let that = this;
       that.drawImages2();
 
-      this.tiling.drawList.forEach(function(item) {
-        that.calculateBondingOffsets(item);
-        if (that.tiling.bonding.offsetX != 0) {
-          item.x += that.tiling.bonding.offsetX;
-        }
-        if (that.tiling.bonding.offsetY != 0) {
-          item.y += that.tiling.bonding.offsetY;
-        }
-      });
+      let rowOffsets = [];
+      for (let r = 0; r < this.tiling.alignment.rows; r++) {
+        rowOffsets.push([]);
+      }
+      let colOffsets = [];
+      for (let c = 0; c < this.tiling.alignment.cols; c++) {
+        colOffsets.push([]);
+      }
 
+      for (let r = 0; r < this.tiling.alignment.rows; r++) {
+        for (let c = 0; c < this.tiling.alignment.cols; c++) {
+          let targetItem = this.tiling.drawList.find(function(drawItem) {
+            return drawItem.row == r && drawItem.col == c;
+          });
+          let leftItem = this.tiling.drawList.find(function(drawItem) {
+            return drawItem.row == r && drawItem.col == c - 1;
+          });
+          let topItem = this.tiling.drawList.find(function(drawItem) {
+            return drawItem.row == r - 1 && drawItem.col == c;
+          });
+
+          if (targetItem && leftItem) {
+            if (leftItem) {
+              let verticalOffset = this.doMatch(
+                leftItem,
+                targetItem,
+                0,
+                this.tiling.bonding.overlapX
+              );
+              colOffsets[c].push(verticalOffset);
+            }
+          } else if (targetItem) {
+            colOffsets[c].push(0);
+          }
+
+          if (targetItem && topItem) {
+            if (topItem) {
+              let horizontalOffset = this.doMatch(
+                topItem,
+                targetItem,
+                1,
+                this.tiling.bonding.overlapY
+              );
+              rowOffsets[r].push(horizontalOffset);
+            }
+          } else if (targetItem) {
+            rowOffsets[r].push(0);
+          }
+        }
+      }
+
+      function avgValues(offsValues) {
+        return offsValues.map(offValues => {
+          let sum = offValues.reduce((prev, v) => {
+            return prev + v;
+          });
+
+          if (sum == 0) return 0;
+
+          return Math.round(sum / offValues.length);
+        });
+      }
+
+      rowOffsets = avgValues(rowOffsets);
+      colOffsets = avgValues(colOffsets);
+
+      function cumulate(offsValues, overlap) {
+        let cumulatedValue = overlap;
+        return offsValues.map(item => {
+          cumulatedValue += item;
+          cumulatedValue - overlap;
+          return cumulatedValue;
+        });
+      }
+
+      console.log(rowOffsets);
+      console.log(colOffsets);
+
+      rowOffsets = cumulate(rowOffsets, this.tiling.bonding.overlapX);
+      colOffsets = cumulate(colOffsets, this.tiling.bonding.overlapY);
+
+      console.log(rowOffsets);
+      console.log(colOffsets);
+
+      // this.tiling.bonding.overlapX;
+      // this.tiling.bonding.overlapY;
+      // Apply the offsets
+      for (let r = 0; r < this.tiling.alignment.rows; r++) {
+        for (let c = 0; c < this.tiling.alignment.cols; c++) {
+          let targetItem = this.tiling.drawList.find(function(drawItem) {
+            return drawItem.row == r && drawItem.col == c;
+          });
+
+          if (targetItem) {
+            targetItem.x += rowOffsets[r];
+
+            targetItem.y += colOffsets[c];
+          }
+        }
+      }
       this.performDrawing();
+
+      // this.tiling.drawList.forEach(function(item) {
+      //   that.calculateBondingOffsets(item);
+      //   if (that.tiling.bonding.offsetX != 0) {
+      //     item.x += that.tiling.bonding.offsetX;
+      //   }
+      //   if (that.tiling.bonding.offsetY != 0) {
+      //     item.y += that.tiling.bonding.offsetY;
+      //   }
+      // });
+      // this.findImageTo(this.tiling.drawList, )
+
+      // this.performDrawing();
       // if (this.tiling.alignment.rows > 0 && this.tiling.alignment.cols > 0) {
       //   const r = this.tiling.alignment.rows;
       //   const c = this.tiling.alignment.cols;
       // }
     }
+  },
+
+  // Find the image to the top/left/boom/right of the target image in the list.
+  // the list to loop through
+  // direction - 0: top, 1: right, 2: bottom, 3: left.
+  // imageIdx - The target img
+  // return the found image idx;
+  findImageTo(imgList, imageIdx, direction) {
+    let targetItem = imgList[imageIdx];
+
+    let findBig = direction == 0 || direction == 3;
+    let compareX = direction == 1 || direction == 3;
+
+    let targetV = compareX ? targetItem.x : targetItem.y;
+
+    var lastV = -1;
+    var foundIdx = -1;
+
+    imgList.forEach(function(item, idx) {
+      let itemV = compareX ? item.x : item.y;
+
+      let found =
+        lastV < 0 ||
+        (findBig
+          ? itemV > lastV && itemV < targetV
+          : itemV < lastV && itemV > targetV);
+
+      if (found) {
+        lastV = itemV;
+        foundIdx = idx;
+      }
+    });
+
+    return foundIdx;
   },
 
   created() {

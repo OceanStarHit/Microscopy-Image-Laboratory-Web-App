@@ -117,14 +117,17 @@ export default {
 
   methods: {
     getWidth: function() {
-      const frame = this.$refs.frame;
-      const frameSize = frame.$el.getBoundingClientRect();
-      const width = Math.trunc(frameSize.width);
-     
-      return width;
+      if (this.$refs) {
+        const frame = this.$refs.frame;
+        const frameSize = frame.$el.getBoundingClientRect();
+        const width = Math.trunc(frameSize.width);
+        return width;
+      }
+
+      return 0;
     },
     onResize: function() {
-      this.width = this.getWidth();  
+      this.width = this.getWidth();
     },
     select2: function() {
       console.log("Select-2");
