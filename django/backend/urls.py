@@ -23,10 +23,25 @@ Examples:
 import apis.views as main
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth.decorators import login_required
 
+from apis import auth
 
 urlpatterns = [
     path('', main.index, name='index'),
     path('apis/', include('apis.urls')),
     path('admin/', admin.site.urls),
+    path('apis/login', auth.user_login),
+    path('apis/logout', auth.user_logout),
+    path('apis/regist', auth.user_regist)
 ]
+
+
+# urlpatterns = [
+#     path('', login_required(main.index), name='index'),
+#     path('apis/', login_required(include('apis.urls'))),
+#     path('admin/', login_required( admin.site.urls)),
+#     path('apis/login', auth.user_login),
+#     path('apis/logout', auth.user_logout),
+#     path('apis/regist', auth.user_regist)
+# ]

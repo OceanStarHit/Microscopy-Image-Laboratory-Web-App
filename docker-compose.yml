@@ -55,17 +55,17 @@ services:
     networks:
       - custom_network
 
-  # nginx:
-  #   build: ./docker/nginx
-  #   container_name: nginx
-  #   restart: always
-  #   ports:
-  #     - 81:80
-  #   networks:
-  #     - custom_network
-  #   environment:
-  #     TZ: Asia/Tokyo
-  #     CLIENT_MAX_BODY_SIZE: 64M
+  nginx:
+    build: ./docker/nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - 81:80
+    networks:
+      - custom_network
+    environment:
+      TZ: Asia/Tokyo
+      CLIENT_MAX_BODY_SIZE: 64M
   
   # code-server:
   #   image: ghcr.io/linuxserver/code-server
