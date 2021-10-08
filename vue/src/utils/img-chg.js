@@ -2,6 +2,7 @@ import tinycolor from "tinycolor2";
 import percentile from "percentile";
 import { GPU, input } from "gpu.js";
 import { rfft2d, irfft2d } from "./kissfft";
+// require("log-timestamp");
 
 function getStandardDeviation(array) {
   const n = array.length;
@@ -125,6 +126,61 @@ function yuv2rgb(Y, U, V) {
 }
 
 const gpu = new GPU();
+
+const shadingCorrection2 = img => {
+  let rgbImg = cv.imread(img);
+  let labImg = new cv.Mat();
+  let labImgChannels = new cv.MatVector();
+  let background = new cv.Mat();
+  let signedBground = new cv.Mat();
+  let blurAnchor = new cv.Point(-1, -1);
+  let blurKSize = new cv.Size(400, 400);
+  let claheGridSize = new cv.Size(25, 25);
+  let clane = new cv.CLAHE(2, claheGridSize);
+  let subtractMask = new cv.Mat();
+
+  cv.cvtColor(rgbImg, labImg, cv.COLOR_RGB2Lab, 3);
+  cv.split(labImg, labImgChannels);
+  let luminance = labImgChannels.get(0);
+
+  cv.blur(luminance, background, blurKSize, blurAnchor, cv.BORDER_DEFAULT);
+
+  let total = 0;
+  for (let i in background.data) {
+    let v = background.data[i];
+    total = total + v;
+  }
+  let avg = Math.round(total / background.data.length);
+
+  let preAdd = new cv.Mat(
+    luminance.rows,
+    luminance.cols,
+    cv.CV_8S,
+    new cv.Scalar(avg)
+  );
+
+  cv.subtract(background, preAdd, signedBground, subtractMask, cv.CV_8S);
+  cv.subtract(luminance, signedBground, luminance, subtractMask, cv.CV_8U);
+
+  clane.apply(luminance, luminance);
+
+  cv.merge(labImgChannels, labImg);
+  cv.cvtColor(labImg, rgbImg, cv.COLOR_Lab2LRGB, 4);
+
+  let rs = rgbImg.data;
+
+  rgbImg.delete();
+  labImg.delete();
+  labImgChannels.delete();
+  background.delete();
+  clane.delete();
+  subtractMask.delete();
+  luminance.delete();
+  preAdd.delete();
+  signedBground.delete();
+
+  return rs;
+};
 
 const shadingCorrection = img => {
   const hsvKernel = gpu
@@ -545,5 +601,6 @@ export {
   balanceLightingGPU,
   balanceLightingGPU2,
   autoFitLuminance,
-  shadingCorrection
+  shadingCorrection,
+  shadingCorrection2
 };

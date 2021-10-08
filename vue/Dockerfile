@@ -1,5 +1,5 @@
 # Build stage
-FROM ubuntu as build-stage
+FROM ubuntu:20.04 as build-stage
 
 WORKDIR /code/ui
 

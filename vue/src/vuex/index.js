@@ -4,6 +4,7 @@ import { createLogger } from "vuex";
 import files from "./modules/files";
 import image from "./modules/image";
 import vessel from "./modules/vessel";
+import auth from "./modules/auth";
 import VueFlashMessage from "vue-flash-message";
 
 Vue.use(Vuex);
@@ -15,7 +16,8 @@ export default new Vuex.Store({
   modules: {
     files,
     image,
-    vessel
+    vessel,
+    auth
   },
   strict: debug,
   plugins: debug ? [createLogger()] : []

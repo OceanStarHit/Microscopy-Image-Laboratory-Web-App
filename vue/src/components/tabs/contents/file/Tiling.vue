@@ -383,39 +383,28 @@
                 <canvas id="canvas" class="canvas" ref="canvasElement"></canvas>
               </div>
               <div class="col">
-                <v-slider
-                  :max="scrollBarVerticalMax"
-                  min="0"
-                  step="10"
-                  v-model="tiling.canvasShiftY"
-                  color="grey lighten-2"
-                  thumb-color="light-blue lighten-3"
-                  track-color="grey lighten-2"
-                  background-color="grey"
-                  vertical
+                <ScrollBar
+                  direction="col"
+                  :total="verticalLength"
+                  :value="tiling.canvasHeight"
+                  :top="tiling.canvasTop"
                   @change="onCanvasMoved"
-                ></v-slider>
+                />
               </div>
             </div>
 
             <div class="row">
               <div class="col">
-                <v-slider
-                  :max="scrollBarHorizontalMax"
-                  min="0"
-                  step="10"
-                  v-model="tiling.canvasShiftX"
-                  width="100%"
-                  color="grey lighten-2"
-                  thumb-color="light-blue lighten-3"
-                  track-color="grey lighten-2"
-                  background-color="grey lighten-2"
-                  @change="onCanvasMoved"
-                  height="1"
-                ></v-slider>
+                <ScrollBar
+                  direction="row"
+                  :total="rowLength"
+                  :left="tiling.canvasLeft"
+                  :value="tiling.canvasWidth"
+                  @change="onCanvasRowMoved"
+                />
               </div>
 
-              <div class="col-sm-3" style="position: relative;">
+              <div class="col-sm-2" style="position: relative;">
                 <v-btn
                   style="position: absolute; top: 0; width: 100%; height: 38px;"
                 >
@@ -451,6 +440,7 @@
 <script>
 import { createNamespacedHelpers } from "vuex";
 import OpenPositionViewTab from "./OpenPositionViewTab";
+import ScrollBar from "@/components/basic/ScrollBar";
 import {
   changeImageLuminance,
   imageAverageLuminance,
@@ -458,7 +448,8 @@ import {
   balanceLighting,
   autoFitLuminance,
   balanceLightingGPU2,
-  shadingCorrection
+  shadingCorrection,
+  shadingCorrection2
 } from "../../../../utils/img-chg";
 import {
   matchPixcels,
@@ -482,7 +473,8 @@ const positionModule = createNamespacedHelpers("files/position");
 export default {
   name: "Tiling",
   components: {
-    OpenPositionViewTab
+    OpenPositionViewTab,
+    ScrollBar
   },
   data: () => ({
     // ctxHeight,
@@ -528,6 +520,10 @@ export default {
       canvasScale: TILING_SCALE_OPTIONS[1] / 100,
       canvasShiftX: 0, // X 方向上的位移
       canvasShiftY: 0, // Y 方向上的位移
+      canvasTop: 0,
+      canvasLeft: 0,
+      canvasWidth: TILING_CANVAS_SIZE,
+      canvasHeight: TILING_CANVAS_SIZE,
       preview: null,
       canvasScaleRatio: 1,
       totalImagesWith: TILING_CANVAS_SIZE,
@@ -661,14 +657,7 @@ export default {
 
   watch: {
     // whenever question changes, this function will run
-    "tiling.canvasShiftX": function(newV, oV) {
-      this.performDrawing();
-    },
-    "tiling.canvasShiftY": function(newV, oV) {
-      this.performDrawing();
-    },
     // "tiling.canvasScale": function(newV, oV) {
-    //   // 通过原缩放比例对canvasShiftX和canvasShiftY坐标进行还原
     // },
     "tiling.bonding.notSnapToEdge": function(newV, oV) {
       if (newV) {
@@ -691,10 +680,6 @@ export default {
         this.performDrawing();
       }
     },
-    scrollBarHorizontalMax(newValue, oldValue) {
-      console.log("NEW VALUE => ", newValue);
-      console.log("OLD VALUE => ", oldValue);
-    }
   },
 
   computed: {
@@ -734,19 +719,85 @@ export default {
       const gap = this.maxAndMinPoint.xMax - TILING_CANVAS_SIZE;
       return gap < 0 ? 0 : gap;
     },
+    scrollBarHorizontalMin() {
+      const gap = this.maxAndMinPoint.xMin;
+      return gap > 0 ? 0 : gap;
+    },
     scrollBarVerticalMax() {
       const gap = this.maxAndMinPoint.yMax - TILING_CANVAS_SIZE;
       return gap < 0 ? 0 : gap;
     },
+    scrollBarVerticalMin() {
+      const gap = this.maxAndMinPoint.yMin;
+      return gap > 0 ? 0 : gap;
+    },
+    verticalLength() {
+      const totalHeight =
+        TILING_CANVAS_SIZE +
+        this.scrollBarVerticalMax -
+        this.scrollBarVerticalMin;
+      return totalHeight;
+      // return +((TILING_CANVAS_SIZE / totalHeight) * 100).toFixed(2);
+    },
+    rowLength() {
+      const totalWidth =
+        TILING_CANVAS_SIZE +
+        this.scrollBarHorizontalMax -
+        this.scrollBarHorizontalMin;
+      return totalWidth;
+      // return +((TILING_CANVAS_SIZE / totalWidth) * 100).toFixed(2);
+    },
+    // rowTotalLength() {
+    //   return (
+    //     TILING_CANVAS_SIZE +
+    //     this.scrollBarHorizontalMax -
+    //     this.scrollBarHorizontalMin
+    //   );
+    // },
+    // colTotalLength() {
+    //   return (
+    //     TILING_CANVAS_SIZE +
+    //     this.scrollBarVerticalMax -
+    //     this.scrollBarVerticalMin
+    //   );
+    // },
     overflowCanvas() {
       return this.scrollBarHorizontalMax > 0 || this.scrollBarVerticalMax > 0;
     }
   },
 
   methods: {
-    onCanvasMoved() {
-      // console.log(this.scrollBarHorizontalMax);
-      // console.log("Canvas Moved ");
+    updateScrollTop() {
+      const totalHeight =
+        TILING_CANVAS_SIZE +
+        this.scrollBarVerticalMax -
+        this.scrollBarVerticalMin;
+      const top = +(
+        (Math.abs(this.scrollBarVerticalMin) / totalHeight) *
+        100
+      ).toFixed(2);
+      this.tiling.canvasTop = top;
+    },
+    updateScrollLeft() {
+      this.tiling.canvasLeft = +(
+        (Math.abs(this.scrollBarHorizontalMin) /
+          (TILING_CANVAS_SIZE +
+            this.scrollBarHorizontalMax -
+            this.scrollBarHorizontalMin)) *
+        100
+      ).toFixed(2);
+    },
+    onCanvasMoved(val) {
+      this.tiling.canvasTop = val;
+      console.log("Canvas Top = ", val);
+      // this.tiling.canvasShiftY = val;
+      this.performDrawing();
+    },
+    onCanvasRowMoved(val) {
+      // this.tiling.canvasShiftX = val;
+      this.tiling.canvasLeft = val;
+      console.log("Canvas Left = ", val);
+      this.performDrawing();
     },
     changeAlignMode() {
       this.drawImages();
@@ -772,7 +823,6 @@ export default {
       this.drawImages();
     },
     onScaleChange(val) {
-      console.log("val = ", val)
       this.tiling.canvasScale = val / 100;
       this.performDrawing();
       // this.zoom();
@@ -1003,10 +1053,8 @@ export default {
 
           console.log("Get image daxta in memory");
 
-          // shadingCorrection(img.image);
-
           let newImgData = new ImageData(
-            new Uint8ClampedArray(shadingCorrection(img.image)),
+            new Uint8ClampedArray(shadingCorrection2(img.image)),
             imgData.width,
             imgData.height
           );
@@ -1425,7 +1473,6 @@ export default {
       });
 
       this.tiling.canvasShiftY = t.height;
-      this.tiling.canvasShiftY = t.height;
       this.tiling.canvasShiftX = 0;
 
       let r = 0,
@@ -1508,10 +1555,16 @@ export default {
         copy.width = Math.ceil(copy.width * this.tiling.canvasScale);
       if (typeof copy.height !== "undefined")
         copy.height = Math.ceil(copy.height * this.tiling.canvasScale);
-      if (typeof copy.x !== "undefined")
-        copy.x = copy.x * this.tiling.canvasScale + this.translateX;
-      if (typeof copy.y !== "undefined")
-        copy.y = copy.y * this.tiling.canvasScale + this.translateY;
+      if (typeof copy.x !== "undefined") {
+        console.log("Canvas left = ", this.tiling.canvasLeft);
+        copy.x = (copy.x * this.tiling.canvasScale + this.translateX) - this.tiling.canvasLeft;
+      }
+      if (typeof copy.y !== "undefined") {
+        console.log("Canvas top = ", this.tiling.canvasTop);
+        copy.y = (copy.y * this.tiling.canvasScale + this.translateY) - this.tiling.canvasTop;
+      }
+      console.log("X = ", copy.x);
+      console.log("Y = ", copy.y);
       return copy;
     },
 
