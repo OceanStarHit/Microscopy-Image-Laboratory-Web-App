@@ -105,8 +105,8 @@ export default {
       // Starting position x when the direction is row, other y
       this.start =
         this.direction === "row"
-          ? event.clientX - this.offset
-          : event.clientY - this.offset;
+          ? event.clientX - this.bar.offsetLeft
+          : event.clientY - this.bar.offsetTop;
     },
     onMouseScroll: function(event) {
       if (!this.isMoving) return;

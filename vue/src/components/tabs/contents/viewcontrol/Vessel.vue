@@ -117,14 +117,14 @@ export default {
 
   methods: {
     getWidth: function() {
-      // if (this.$refs) {
+      if (this.$refs) {
         const frame = this.$refs.frame;
         const frameSize = frame.$el.getBoundingClientRect();
         const width = Math.trunc(frameSize.width);
         return width;
-      // }
+      }
 
-      // return 0;
+      return 0;
     },
     onResize: function() {
       this.width = this.getWidth();

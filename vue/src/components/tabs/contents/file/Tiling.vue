@@ -387,7 +387,7 @@
                   direction="col"
                   :total="verticalLength"
                   :value="tiling.canvasHeight"
-                  :top="tiling.canvasTop"
+                  :top="scrollBarVerticalMin"
                   @change="onCanvasMoved"
                 />
               </div>
@@ -398,7 +398,7 @@
                 <ScrollBar
                   direction="row"
                   :total="rowLength"
-                  :left="tiling.canvasLeft"
+                  :left="scrollBarHorizontalMin"
                   :value="tiling.canvasWidth"
                   @change="onCanvasRowMoved"
                 />
@@ -442,30 +442,24 @@ import { createNamespacedHelpers } from "vuex";
 import OpenPositionViewTab from "./OpenPositionViewTab";
 import ScrollBar from "@/components/basic/ScrollBar";
 import {
-  changeImageLuminance,
-  imageAverageLuminance,
-  getImageEdge,
-  balanceLighting,
   autoFitLuminance,
-  balanceLightingGPU2,
-  shadingCorrection,
+  changeImageLuminance,
+  getImageEdge,
+  imageAverageLuminance,
   shadingCorrection2
 } from "../../../../utils/img-chg";
 import {
-  matchPixcels,
+  imgHorizontalDistance,
+  imgVerticalDistance,
   imgXDistance,
   imgYDistance,
-  imgVerticalDistance,
-  imgHorizontalDistance
+  matchPixcels
 } from "../../../../utils/pattern-match";
-import { base64ToArrayBuffer } from "../../../../utils/utils-func";
 import {
-  TILING_CANVAS_SIZE,
-  TILING_SCALE_OPTIONS,
-  POSITION_DIALOG_CANVAS_MAX_PIXEL,
+  POSITION_DIALOG_CELL_SIZE,
   POSITION_DIALOG_COL_COUNT,
-  POSITION_DIALOG_CELL_SIZE
-  // POSITION_DIALOG_STROKE_WIDTH
+  TILING_CANVAS_SIZE,
+  TILING_SCALE_OPTIONS
 } from "../../../../utils/constants";
 
 const positionModule = createNamespacedHelpers("files/position");
@@ -679,7 +673,7 @@ export default {
         this.tiling.bonding.snapToEdge = false;
         this.performDrawing();
       }
-    },
+    }
   },
 
   computed: {
@@ -732,71 +726,41 @@ export default {
       return gap > 0 ? 0 : gap;
     },
     verticalLength() {
-      const totalHeight =
+      return (
         TILING_CANVAS_SIZE +
         this.scrollBarVerticalMax -
-        this.scrollBarVerticalMin;
-      return totalHeight;
-      // return +((TILING_CANVAS_SIZE / totalHeight) * 100).toFixed(2);
+        this.scrollBarVerticalMin
+      );
     },
     rowLength() {
-      const totalWidth =
+      return (
         TILING_CANVAS_SIZE +
         this.scrollBarHorizontalMax -
-        this.scrollBarHorizontalMin;
-      return totalWidth;
-      // return +((TILING_CANVAS_SIZE / totalWidth) * 100).toFixed(2);
+        this.scrollBarHorizontalMin
+      );
     },
-    // rowTotalLength() {
-    //   return (
-    //     TILING_CANVAS_SIZE +
-    //     this.scrollBarHorizontalMax -
-    //     this.scrollBarHorizontalMin
-    //   );
-    // },
-    // colTotalLength() {
-    //   return (
-    //     TILING_CANVAS_SIZE +
-    //     this.scrollBarVerticalMax -
-    //     this.scrollBarVerticalMin
-    //   );
-    // },
     overflowCanvas() {
       return this.scrollBarHorizontalMax > 0 || this.scrollBarVerticalMax > 0;
     }
   },
 
   methods: {
-    updateScrollTop() {
-      const totalHeight =
-        TILING_CANVAS_SIZE +
-        this.scrollBarVerticalMax -
-        this.scrollBarVerticalMin;
-      const top = +(
-        (Math.abs(this.scrollBarVerticalMin) / totalHeight) *
-        100
-      ).toFixed(2);
-      this.tiling.canvasTop = top;
-    },
-    updateScrollLeft() {
-      this.tiling.canvasLeft = +(
-        (Math.abs(this.scrollBarHorizontalMin) /
-          (TILING_CANVAS_SIZE +
-            this.scrollBarHorizontalMax -
-            this.scrollBarHorizontalMin)) *
-        100
-      ).toFixed(2);
+    updateLeftAndTop() {
+      this.tiling.canvasLeft = Math.abs(this.scrollBarHorizontalMin);
+      this.tiling.canvasTop = Math.abs(this.scrollBarVerticalMin);
     },
     onCanvasMoved(val) {
-      this.tiling.canvasTop = val;
-      console.log("Canvas Top = ", val);
-      // this.tiling.canvasShiftY = val;
+      const step = Math.abs(val) - Math.abs(this.scrollBarVerticalMin);
+      this.tiling.drawList.forEach((item, index) => {
+        item.y -= Number(step);
+      });
       this.performDrawing();
     },
     onCanvasRowMoved(val) {
-      // this.tiling.canvasShiftX = val;
-      this.tiling.canvasLeft = val;
-      console.log("Canvas Left = ", val);
+      const step = Math.abs(val) - Math.abs(this.scrollBarHorizontalMin);
+      this.tiling.drawList.forEach((item, index) => {
+        item.x -= step;
+      });
       this.performDrawing();
     },
     changeAlignMode() {
@@ -823,9 +787,10 @@ export default {
       this.drawImages();
     },
     onScaleChange(val) {
+      this.tiling.canvasTop = 0;
+      this.tiling.canvasLeft = 0;
       this.tiling.canvasScale = val / 100;
       this.performDrawing();
-      // this.zoom();
     },
     pickImageFile(_selectedIndex) {
       const POSITION_DIALOG_STROKE_WIDTH = 2;
@@ -1556,15 +1521,17 @@ export default {
       if (typeof copy.height !== "undefined")
         copy.height = Math.ceil(copy.height * this.tiling.canvasScale);
       if (typeof copy.x !== "undefined") {
-        console.log("Canvas left = ", this.tiling.canvasLeft);
-        copy.x = (copy.x * this.tiling.canvasScale + this.translateX) - this.tiling.canvasLeft;
+        copy.x =
+          copy.x * this.tiling.canvasScale +
+          this.translateX -
+          this.tiling.canvasLeft;
       }
       if (typeof copy.y !== "undefined") {
-        console.log("Canvas top = ", this.tiling.canvasTop);
-        copy.y = (copy.y * this.tiling.canvasScale + this.translateY) - this.tiling.canvasTop;
+        copy.y =
+          copy.y * this.tiling.canvasScale +
+          this.translateY -
+          this.tiling.canvasTop;
       }
-      console.log("X = ", copy.x);
-      console.log("Y = ", copy.y);
       return copy;
     },
 
