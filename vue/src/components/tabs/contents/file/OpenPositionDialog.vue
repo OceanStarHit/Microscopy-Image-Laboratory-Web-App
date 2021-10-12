@@ -265,13 +265,17 @@ import {
   isOverlapped,
   loadImage
 } from "../../../../utils/utils-func";
+
+import * as api from "../../../../api/tiles";
+
 // import SimpleDialog from "../../../custom/SimpleDialog";
 
 const positionModule = createNamespacedHelpers("files/position");
-
+import { mapGetters, mapState } from "vuex";
 import { getPosition, getSeries } from "../../../../vuex/modules/files";
 // import OpenPositionViewTab from "./OpenPositionViewTab";
 import Tiling from "./Tiling.vue";
+import { setAuthToken } from '../../../../api/auth';
 
 var createNewPage = true;
 
@@ -557,7 +561,9 @@ export default {
       filesSortByField: "getFilesSortByField",
       channelOptions: "getChannelOptions"
     }),
-
+    ...mapState({
+      authToken: state => state.auth.token
+    }),
     visibleDialog: {
       get() {
         return this.value;
@@ -649,7 +655,7 @@ export default {
       }
       return contents;
     },
-   
+
 
     getMetaContents() {
       const contents = [];
@@ -717,6 +723,14 @@ export default {
           let thiz = this;
           this.traverseFileTree(item, "", function() {
             thiz.progressBarValue++;
+
+            if (thiz.progressBarValue == thiz.progressBarMaxValue) {
+              console.log(
+                thiz.progressBarValue + " / " + thiz.progressBarMaxValue
+              );
+              console.log(thiz.allFiles);
+              api.batchCreate(thiz.allFiles);
+            }
           });
         }
       }
@@ -727,14 +741,15 @@ export default {
       path = path || "";
       if (item.isFile) {
         item.file(function(file) {
+          // console.log(file);
           if (checkFileType(file.name)) {
             self.progressBarMaxValue++;
 
+            self.allFiles.push(file);
             self.addFile({
               file: file,
               doneCB: doneCB
             });
-            self.allFiles.push(file);
           }
         });
         self.loading = false;

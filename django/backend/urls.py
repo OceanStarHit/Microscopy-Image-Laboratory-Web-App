@@ -33,7 +33,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('apis/login', auth.user_login),
     path('apis/logout', auth.user_logout),
-    path('apis/regist', auth.user_regist)
+    path('apis/regist', auth.user_regist),
+    # path('api-auth/', include('rest_framework.urls'))
 ]
 
 

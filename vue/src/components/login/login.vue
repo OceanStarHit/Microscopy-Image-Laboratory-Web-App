@@ -12,7 +12,7 @@
       <!-- 设置语言 -->
 
       <div class="title-container">
-        <h3 class="title">{{ 'Login' }}</h3>
+        <h3 class="title">{{ "Login" }}</h3>
       </div>
 
       <v-col prop="account">
@@ -34,102 +34,106 @@
           type="password"
           name="password"
           auto-complete="on"
-          show-password          
+          show-password
         />
       </v-col>
 
-    <v-col >
-      <button
-        :loading="loading"
-        type="primary"
-        size="large"
-        style="width: 100%; height: 50px; margin-bottom: 30; background: lightblue; border-radius: 2px;"
-        @click="handleLogin"
-      >
-        {{ 'Login' }}
-      </button>
-      <a style="float:right;" @click="regi">Switch to register</a>
+      <v-col>
+        <button
+          :loading="loading"
+          type="primary"
+          size="large"
+          style="width: 100%; height: 50px; margin-bottom: 30; background: lightblue; border-radius: 2px;"
+          @click="handleLogin"
+        >
+          {{ "Login" }}
+        </button>
+        <a style="float:right;" @click="regi">Switch to register</a>
       </v-col>
     </v-container>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions } from "vuex";
 import * as API from "../../api/auth";
 
 export default {
-  name: 'LoginPage',
-  layout: 'login',
-  components: {
-  },
+  name: "LoginPage",
+  layout: "login",
+  components: {},
   data() {
     return {
-      loginForm: { account: '', password: '' },
+      loginForm: { account: "", password: "" },
       loginRules: {
         account: [
           {
             required: true,
-            trigger: 'blur',
-            message: 'Email'
+            trigger: "blur",
+            message: "Email"
           }
         ],
         password: [
           {
             required: true,
-            trigger: 'blur',
-            message: 'Password'
+            trigger: "blur",
+            message: "Password"
           }
         ]
       },
       loading: false
-    }
+    };
   },
-  computed: {
-    
-  },
+  computed: {},
   methods: {
     async handleLogin() {
       try {
-        this.loading = true
-        API.login(this.loginForm).then(response => {
-            console.log(response);
-            console.log(this.$message);
+        this.loading = true;
+        API.login(this.loginForm)
+          .then(response => {
             if (response.code == "LOGIN_SUCCESS") {
-              sessionStorage.setItem('logind',true);
+              sessionStorage.setItem("logind", true);
               this.$store.dispatch("auth/setLogind", {
-                'logind':true,
-                'token':''
-              });                   
-              this.$message({content:"Login succeed!",type:"success"}).show();              
-              location.reload();         
+                logind: true,
+                token: response.token
+              });
+              API.setAuthToken(response.token);
+              sessionStorage.setItem("authToken", response.token);
+              this.$message({
+                content: "Login succeed!",
+                type: "success"
+              }).show();
             } else {
               this.$store.dispatch("auth/setLogind", {
-                'logind':false,
-                'token':''
-              });              
-              this.$message({content:"Email or password not correct!",type:"err"}).show();
-            }            
-
-        }).catch(error => {
+                logind: false,
+                token: ""
+              });
+              this.$message({
+                content: "Email or password not correct!",
+                type: "err"
+              }).show();
+              sessionStorage.setItem("authToken", "");
+            }
+          })
+          .catch(error => {
             console.error(error);
             this.$store.dispatch("auth/setLogind", {
-              'logind':false,
-              'token':''
+              logind: false,
+              token: ""
             });
-        });        
+          });
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-      this.loading = false
+      this.loading = false;
     },
     regi: function() {
       this.$store.dispatch("auth/setShowRegist", {
-        'showRegist':true
+        showRegist: true
       });
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -161,15 +165,15 @@ export default {
       right: 10px;
     }
     .txt {
-        width: 100%;
-        height: 38px;
-        padding: 9px 10px;
-        line-height: 38px;
-        box-sizing: border-box;
-        background: transparent;
-        background-color: rgb(232, 240, 254);
-        appearance: none;
-        -webkit-appearance: none;
+      width: 100%;
+      height: 38px;
+      padding: 9px 10px;
+      line-height: 38px;
+      box-sizing: border-box;
+      background: transparent;
+      background-color: rgb(232, 240, 254);
+      appearance: none;
+      -webkit-appearance: none;
     }
     .txt:focus {
       outline: none;

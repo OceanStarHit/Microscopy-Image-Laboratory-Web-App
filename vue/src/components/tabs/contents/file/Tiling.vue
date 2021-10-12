@@ -367,7 +367,33 @@
             <!-- Result -->
             <v-card v-else-if="tiling.activeMenuItem == 5" flat>
               <v-card-title class="pa-1">Result</v-card-title>
-              <div class="inside"></div>
+              <div class="inside">
+                <v-row class="mt-4 mr-4">
+                  <v-col cols="6">
+                    <v-btn-toggle
+                      v-model="tiling.result.select"
+                      color="primary"
+                      dense
+                      group
+                      mandatory
+                    >
+                      <v-btn :value="true" text>
+                        <v-icon>mdi-crop-free</v-icon>
+                      </v-btn>
+                      <v-btn :value="false" text>
+                        <v-icon>mdi-close</v-icon>
+                      </v-btn>
+                    </v-btn-toggle>
+                  </v-col>
+                </v-row>
+                <v-row class="mt-4 mr-4">
+                  <v-col cols="6">
+                    <v-btn depressed @click="exportTiledImage">
+                      Tiled Image
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </div>
             </v-card>
             <!-- Option -->
             <v-card v-else-if="tiling.activeMenuItem == 6" flat>
@@ -380,7 +406,12 @@
           <div class="container-fluid">
             <div class="row">
               <div class="col">
-                <canvas id="canvas" class="canvas" ref="canvasElement"></canvas>
+                <canvas
+                  id="canvas"
+                  class="canvas"
+                  ref="canvasElement"
+                  cursor="crosshair"
+                ></canvas>
               </div>
               <div class="col">
                 <ScrollBar
@@ -609,6 +640,9 @@ export default {
             txtGapY: false
           }
         ]
+      },
+      result: {
+        select: false
       },
       mouse: {
         moveTime: undefined,
@@ -1625,6 +1659,41 @@ export default {
       return { mouseX, mouseY };
     },
 
+    exportTiledImage() {
+      console.log("exportTiledImage");
+
+      let minX = Number.MAX_VALUE;
+      let maxX = 0;
+      let minY = Number.MAX_VALUE;
+      let maxY = 0;
+
+      for (let idx in this.tiling.drawList) {
+        let item = this.tiling.drawList[idx];
+        if (item.x + item.width > maxX) {
+          maxX = item.x + item.width;
+        }
+        if (item.x < minX) {
+          minX = item.x;
+        }
+        if (item.y + item.height > maxY) {
+          maxY = item.y + item.height;
+        }
+        if (item.y < minY) {
+          minY = item.y;
+        }
+      }
+      console.log("X min: " + minX + " max: " + maxX);
+      console.log("Y min: " + minY + " max: " + maxY);
+
+      let destMat = new cv.Mat(
+        maxY - minY,
+        maxX - minX,
+        cv.CV_8U,
+        new cv.Scalar(0)
+      );
+
+      console.log(destMat);
+    },
     mouseDown(e) {
       const { mouseX, mouseY } = this.getCursorXY(e);
       let drawList = [...this.tiling.drawList].reverse();
@@ -1683,6 +1752,12 @@ export default {
     },
 
     mouseMove(e) {
+      if (this.tiling.result.select) {
+        this.canvas.style.cursor = "crosshair";
+      } else {
+        this.canvas.style.cursor = "grab";
+      }
+
       if (!this.tiling.mouse.catchImg) return;
       if (
         this.tiling.mouse.moveTime &&
@@ -2200,7 +2275,10 @@ export default {
       }
 
       function avgValues(offsValues) {
+        if (offsValues.length == 0) return 0;
+
         return offsValues.map(offValues => {
+          if (offValues.length == 0) return 0;
           let sum = offValues.reduce((prev, v) => {
             return prev + v;
           });

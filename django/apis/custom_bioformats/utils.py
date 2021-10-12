@@ -1,11 +1,10 @@
-import os
 import threading
 from pathlib import Path
 from uuid import uuid4
 from base64 import b64encode
 from traceback import print_exc
 from subprocess import call
-
+import os, shutil
 import imageio
 import cv2
 import numpy as np
@@ -14,8 +13,13 @@ import numpy as np
 # Generic Functions #
 #####################
 
+def get_user_cache_directory(user_id, directory = 'tiling'):
+    cache_dir = Path(__file__).parent.parent.parent.joinpath('cache').joinpath('user_' + str(user_id)).joinpath(directory)
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    return cache_dir
+
 def get_cache_directory(directory = 'sources'):
-    cache_dir = Path(__file__).parent.parent.joinpath('cache').joinpath(directory)
+    cache_dir = Path(__file__).parent.parent.parent.joinpath('cache').joinpath(directory)
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     return cache_dir
@@ -219,3 +223,14 @@ def change_image_parameter(image_file, brightness, contrast, gamma):
 
 def map(x, in_min, in_max, out_min, out_max):
     return int((x-in_min) * (out_max-out_min) / (in_max-in_min) + out_min)
+
+def clear_folder(folder):
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason: %s' % (file_path, e))
