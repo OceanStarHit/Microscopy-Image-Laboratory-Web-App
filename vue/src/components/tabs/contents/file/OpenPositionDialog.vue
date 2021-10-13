@@ -725,11 +725,11 @@ export default {
             thiz.progressBarValue++;
 
             if (thiz.progressBarValue == thiz.progressBarMaxValue) {
-              console.log(
-                thiz.progressBarValue + " / " + thiz.progressBarMaxValue
-              );
-              console.log(thiz.allFiles);
-              api.batchCreate(thiz.allFiles);
+              // console.log(
+              //   thiz.progressBarValue + " / " + thiz.progressBarMaxValue
+              // );
+              // console.log(thiz.allFiles);
+              api.batchCreateTiles(thiz.allFiles);
             }
           });
         }

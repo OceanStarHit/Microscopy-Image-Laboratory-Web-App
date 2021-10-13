@@ -493,6 +493,8 @@ import {
   TILING_SCALE_OPTIONS
 } from "../../../../utils/constants";
 
+import * as tilingApi from "../../../../api/tiles";
+
 const positionModule = createNamespacedHelpers("files/position");
 
 export default {
@@ -1371,6 +1373,15 @@ export default {
       this.tiling.canvasShiftY = t.height;
       this.tiling.canvasShiftX = 0;
 
+      // The new backend solution
+      tilingApi.alignTiles(this.tiling.alignment.rows, "byCol", res => {
+        tilingApi.listTiles(tiles => {
+          console.log("Fetch the list again");
+          console.log(tiles);
+        });
+      });
+
+      // The lines below are deprecated.
       let c = 0,
         dir = 1,
         idx = 0;
@@ -1478,6 +1489,15 @@ export default {
         dir = 1,
         idx = 0;
 
+      // The new backend solution
+      tilingApi.alignTiles(this.tiling.alignment.rows, "byRow", res => {
+        tilingApi.listTiles(tiles => {
+          console.log("Fetch the list again");
+          console.log(tiles);
+        });
+      });
+
+      // The lines below are deprecated
       while (r < this.tiling.alignment.rows) {
         let c = 0;
         while (c < this.tiling.alignment.cols) {
@@ -1662,37 +1682,15 @@ export default {
     exportTiledImage() {
       console.log("exportTiledImage");
 
-      let minX = Number.MAX_VALUE;
-      let maxX = 0;
-      let minY = Number.MAX_VALUE;
-      let maxY = 0;
-
-      for (let idx in this.tiling.drawList) {
-        let item = this.tiling.drawList[idx];
-        if (item.x + item.width > maxX) {
-          maxX = item.x + item.width;
-        }
-        if (item.x < minX) {
-          minX = item.x;
-        }
-        if (item.y + item.height > maxY) {
-          maxY = item.y + item.height;
-        }
-        if (item.y < minY) {
-          minY = item.y;
-        }
-      }
-      console.log("X min: " + minX + " max: " + maxX);
-      console.log("Y min: " + minY + " max: " + maxY);
-
-      let destMat = new cv.Mat(
-        maxY - minY,
-        maxX - minX,
-        cv.CV_8U,
-        new cv.Scalar(0)
-      );
-
-      console.log(destMat);
+      tilingApi.exportTiles(response => {
+        console.log(response.data);
+        let blob = new Blob([response.data]);
+        var link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "resulted tiles.png";
+        link.click();
+        console.log("clicked");
+      });
     },
     mouseDown(e) {
       const { mouseX, mouseY } = this.getCursorXY(e);

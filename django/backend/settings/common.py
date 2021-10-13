@@ -13,7 +13,8 @@ Backlog:
 """
 
 import os
-
+# import pymysql
+# pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__ + "/..")))
@@ -93,6 +94,17 @@ DATABASES = {
     }
 }
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'myproject',
+        'USER': 'myprojectuser',
+        'PASSWORD': 'Password1',
+        'HOST': 'db',
+        'PORT': 3306,
+    }
+}
+
 """
 Password validation
 https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -118,7 +130,9 @@ Internationalization
 https://docs.djangoproject.com/en/3.0/topics/i18n/
 """
 
-LANGUAGE_CODE = 'ja'
+# LANGUAGE_CODE = 'ja'
+LANGUAGE_CODE = 'en'
+
 TIME_ZONE = 'Asia/Tokyo'
 USE_I18N = True
 USE_L10N = True
@@ -139,4 +153,34 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ]
+}
+
+if DEBUG:
+    logLevel = "DEBUG"
+else:
+    logLevel = "WARNING"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} => {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': logLevel,
+    },
 }

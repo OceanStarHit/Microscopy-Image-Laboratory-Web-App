@@ -1,8 +1,8 @@
 asgiref==3.4.1
-astroid==2.8.2
 bioformats==0.1.15
 boto3==1.18.57
 botocore==1.21.57
+cycler==0.10.0
 Django==3.2.8
 django-cors-headers==3.10.0
 django-filter==21.1
@@ -12,8 +12,10 @@ gunicorn==20.1.0
 imageio==2.9.0
 isort==5.9.3
 jmespath==0.10.0
+kiwisolver==1.3.2
 lazy-object-proxy==1.6.0
 Markdown==3.3.4
+matplotlib==3.4.3
 mccabe==0.6.1
 mysqlclient==2.0.3
 numpy==1.21.2
@@ -22,6 +24,7 @@ Pillow==8.3.2
 platformdirs==2.4.0
 pyfaidx==0.6.2
 pylint==2.11.1
+pyparsing==2.4.7
 python-bioformats==4.0.5
 python-dateutil==2.8.2
 python-javabridge==4.0.3

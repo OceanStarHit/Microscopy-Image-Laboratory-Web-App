@@ -11,18 +11,20 @@ import numpy as np
 import cv2 as cv
 import subprocess
 from django.http import FileResponse
+import logging
 
 """
 Get the list of uploaded files
 curl -X GET http://127.0.0.1:8000/apis/tiles/ -H 'Authorization: Token {token_value}'
 
 Align the tiles on the canvas
-curl -X POST http://127.0.0.1:8000/apis/tiles/align/ -H 'Authorization: Token {token_value}'
+curl -X POST http://127.0.0.1:8000/apis/tiles/align/ -H 'Authorization: Token {token_value}' -d "row=4&method=byRow"
 
 Download the tiled image
 curl -X GET http://127.0.0.1:8000/apis/tiles/export/ -H 'Authorization: Token {token_value}' --output ~/Downloads/aa.png
 
 """
+logger = logging.getLogger(__name__)
 
 def getWorkingFolder(user_id):
     return utils.get_user_cache_directory(user_id, TileViewSet.CACHE_FOLDER)
@@ -52,8 +54,6 @@ def saveTileList(user_id, tiles):
     json_object = json.dumps(tiles)
     with open(json_path, 'w+') as json_file:
         json_file.write(json_object)
-
-
 
 class TileViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
@@ -108,11 +108,17 @@ class TileViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'])
     def align(self, request):
         total_row = 1
+        method = "byRow"
+
         if "row" in request.POST:
             total_row = int(request.POST["row"])
             if total_row == 0:
                 total_row = 1
-        
+        if "method" in request.POST:
+            method = request.POST["method"]
+
+        logger.info("method: " + method + " total_row: " + str(total_row))
+
         tiles = getTileList(request.user.id)
         if len(tiles) == 0:
             return Response(status=200)
@@ -122,8 +128,13 @@ class TileViewSet(viewsets.ViewSet):
         total_col = math.ceil(len(tiles) / total_row)
 
         row = 0
+        col = 0
         for i, t in enumerate(tiles):
-            col = i % total_col
+            if method == "byRow":
+                col = i % total_col
+            else:
+                row = i % total_row
+
             # print(str(row) + ", " + str(col))
             
             t["x"] = col * width
@@ -131,8 +142,12 @@ class TileViewSet(viewsets.ViewSet):
             t["width"] = width
             t["height"] = height
 
-            if col == total_col - 1:
-                row = row + 1
+            if method == "byRow":
+                if col == total_col - 1:
+                    row = row + 1
+            else:
+                if row == total_row - 1:
+                    col = col + 1
 
         saveTileList(request.user.id, tiles)
 
@@ -144,14 +159,21 @@ class TileViewSet(viewsets.ViewSet):
         print(pk)
         print("-----")
         return Response(status=200)
-    
+
+    @action(detail=False, methods=['post'])
+    def auto_stitch(self, request):
+        return Response(status=200)
+
     @action(detail=False, methods=['get'])
     def export(self, request):
         tiles = getTileList(request.user.id)
         if len(tiles) > 0:
             example = tiles[0]
             img = cv.imread(example["path"], cv.IMREAD_COLOR)
-            
+            # cv.imshow("Cute Kitens", img)
+            # cv.waitKey(0)
+            # cv.destroyAllWindows()
+
             height = img.shape[0]
             width = img.shape[1]
             channel = img.shape[2]
@@ -172,7 +194,7 @@ class TileViewSet(viewsets.ViewSet):
             print("Total file size: " + str(emptyFileSize))
             
             # 5G uppper limit
-            if emptyFileSize < 5000000000:
+            if emptyFileSize < 100000000000:
                 working_folder = getWorkingFolder(request.user.id)
                 raw_file = working_folder.joinpath("tiling_result.raw")
                 png_file = working_folder.joinpath("tiling_result.png")
@@ -189,24 +211,25 @@ class TileViewSet(viewsets.ViewSet):
                             y = t["y"] + row
 
                             pos = (y * total_width + x) * channel
+                            
+                            # logger.debug(len(img[row]))
                             row_data = img[row].flatten()
+                            # logger.debug(len(row_data))
+                            # logger.debug(row_data)
                             f.seek(pos)
                             f.write(row_data)
 
-                ffmpeg_cmd = [
-                    "ffmpeg",
-                    "-y",
-                    "-f",
-                    "rawvideo",
-                    "-pixel_format",
-                    "rgb24",
-                    "-video_size",
+                imagematic_cmd = [
+                    "convert",
+                    "-depth",
+                    "8",
+                    "-size",
                     video_size,
-                    "-i",
-                    str(raw_file),
+                    "BGR:" + str(raw_file),
                     str(png_file)
-                    ]
-                subprocess.run(ffmpeg_cmd)
+                ]
+                # logger.debug(imagematic_cmd)
+                subprocess.run(imagematic_cmd)
 
                 img = open(png_file, 'rb')
                 response = FileResponse(img)
