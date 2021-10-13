@@ -18,7 +18,7 @@ services:
 
   api:
     # build: ./django
-    image: zyzhproton/isa_django:0.2
+    image: zyzhproton/isa_django:0.3
     # command: bash -c "cd /code/api && python manage.py runserver"
     command: bash -c "cd /code/api && gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --timeout 36000"
     # command: bash -c "cd /code/api && python3 manage.py migrate"
