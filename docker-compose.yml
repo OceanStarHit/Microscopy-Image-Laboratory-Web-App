@@ -34,20 +34,20 @@ services:
     networks:
       - custom_network
 
-  # ui:
-  #   build: ./vue
-  #   command: npm run serve
-  #   container_name: ui
-  #   volumes:
-  #     - ./vue:/code/ui
-  #   expose:
-  #     - 8080
-  #   ports:
-  #     - 8080:8080
-  #   depends_on:
-  #     - api
-  #   networks:
-  #     - custom_network
+  ui:
+    build: ./vue
+    command: npm run serve
+    container_name: ui
+    volumes:
+      - ./vue:/code/ui
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    depends_on:
+      - api
+    networks:
+      - custom_network
 
   # nginx:
   #   build: ./docker/nginx
