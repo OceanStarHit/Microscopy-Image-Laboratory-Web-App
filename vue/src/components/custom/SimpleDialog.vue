@@ -1,10 +1,14 @@
 <template>
   <v-card>
-    <v-card-title>{{ title }}</v-card-title>
+    <v-card-title>
+      <h2>
+        {{ title }}
+      </h2>
+    </v-card-title>
     <v-divider></v-divider>
     <slot></slot>
     <v-divider></v-divider>
-    <v-card-actions class="pa-6">
+    <v-card-actions class="pa-3">
       <v-spacer></v-spacer>
       <v-btn
         v-if="newButton"
@@ -139,7 +143,7 @@ export default {
 };
 </script>
 <style scoped>
-.v-btn {
+/* .v-btn {
   width: 90px;
-}
+} */
 </style>

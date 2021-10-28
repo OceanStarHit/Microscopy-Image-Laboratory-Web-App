@@ -3,27 +3,53 @@
     <simple-dialog
       title="Cloud"
       :single-button="false"
-      ok-title="Select"
+      ok-title="View the cloud"
       @select="visibleDialog = false"
       @close="visibleDialog = false"
     >
-      <v-treeview
-        v-model="tree"
-        :open="initiallyOpen"
-        :items="items"
-        activatable
-        item-key="name"
-        open-on-click
-      >
-        <template v-slot:prepend="{ item, open }">
-          <v-icon v-if="!item.file">
-            {{ open ? "mdi-folder-open" : "mdi-folder" }}
-          </v-icon>
-          <v-icon v-else>
-            {{ files[item.file] }}
-          </v-icon>
-        </template>
-      </v-treeview>
+      <div class="d-flex my-2 mx-10">
+        <h2 class="mr-2 mt-4">Experiment name</h2>
+        <v-text-field
+          v-model="experimentName"
+        ></v-text-field>
+      </div>
+      <div class ="my-2 mx-10">
+        <h3 class="mr-2 mt-4">select date</h3>
+        <v-treeview
+          v-model="tree"
+          :open="initiallyOpen"
+          :items="items"
+          activatable
+          item-key="name"
+          open-on-click
+        >
+          <template v-slot:prepend="{ item, open }">
+            <v-icon v-if="!item.file">
+              {{ open ? "mdi-folder-open" : "mdi-folder" }}
+            </v-icon>
+            <v-icon v-else>
+              {{ files[item.file] }}
+            </v-icon>
+          </template>
+        </v-treeview>
+      </div>
+      <div class="d-flex justify-end mx-5 my-2">
+        <v-btn
+          class="mr-2 text-capitalize"
+          color="info lighten-1"
+        >
+          {{ newSelect }}
+        </v-btn>
+        <v-btn
+          color="info darken-2"
+        >
+          {{ newUpload }}
+        </v-btn>
+      </div>
+      <v-img
+        width="300"
+        height="300">
+      </v-img>
     </simple-dialog>
   </v-dialog>
 </template>
@@ -42,6 +68,16 @@ export default {
     value: {
       type: Boolean,
       default: false
+    },
+
+    newSelect: {
+      type: String,
+      default: "Select date"
+    },
+
+    newUpload: {
+      type: String,
+      default: "Upload"
     }
   },
 
@@ -93,7 +129,8 @@ export default {
           }
         ]
       }
-    ]
+    ],
+    experimentName: ''
   }),
 
   computed: {
@@ -104,7 +141,7 @@ export default {
       set(val) {
         this.$emit("input", val);
       }
-    }
+    },
   },
 
   methods: {
