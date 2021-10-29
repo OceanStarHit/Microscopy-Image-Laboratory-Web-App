@@ -41,6 +41,7 @@
           {{ newSelect }}
         </v-btn>
         <v-btn
+          class="mr-2 text-capitalize"
           color="info darken-2"
         >
           {{ newUpload }}

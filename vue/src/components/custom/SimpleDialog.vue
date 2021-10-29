@@ -38,10 +38,16 @@
         :disabled="selectDisable"
         color="success darken-2"
         @click="selected"
+        class="mr-2 text-capitalize"
       >
         {{ okTitle }}
       </v-btn>
-      <v-btn v-if="!singleButton" color="primary darken-2" @click="closed">
+      <v-btn 
+        v-if="!singleButton" 
+        color="primary darken-2" 
+        @click="closed"
+        class="mr-2 text-capitalize"
+      >
         {{ closeTitle }}
       </v-btn>
     </v-card-actions>
