@@ -47,8 +47,11 @@
         </v-btn>
       </div>
       <v-img
-        width="300"
-        height="300">
+        width="500"
+        height="300"
+        class="mx-auto my-4"
+        src="https://picsum.photos/id/11/500/300"
+      >
       </v-img>
     </simple-dialog>
   </v-dialog>
