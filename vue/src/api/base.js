@@ -1,6 +1,7 @@
 import axios from "axios";
 
 export const BASE_API_URL = "http://127.0.0.1:8000/apis/";
+// export const BASE_API_URL = "api:8000/apis/";
 // export const BASE_API_URL = "http://docker.for.mac.localhost:8000/apis/";
 
 export const api = axios.create({
@@ -12,6 +13,7 @@ export const api = axios.create({
     "Content-Type": "application/json"
   }
 });
+
 
 api.interceptors.request.use(request => {
   console.log("[API Request]", request);

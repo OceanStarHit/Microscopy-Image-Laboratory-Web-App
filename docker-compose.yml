@@ -13,18 +13,20 @@ services:
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - 3306:3306
     networks:
       - custom_network
 
   api:
-    # build: ./django
-    image: zyzhproton/isa_django:0.3
+    build: ./django
+    # image: zyzhproton/isa_django:0.3
     # command: bash -c "cd /code/api && python manage.py runserver"
-    command: bash -c "cd /code/api && gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --timeout 36000"
     # command: bash -c "cd /code/api && python3 manage.py migrate"
-    container_name: api
+    #  container_name: api
     volumes:
       - ./django:/code/api
+      - image-storage:/image_storage
     expose:
       - 8000
     ports:
@@ -33,21 +35,22 @@ services:
       - db
     networks:
       - custom_network
+    command: bash -c "cd /code/api && gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --timeout 36000"
 
-  ui:
-    build: ./vue
-    command: npm run serve
-    container_name: ui
-    volumes:
-      - ./vue:/code/ui
-    expose:
-      - 8080
-    ports:
-      - 8080:8080
-    depends_on:
-      - api
-    networks:
-      - custom_network
+#  ui:
+#    build: ./vue
+#    command: npm run serve
+#    container_name: ui
+#    volumes:
+#      - ./vue:/code/ui
+#    expose:
+#      - 8080
+#    ports:
+#      - 8080:8080
+#    depends_on:
+#      - api
+#    networks:
+#      - custom_network
 
   # nginx:
   #   build: ./docker/nginx
@@ -76,7 +79,8 @@ services:
   #   restart: unless-stopped
 
 volumes:
-  db-data:
+  db-data: {}
+  image-storage: {}
 
 networks:
   custom_network:
