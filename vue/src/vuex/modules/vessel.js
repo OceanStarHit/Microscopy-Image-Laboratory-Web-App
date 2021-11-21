@@ -72,7 +72,7 @@ const mutations = {
     });
 
     // calc the current vessel id
-    if (row != -1 && col != -1) {
+    if (row !== -1 && col !== -1) {
       let r = row;
       let c = col;
       for (let idx = 0; idx < 6; idx++) {

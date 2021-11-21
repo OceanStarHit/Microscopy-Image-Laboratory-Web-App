@@ -18,7 +18,7 @@ from traceback import print_exc
 
 from . import utils
 
-javabridge.start_vm(class_path=javabridge.JARS + JARS,run_headless=True,max_heap_size='4G')
+javabridge.start_vm(class_path=javabridge.JARS + JARS, run_headless=True, max_heap_size='4G')
 
 class ImageInfo(object):
     def __init__(self, path, heap_size=4):

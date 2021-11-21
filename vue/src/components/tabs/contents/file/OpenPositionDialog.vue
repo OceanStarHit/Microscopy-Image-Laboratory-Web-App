@@ -670,7 +670,7 @@ export default {
 
     getMetaContents() {
       const contents = [];
-      this.allFiles.forEach((file) => {
+      this.allFiles.forEach(file => {
         contents.push({
           no: contents.length + 1,
           filename: file.name,
@@ -688,7 +688,7 @@ export default {
     },
 
     progressBarPercent() {
-      if (this.progressBarMaxValue != 0) {
+      if (this.progressBarMaxValue !== 0) {
         return (100 * this.progressBarValue) / this.progressBarMaxValue;
       }
       return 100;
@@ -735,7 +735,7 @@ export default {
           this.traverseFileTree(item, "", function() {
             thiz.progressBarValue++;
 
-            if (thiz.progressBarValue == thiz.progressBarMaxValue) {
+            if (thiz.progressBarValue === thiz.progressBarMaxValue) {
               // console.log(
               //   thiz.progressBarValue + " / " + thiz.progressBarMaxValue
               // );
@@ -788,7 +788,7 @@ export default {
 
     // Tab change (Tiling tab)
     async onTabChange(tabIdx) {
-      if (tabIdx == "tabs-tiling") {
+      if (tabIdx === "tabs-tiling") {
       }
     },
 
@@ -864,24 +864,19 @@ export default {
       const { text, startOffset, endOffset } = this.selectionRange;
       let selectedText = this.getSelectionText();
 
-      if (text != "" && selectedText != "") {
-        if (text == selectedText) {
+      if (text !== "" && selectedText !== "") {
+        if (text === selectedText) {
           if (startOffset > -1 && endOffset > -1) {
-            const patterns = this.namePatterns.filter((n) => n.start > -1);
+            const patterns = this.namePatterns.filter(n => n.start > -1);
             for (var i = 0; i < patterns.length; i++) {
-              if (
-                isOverlapped(
-                  [patterns[i].start, patterns[i].end],
-                  [startOffset, endOffset]
-                )
-              )
+              if (isOverlapped([patterns[i].start, patterns[i].end], [startOffset, endOffset])) {
                 break;
-            }
-
-            if (i == patterns.length) {
-              this.namePatterns[index].text = text;
-              this.namePatterns[index].start = startOffset;
-              this.namePatterns[index].end = endOffset;
+              }
+              if (i === patterns.length) {
+                this.namePatterns[index].text = text;
+                this.namePatterns[index].start = startOffset;
+                this.namePatterns[index].end = endOffset;
+              }
             }
           }
         }
@@ -892,7 +887,7 @@ export default {
       var text = "";
       if (window.getSelection) {
         text = window.getSelection().toString();
-      } else if (document.selection && document.selection.type != "Control") {
+      } else if (document.selection && document.selection.type !== "Control") {
         text = document.selection.createRange().text;
       }
       return text.replaceAll("\n", "");

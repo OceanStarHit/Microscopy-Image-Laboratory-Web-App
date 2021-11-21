@@ -1,6 +1,6 @@
 const DEFAULT_PARAMS = {
-  logind: sessionStorage.getItem("logind")
-    ? sessionStorage.getItem("logind")
+  isLoggedIn: sessionStorage.getItem("isLoggedIn")
+    ? sessionStorage.getItem("isLoggedIn")
     : false,
   token: "aa",
   showRegist: false
@@ -12,14 +12,14 @@ const state = () => ({
 });
 
 const getters = {
-  logind: (state, getter) => state.logind,
+  isLoggedIn: (state, getter) => state.isLoggedIn,
   token: (state, getter) => state.token,
-  showRegist: (state, getter) => state.logind
+  showRegist: (state, getter) => state.isLoggedIn
 };
 
 const actions = {
-  setLogind({ commit }, data) {
-    commit("setLogind", data);
+  setIsLoggedIn({ commit }, data) {
+    commit("setIsLoggedIn", data);
   },
   setShowRegist({ commit }, data) {
     commit("changeShowRegist", data);
@@ -27,8 +27,8 @@ const actions = {
 };
 
 const mutations = {
-  setLogind(state, data) {
-    state.logind = data.logind;
+  setIsLoggedIn(state, data) {
+    state.isLoggedIn = data.isLoggedIn;
     state.token = data.token;
   },
   changeShowRegist(state, data) {

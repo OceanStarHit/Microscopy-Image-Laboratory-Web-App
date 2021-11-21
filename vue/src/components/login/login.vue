@@ -43,7 +43,7 @@
           :loading="loading"
           type="primary"
           size="large"
-          style="width: 100%; height: 50px; margin-bottom: 30; background: lightblue; border-radius: 2px;"
+          style="width: 100%; height: 50px; margin-bottom: 3px; background: lightblue; border-radius: 2px;"
           @click="handleLogin"
         >
           {{ "Login" }}
@@ -92,9 +92,9 @@ export default {
         API.login(this.loginForm)
           .then(response => {
             if (response.code == "LOGIN_SUCCESS") {
-              sessionStorage.setItem("logind", true);
-              this.$store.dispatch("auth/setLogind", {
-                logind: true,
+              sessionStorage.setItem("isLoggedIn", true);
+              this.$store.dispatch("auth/setIsLoggedIn", {
+                isLoggedIn: true,
                 token: response.token
               });
               API.setAuthToken(response.token);
@@ -104,8 +104,8 @@ export default {
                 type: "success"
               }).show();
             } else {
-              this.$store.dispatch("auth/setLogind", {
-                logind: false,
+              this.$store.dispatch("auth/setIsLoggedIn", {
+                isLoggedIn: false,
                 token: ""
               });
               this.$message({
@@ -117,8 +117,8 @@ export default {
           })
           .catch(error => {
             console.error(error);
-            this.$store.dispatch("auth/setLogind", {
-              logind: false,
+            this.$store.dispatch("auth/setIsLoggedIn", {
+              isLoggedIn: false,
               token: ""
             });
           });

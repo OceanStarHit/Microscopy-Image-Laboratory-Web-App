@@ -14,9 +14,10 @@ RUN python3 -m pip install --upgrade pip
 
 USER root
 
-WORKDIR /code/api
+WORKDIR /code
 
-COPY . .
+## copy in django
+COPY ./django /code
 
 
 RUN python3 -m pip install -r requirements.txt
@@ -28,6 +29,9 @@ RUN python3 -m pip install python-bioformats
 #python-bioformats==4.0.5
 
 EXPOSE 8000
+
+COPY ./celery_tasks /code/celery_tasks/
+
 
 #RUN chmod +x ./scripts/entrypoin.sh
 #RUN sed -i -e 's/\r$//' ./scripts/entrypoint.sh

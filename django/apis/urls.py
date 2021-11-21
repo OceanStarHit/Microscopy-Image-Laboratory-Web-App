@@ -33,4 +33,5 @@ urlpatterns = [
     path('color-channel', apis.color_channel),
     path('gray', apis.gray),
     path('hist', apis.equalize),
+    # path('stitch', tasks),
 ]

@@ -484,7 +484,7 @@ import {
   imgVerticalDistance,
   imgXDistance,
   imgYDistance,
-  matchPixcels
+  matchPixels
 } from "../../../../utils/pattern-match";
 import {
   POSITION_DIALOG_CELL_SIZE,
@@ -2116,14 +2116,14 @@ export default {
       var offsetY = 0;
       if (verticalMatchingLine.length > 0) {
         // console.log("verticalMatchingLine about to call matchPixcels");
-        let verticalPMOffset = matchPixcels(verticalMatchingLine, verticalLine);
+        let verticalPMOffset = matchPixels(verticalMatchingLine, verticalLine);
         offsetY = verticalMatchingLineY + verticalPMOffset - movingImg.y;
       }
 
       var offsetX = 0;
       if (horizontalMatchingLine.length > 0) {
         // console.log("horizontalMatchingLine about to call matchPixcels");
-        let horizontalPMOffset = matchPixcels(
+        let horizontalPMOffset = matchPixels(
           horizontalMatchingLine,
           horizontalLine
         );

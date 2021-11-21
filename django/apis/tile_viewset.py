@@ -12,6 +12,8 @@ import cv2 as cv
 import subprocess
 from django.http import FileResponse
 import logging
+from celery_tasks.tasks import StitchingCeleryTask
+from celery_tasks.utils import create_worker_from
 
 """
 Get the list of uploaded files
@@ -24,10 +26,16 @@ Download the tiled image
 curl -X GET http://127.0.0.1:8000/apis/tiles/export/ -H 'Authorization: Token {token_value}' --output ~/Downloads/aa.png
 
 """
+
+# create worker
+_, stitching_worker = create_worker_from(StitchingCeleryTask)
+
 logger = logging.getLogger(__name__)
+
 
 def getWorkingFolder(user_id):
     return utils.get_user_cache_directory(user_id, TileViewSet.CACHE_FOLDER)
+
 
 def getTileList(user_id):
     working_folder = getWorkingFolder(user_id)
@@ -48,12 +56,14 @@ def getTileList(user_id):
         return json_object
     return []
 
+
 def saveTileList(user_id, tiles):
     working_folder = getWorkingFolder(user_id)
     json_path = working_folder.joinpath(TileViewSet.META_JSON)
     json_object = json.dumps(tiles)
     with open(json_path, 'w+') as json_file:
         json_file.write(json_object)
+
 
 class TileViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
@@ -91,9 +101,9 @@ class TileViewSet(viewsets.ViewSet):
             for i, f in enumerate(files):
                 full_path = working_folder.joinpath(f.name)
                 metadata = {
-                    "file_name" : f.name,
-                    "path" : str(full_path),
-                    "id" : i + 1
+                    "file_name": f.name,
+                    "path": str(full_path),
+                    "id": i + 1
                 }
                 with open(full_path, 'wb+') as destination:
                     for chunk in f.chunks():
@@ -101,7 +111,6 @@ class TileViewSet(viewsets.ViewSet):
                 metadata_list.append(metadata)
 
             saveTileList(request.user.id, metadata_list)
-
 
         return Response(status=200)
 
@@ -136,7 +145,7 @@ class TileViewSet(viewsets.ViewSet):
                 row = i % total_row
 
             # print(str(row) + ", " + str(col))
-            
+
             t["x"] = col * width
             t["y"] = row * height
             t["width"] = width
@@ -155,7 +164,9 @@ class TileViewSet(viewsets.ViewSet):
 
     @action(detail=True, methods=['get'])
     def stitch(self, request, pk=None):
-        print("-----sss")
+        print("-----stitch")
+        stitching_worker.apply_async(args=[request, ])
+
         print(pk)
         print("-----")
         return Response(status=200)
@@ -192,7 +203,7 @@ class TileViewSet(viewsets.ViewSet):
             print(video_size + " CH: " + str(channel))
             emptyFileSize = total_width * total_height * channel
             print("Total file size: " + str(emptyFileSize))
-            
+
             # 5G uppper limit
             if emptyFileSize < 100000000000:
                 working_folder = getWorkingFolder(request.user.id)
@@ -211,7 +222,7 @@ class TileViewSet(viewsets.ViewSet):
                             y = t["y"] + row
 
                             pos = (y * total_width + x) * channel
-                            
+
                             # logger.debug(len(img[row]))
                             row_data = img[row].flatten()
                             # logger.debug(len(row_data))
@@ -236,4 +247,3 @@ class TileViewSet(viewsets.ViewSet):
                 return response
 
         return Response(status=422)
-

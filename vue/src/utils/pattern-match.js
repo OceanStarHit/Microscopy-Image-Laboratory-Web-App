@@ -1,10 +1,10 @@
 // Pattern Matching
-const matchPixcels = (baseLine, movingLine) => {
+const matchPixels = (baseLine, movingLine) => {
   // console.log("baseLine");
   // console.log(baseLine[0]);
   // console.log("movingLine");
   // console.log(movingLine[0]);
-  if (baseLine.length == 0 || movingLine.length == 0) return 0;
+  if (baseLine.length === 0 || movingLine.length === 0) return 0;
 
   const checkingRangePre = 10;
   const checkingRange = parseInt(movingLine.length / checkingRangePre);
@@ -31,7 +31,7 @@ const matchPixcels = (baseLine, movingLine) => {
   // console.log("searchStart: " + searchStart);
   // console.log("searchEnd: " + searchEnd);
 
-  // Calcullate the score by moving the moveline a few pixcels a time from left to right.
+  // Calculate the score by moving the moveline a few pixels a time from left to right.
   const movingStep = 1;
   const channel = 3;
   let scores = [];
@@ -94,7 +94,7 @@ const imgVerticalDistance = (imgA, imgB) => {
 };
 
 export {
-  matchPixcels,
+  matchPixels,
   imgXDistance,
   imgYDistance,
   imgHorizontalDistance,

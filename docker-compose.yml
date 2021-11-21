@@ -1,31 +1,23 @@
 version: "3.8"
 
 services:
-  db:
-    image: mariadb
-    restart: always
-    volumes:
-      - ./docker/sql:/docker-entrypoint-initdb.d
-      - db-data:/var/lib/mysql
-    environment:
-      TZ: Asia/Tokyo
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - 3306:3306
-    networks:
-      - custom_network
+
+  example:
+    build:
+      context: .
+      dockerfile: ./example/Dockerfile
 
   api:
-    build: ./django
+    build:
+      context: .
+      dockerfile: ./django/Dockerfile
     # image: zyzhproton/isa_django:0.3
     # command: bash -c "cd /code/api && python manage.py runserver"
     # command: bash -c "cd /code/api && python3 manage.py migrate"
     #  container_name: api
+    env_file: ./.env
     volumes:
-      - ./django:/code/api
+#      - ./django:/code/api
       - image-storage:/image_storage
     expose:
       - 8000
@@ -33,9 +25,54 @@ services:
       - 8000:8000
     depends_on:
       - db
-    networks:
-      - custom_network
-    command: bash -c "cd /code/api && gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --timeout 36000"
+      - broker
+    #    command: bash -c "cd /code/api && gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --timeout 36000"
+    command: sh ./run_django.sh
+
+  db:
+    image: mariadb
+    restart: always
+    volumes:
+      - ./docker/sql:/docker-entrypoint-initdb.d
+      - db-data:/var/lib/mysql
+    env_file: ./.env
+    ports:
+      - 3306:3306
+
+  ## stitching worker
+  stitching_worker:
+    build:
+      context: .
+      dockerfile: ./stitching/Dockerfile
+    restart: "no"
+    env_file: ./.env
+#    command: ["celery", "worker", "--app=celery_worker.app", "--concurrency=1", "--hostname=worker@%h", "--loglevel=INFO"]
+    volumes:
+      - image-storage:/image_storage
+    depends_on:
+      - broker
+
+  ## worker broker
+  broker:
+    image: rabbitmq:3
+    env_file: ./.env
+    ports:
+      - 5672:5672
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  ## celery monitor
+  flower:
+    image: zoomeranalytics/flower:0.9.1-4.0.2
+    restart: "no"
+    env_file: ./.env
+    ports:
+      - "5555:5555"
+    depends_on:
+      - broker
+
 
 #  ui:
 #    build: ./vue
@@ -82,6 +119,6 @@ volumes:
   db-data: {}
   image-storage: {}
 
-networks:
-  custom_network:
-    driver: bridge
+#networks:
+#  custom_network:
+#    driver: bridge

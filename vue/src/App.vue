@@ -5,7 +5,7 @@
         <RegistPage />
       </v-main>
     </v-app>
-    <v-app v-else-if="logind">
+    <v-app v-else-if="isLoggedIn">
       <v-app-bar app dark>
         <v-toolbar dark flat>
           <v-app-bar-nav-icon></v-app-bar-nav-icon>
@@ -41,7 +41,7 @@
         <MainFrame />
       </v-main>
     </v-app>
-    <v-app v-else-if="!logind">
+    <v-app v-else-if="!isLoggedIn">
       <v-main>
         <LoginPage />
       </v-main>
@@ -73,12 +73,12 @@ export default {
     // },
     ...mapState({
       showRegist: state => state.auth.showRegist,
-      logind: state => state.auth.logind
+      isLoggedIn: state => state.auth.isLoggedIn
     })
   },
 
   mounted() {
-    console.log(this.logind);
+    console.log(this.isLoggedIn);
   },
 
   methods: {

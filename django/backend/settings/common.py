@@ -89,7 +89,7 @@ DATABASES = {
         'NAME': 'myproject',
         'USER': 'myprojectuser',
         'PASSWORD': 'Password1',
-        'HOST': 'db',
+        'HOST': 'localhost',
         'PORT': 3306,
     }
 }
@@ -137,6 +137,10 @@ STATICFILES_DIRS = [
 ]
 
 REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
@@ -172,4 +176,12 @@ LOGGING = {
         'handlers': ['console'],
         'level': logLevel,
     },
+}
+
+CELERY = {
+    'BROKER_URL': os.environ['CELERY_BROKER'],
+    'CELERY_IMPORTS': ('worker.tasks', ),
+    'CELERY_TASK_SERIALIZER': 'json',
+    'CELERY_RESULT_SERIALIZER': 'json',
+    'CELERY_ACCEPT_CONTENT': ['json'],
 }
