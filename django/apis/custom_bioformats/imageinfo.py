@@ -1,6 +1,8 @@
 import os.path
 import javabridge
 
+from utils import image_utils
+
 _jars_dir = os.path.join(os.path.dirname(__file__), 'jars')
 
 JAR_VERSION = '6.6.0'
@@ -15,8 +17,6 @@ from . import formatreader as _formatreader
 import numpy as np
 
 from traceback import print_exc
-
-from . import utils
 
 javabridge.start_vm(class_path=javabridge.JARS + JARS, run_headless=True, max_heap_size='4G')
 
@@ -111,9 +111,9 @@ class ImageInfo(object):
             scale = self.image['scales'][t, z, c]
             channel = self.image['info']['channels'][c]
             
-            image_tzc = utils.save_image(image_array, scale, channel)
+            image_tzc = image_utils.save_image(image_array, scale, channel)
 
-            response['imageData'] = utils.make_image_data(image_tzc)
+            response['imageData'] = image_utils.make_image_data(image_tzc)
 
         except Exception:
             print_exc()

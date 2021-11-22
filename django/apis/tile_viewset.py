@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from apis.custom_bioformats import utils
+from utils import folder_utils, image_utils
 from os.path import exists
 import json
 from PIL import Image
@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 def getWorkingFolder(user_id):
-    return utils.get_user_cache_directory(user_id, TileViewSet.CACHE_FOLDER)
+    return folder_utils.get_user_cache_directory(user_id, TileViewSet.CACHE_FOLDER)
 
 
 def getTileList(user_id):
@@ -92,9 +92,14 @@ class TileViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=['post'])
     def batch_create(self, request):
+        '''
+        Request should contain a list of files.
+        Files are added to workingFolder, which is a folder in cache-storage under the user_id and CACHE_FOLDER
+        Any previously stored files are removed prior to adding new ones.
+        '''
         working_folder = getWorkingFolder(request.user.id)
 
-        utils.clear_folder(working_folder)
+        folder_utils.clear_folder(working_folder) # cache folder is cleared prior to adding files
         if "files" in request.FILES:
             files = request.FILES.getlist("files")
             metadata_list = []

@@ -16,9 +16,7 @@ USER root
 
 WORKDIR /code
 
-## copy in django
-COPY ./django /code
-
+COPY ./django/requirements.txt .
 
 RUN python3 -m pip install -r requirements.txt
 
@@ -28,8 +26,15 @@ RUN python3 -m pip install python-bioformats
 #python-javabridge==4.0.3
 #python-bioformats==4.0.5
 
+## copy in django
+COPY ./django /code
+
 EXPOSE 8000
 
+## Copy shared  utils
+COPY ./utils /code/utils
+
+## Copy in celery_tasks so that we can import them in Django
 COPY ./celery_tasks /code/celery_tasks/
 
 

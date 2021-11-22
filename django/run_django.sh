@@ -3,14 +3,22 @@
 # wait for database to start
 sleep 3
 
-cd /code/api
-
-su -c "python manage.py collectstatic -y"
-#su -c "python manage.py makemigrations"
+#python manage.py collectstatic --noinput
+#python manage.py makemigrations --noinput
 # migrate db, so we have the latest db schema
-#su -c "python manage.py migrate"
+echo "Collecting Static Files"
+su -c "python manage.py collectstatic --noinput"
+
+#echo "Making migrations"
+#su -c "python manage.py makemigrations --noinput"
+
+#echo "Migrating"
+#su -c "python manage.py migrate --noinput"
+#su -c "python manage.py migrate --noinput"
 # start development server on public ip interface, on port 8000
 #su -m myuser -c "python manage.py runserver 0.0.0.0:8000"
 
+
 # start development server on public ip interface, on port 8000
+echo "Starting Gunicorn and serving Django"
 su -c "gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --timeout 36000"

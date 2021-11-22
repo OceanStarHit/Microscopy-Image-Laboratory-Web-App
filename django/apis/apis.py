@@ -9,19 +9,17 @@ Comments:
 
 import json
 import cv2
-import numpy as np
 
 from http import HTTPStatus
 from pathlib import Path
 from base64 import b64encode, b64decode
 from uuid import uuid4
-from subprocess import call
 from traceback import print_exc
 from django.views.decorators.csrf import csrf_exempt
 from django.http.response import HttpResponse, JsonResponse
 
-from .custom_bioformats import ImageInfo, utils
-
+from utils import image_utils
+from .custom_bioformats import ImageInfo
 
 current_data = None
 
@@ -36,8 +34,8 @@ def set_image(request):
     try:
         source_image = request.FILES.get('sourceImage')
         
-        if utils.check_source_format(source_image):
-            source_file = utils.save_source_image(source_image)
+        if image_utils.check_source_format(source_image):
+            source_file = image_utils.save_source_image(source_image)
 
             imageInfo = ImageInfo(source_file)
             ret = imageInfo.parse_by_bioformat(show_log=True)
@@ -68,8 +66,8 @@ def set_metadata(request):
         print(position_key)
         try:
             uploadedFile = jsonReq[position_key]
-            if utils.check_source_format(uploadedFile):
-                metafile = utils.save_source_image(uploadedFile)
+            if image_utils.check_source_format(uploadedFile):
+                metafile = image_utils.save_source_image(uploadedFile)
 
                 metaInfo = ImageInfo(metafile)
                 ret = metaInfo.parse_by_bioformat(show_log=True)
@@ -125,10 +123,10 @@ def adjust_image(request):
         contrast = req_json['contrast']
         gamma = req_json['gamma']
 
-        image_file = utils.save_processing_file(raw_data)
+        image_file = image_utils.save_processing_file(raw_data)
 
-        changed_file = utils.change_image_parameter(image_file, brightness, contrast, gamma)
-        image_data = utils.make_image_data(changed_file)
+        changed_file = image_utils.change_image_parameter(image_file, brightness, contrast, gamma)
+        image_data = image_utils.make_image_data(changed_file)
         result = {'imageData': image_data}
 
         return JsonResponse(result, status=HTTPStatus.OK)
@@ -142,13 +140,13 @@ def color_channel(request):
         raw_data = b64decode(base64image[22:])
         channels = request.POST.get('channels')
 
-        image_file = utils.save_processing_file(raw_data)
+        image_file = image_utils.save_processing_file(raw_data)
 
         if channels == 's':
-            image_data = utils.make_image_data(image_file)
+            image_data = image_utils.make_image_data(image_file)
         else:
-            channels_file = utils.split_channels(image_file, channels)
-            image_data = utils.make_image_data(channels_file)
+            channels_file = image_utils.split_channels(image_file, channels)
+            image_data = image_utils.make_image_data(channels_file)
             
             # utils.delete_file(channels_file)
 
@@ -166,10 +164,10 @@ def gray(request):
         raw_data = b64decode(base64image[22:])
         bits = request.POST.get('bits')
 
-        image_file = utils.save_processing_file(raw_data)
+        image_file = image_utils.save_processing_file(raw_data)
 
-        gray_file = utils.convert_to_gray(image_file, bits)
-        image_data = utils.make_image_data(gray_file)
+        gray_file = image_utils.convert_to_gray(image_file, bits)
+        image_data = image_utils.make_image_data(gray_file)
 
         # utils.delete_file(gray_file)
 

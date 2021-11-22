@@ -27,13 +27,16 @@ from __future__ import absolute_import, unicode_literals
 __version__ = "$Revision$"
 
 import logging
+
+from utils import image_utils
+
 logger = logging.getLogger(__name__)
 import errno
 import numpy as np
 import os
 import sys
 import re
-from . import utils
+# from utils import utils
 
 if sys.version_info.major == 3:
     from urllib.request import urlopen, urlparse, url2pathname
@@ -49,7 +52,6 @@ import traceback
 
 import javabridge as jutil
 import bioformats.metadatatools as metadatatools
-import javabridge as javabridge
 import boto3
 
 OMERO_READER_IMPORTED = False
@@ -697,7 +699,7 @@ class ImageReader(object):
                 if jutil.is_instance_of(
                     je, "loci/formats/FormatException"):
 
-                    self.path = utils.convert_to_tiff(path)
+                    self.path = image_utils.convert_to_tiff(path)
                     converted = True
                     continue
 

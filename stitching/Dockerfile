@@ -31,8 +31,10 @@ WORKDIR /code
 RUN pip3 install -q -U \
     celery==4.2.0
 
+## Copy shared  utils
+COPY ./utils /code/utils
+
 COPY ./celery_tasks/ /code/celery_tasks/
 COPY ./stitching /code
-
 
 ENTRYPOINT celery -A main worker --concurrency=4 --loglevel=info -n stitching_worker.%h

@@ -105,25 +105,38 @@ Should proceed this step each time to run the project
 
 You can check the app at `http://127.0.0.1:8000` on your browser
 
-### Use docker images
-- Import the ready to use images
+### Use docker compose
+- Run the following command in the IAS-project folder to start all backend services
   ```sh
-  $ docker import ias-project_api.tar
-  $ docker import mariadb.tar
+  $ docker compose up
   ```
-- Check the image ID
+- If it's the first time running, you must also migrate the database. Please input the following command to get open a shell into the django container
   ```sh
-  $ docker images
+  $ docker container exec -it ias-project-api-1 bash
   ```
-- Tag the image
+- Once you are in the shell please input the following commands. You might have to Ctrl+C to exit a command once it's been run.
   ```sh
-  $ docker tag <API Image ID> ias-project_api:latest
-  $ docker tag <DB Image ID> mariadb:latest
+  $ python manage.py makemigrations
+  $ python manage.py migrate
   ```
-- Run docker
+- Exit the django shell by pressing Ctrl+D
+
+
+- To start a development version of the front end, please input the following command. This might take some time to build the app.
   ```sh
-  $ docker-compose up
+  $ cd vue
+  $ npm run serve
   ```
+
+### Monitoring
+To monitor the celery worker tasks / microservices. Go to [http://localhost:5555/]()
+
+To monitor RabbitMQ, the message broker. Go to [http://localhost:15672/]()
+And enter the username and password set in the .env file.
+Default: 
+- User: 'user'
+- Password: 'password'
+
 
 ## Runbook
   ```sh

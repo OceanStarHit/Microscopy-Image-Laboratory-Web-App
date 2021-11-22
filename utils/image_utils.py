@@ -12,17 +12,8 @@ import numpy as np
 #####################
 # Generic Functions #
 #####################
+from utils import folder_utils
 
-def get_user_cache_directory(user_id, directory = 'tiling'):
-    cache_dir = Path(__file__).parent.parent.parent.joinpath('cache').joinpath('user_' + str(user_id)).joinpath(directory)
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    return cache_dir
-
-def get_cache_directory(directory = 'sources'):
-    cache_dir = Path(__file__).parent.parent.parent.joinpath('cache').joinpath(directory)
-    cache_dir.mkdir(parents=True, exist_ok=True)
-
-    return cache_dir
 
 def base64_encoded_image(image_path):
     with open(image_path, "rb") as image_file:
@@ -45,7 +36,7 @@ def check_source_format(source_image):
 
 # Save the uploaded file to a cache dir.
 def save_source_image(source_image):
-    dest_dir = get_cache_directory()
+    dest_dir = folder_utils.get_cache_directory()
 
     _, file_extension = os.path.splitext(source_image.name)
     file_path = str(dest_dir.joinpath(uuid4().hex + file_extension))
@@ -57,7 +48,7 @@ def save_source_image(source_image):
     return file_path
 
 def convert_to_tiff(source_file):
-    dest_dir = get_cache_directory('converted')
+    dest_dir = folder_utils.get_cache_directory('converted')
     file_name, _ = os.path.splitext(os.path.basename(source_file))
     dest_file = str(dest_dir.joinpath(file_name + '.tiff'))
 
@@ -67,7 +58,7 @@ def convert_to_tiff(source_file):
     return dest_file
 
 def save_processing_file(raw_data):
-    dest_dir = get_cache_directory('raw_data')
+    dest_dir = folder_utils.get_cache_directory('raw_data')
     file_path = str(dest_dir.joinpath(uuid4().hex + '.png'))
 
     with open(file_path, mode='wb') as destination:
@@ -76,7 +67,7 @@ def save_processing_file(raw_data):
     return file_path
 
 def save_image(image_array, scale, channel):
-    dest_dir = get_cache_directory('bioformats')
+    dest_dir = folder_utils.get_cache_directory('bioformats')
     saved_file = str(dest_dir.joinpath(uuid4().hex + '.png'))
 
     image_size = image_array.shape
@@ -161,7 +152,7 @@ def convert_to_gray(image_file, bits):
     elif bits == '16':
         img = map_uint16_to_uint8(img)
 
-    dest_dir = get_cache_directory('gray')
+    dest_dir = folder_utils.get_cache_directory('gray')
     new_image_file = str(dest_dir.joinpath(uuid4().hex + '.png'))
     
     cv2.imwrite(new_image_file, img)
@@ -214,7 +205,7 @@ def change_image_parameter(image_file, brightness, contrast, gamma):
         gamma_c = 127*(1-f)
         buf = cv2.addWeighted(buf, alpha_c, buf, 0, gamma_c)
 
-    dest_dir = get_cache_directory('temp')
+    dest_dir = folder_utils.get_cache_directory('temp')
     new_image_file = str(dest_dir.joinpath(uuid4().hex + '.png'))
 
     cv2.imwrite(new_image_file, buf)
@@ -224,13 +215,3 @@ def change_image_parameter(image_file, brightness, contrast, gamma):
 def map(x, in_min, in_max, out_min, out_max):
     return int((x-in_min) * (out_max-out_min) / (in_max-in_min) + out_min)
 
-def clear_folder(folder):
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            print('Failed to delete %s. Reason: %s' % (file_path, e))
