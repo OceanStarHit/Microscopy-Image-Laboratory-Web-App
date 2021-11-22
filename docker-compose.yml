@@ -2,7 +2,14 @@ version: "3.8"
 
 services:
 
-
+  example:
+    build:
+      context: .
+      dockerfile: ./example/Dockerfile
+    env_file: ./.env
+    volumes:
+      - image-storage:/code/image_storage
+      - image-cache:/code/image_cache
 
   api:
     build:
@@ -135,7 +142,7 @@ volumes:
 #      device: c:/Users/anon/Documents/Programming/_work/IAS-project/cache-storage
 
   image-storage:
-  image-cache:
+  cache-storage:
 
 
 #networks:

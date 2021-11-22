@@ -169,8 +169,7 @@ class TileViewSet(viewsets.ViewSet):
 
     @action(detail=True, methods=['get'])
     def stitch(self, request, pk=None):
-        print("-----stitch")
-        stitching_worker.apply_async(args=[request, ])
+
 
         print(pk)
         print("-----")
@@ -178,6 +177,9 @@ class TileViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=['post'])
     def auto_stitch(self, request):
+        print("-----auto_stitch")
+        stitching_worker.apply_async(args=[request, ])
+
         return Response(status=200)
 
     @action(detail=False, methods=['get'])

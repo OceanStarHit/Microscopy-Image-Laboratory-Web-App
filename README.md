@@ -110,7 +110,7 @@ You can check the app at `http://127.0.0.1:8000` on your browser
   ```sh
   $ docker compose up
   ```
-- If it's the first time running, you must also migrate the database. Please input the following command to get open a shell into the django container
+- If it's the first time running, you must also migrate the database. Please input the following command to open a shell into the django container
   ```sh
   $ docker container exec -it ias-project-api-1 bash
   ```
