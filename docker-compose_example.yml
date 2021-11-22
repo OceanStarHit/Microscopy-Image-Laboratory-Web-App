@@ -114,28 +114,36 @@ services:
   #     - 8888:8443
   #   restart: unless-stopped
 
+  example:
+    build:
+      context: .
+      dockerfile: ./example/Dockerfile
+    volumes:
+      - image-storage:/image-storage
+      - cache-storage:/cache-storage
+
 
 volumes:
   db-data: {}
 
-#  # using local volumes with absolute path for development.
-#  # specific path set to personal development folder
-#  image-storage:
-#    driver: local
-#    driver_opts:
-#      o: bind
-#      type: none
-#      device: c:/Users/anon/Documents/Programming/_work/IAS-project/image-storage
-#
-#  cache-storage:
-#    driver: local
-#    driver_opts:
-#      o: bind
-#      type: none
-#      device: c:/Users/anon/Documents/Programming/_work/IAS-project/cache-storage
-
+  # using local volumes with absolute path for development.
+  # specific path set to personal development folder
   image-storage:
-  image-cache:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: c:/Users/anon/Documents/Programming/_work/IAS-project/image-storage
+
+  cache-storage:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: c:/Users/anon/Documents/Programming/_work/IAS-project/cache-storage
+
+#  image-storage:
+#  image-cache:
 
 
 #networks:
