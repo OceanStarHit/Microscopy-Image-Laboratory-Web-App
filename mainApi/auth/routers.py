@@ -40,11 +40,6 @@ async def create_user(user: CreateUserModel):
     if existing_email is not None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
 
-    # # check if another with the same mobile already exist
-    # existing_mobile = await db["users"].find_one({"mobile": user.mobile})
-    # if existing_mobile is not None:
-    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Mobile already exists")
-
     # turn user into a dictionary so that we can add keys
     new_user_dict = user.dict()
     new_user_dict['created_at'] = datetime.now().strftime("%m/%d/%y %H:%M:%S")
@@ -68,7 +63,6 @@ async def create_user(user: CreateUserModel):
     created_user_reply = CreateUserReplyModel(user=created_user, otp_secret=otp_secret, otp_uri=otp_uri)
 
     return created_user_reply
-
 
 
 @router.post("/token")
