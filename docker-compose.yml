@@ -2,54 +2,68 @@ version: "3.8"
 
 services:
 
-  api:
+  mainapi:
     build:
       context: .
-      dockerfile: ./django/Dockerfile
-    # command: bash -c "cd /code/api && python manage.py runserver"
-    # command: bash -c "cd /code/api && python3 manage.py migrate"
-    #  container_name: api
-    env_file: ./.env
-    volumes:
-#      - ./django:/code/api
-      - image-storage:/image-storage
-      - cache-storage:/cache-storage
-    expose:
-      - 8000
+      dockerfile: mainApi/Dockerfile
     ports:
       - 8000:8000
+    env_file:
+      - ./env_files/fastApi.env
+      - ./env_files/mongoDB_connect.env
     depends_on:
-      - db
-      - broker
-    #    command: bash -c "cd /code/api && gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --timeout 36000"
-    command: sh ./run_django.sh
+      - mongo
+      - rabbitmq
+      - redis
 
-  db:
-    image: mariadb
-    restart: always
-    volumes:
-      - ./docker/sql:/docker-entrypoint-initdb.d
-      - db-data:/var/lib/mysql
-    env_file: ./.env
-    ports:
-      - 3306:3306
-
-  ## stitching worker
-  stitching_worker:
-    build:
-      context: .
-      dockerfile: ./stitching/Dockerfile
-    restart: "no"
-    env_file: ./.env
-#    command: ["celery", "worker", "--app=celery_worker.app", "--concurrency=1", "--hostname=worker@%h", "--loglevel=INFO"]
     volumes:
       - image-storage:/image-storage
       - cache-storage:/cache-storage
+
+      ## for faster debug, remove for production
+      - ./mainApi:/app/mainApi:ro
+      - ./utils:/app/utils:ro
+      - ./celery_tasks:/app/celery_tasks:ro
+#    command: ["sleep", "20s"]
+#    command: ["uvicorn", "mainApi.app:app", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["sh", "./mainApi/start.sh"]
+#
+#  api:
+#    build: ./api
+#    env_file:
+#      - ./env_files/fastApi.env
+#      - ./env_files/mongoDB_connect.env
+#    ports:
+#        - 80:80
+##    environment:
+##        - MONGODB_URL=mongodb://mongo:27017
+#    volumes:
+#      - ./api:/api
+#
+#    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+
+  mongo:
+    image: mongo:latest
+    restart: unless-stopped
+    ports:
+      - 27017
+    volumes:
+      - mongoDbData:/data/db
+    env_file:
+      - ./env_files/mongoDb.env
+
+  mongo-express:
+    image: mongo-express
+    restart: unless-stopped
+    ports:
+      - 8081:8081
+    env_file:
+      - ./env_files/mongo-express.env
     depends_on:
-      - broker
+      - mongo
 
   ## worker broker
-  broker:
+  rabbitmq:
     image: rabbitmq:3-management
     env_file: ./.env
     ports:
@@ -68,8 +82,28 @@ services:
     ports:
       - "5555:5555"
     depends_on:
-      - broker
+      - rabbitmq
 
+  ## for task results
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  ## stitching worker
+  stitching_worker:
+    build:
+      context: .
+      dockerfile: ./stitching/Dockerfile
+    restart: "no"
+    env_file: ./.env
+#    command: ["celery", "worker", "--app=celery_worker.app", "--concurrency=1", "--hostname=worker@%h", "--loglevel=INFO"]
+    volumes:
+      - image-storage:/image-storage
+      - cache-storage:/cache-storage
+    depends_on:
+      - rabbitmq
+      - redis
 
 #  ui:
 #    build: ./vue
@@ -98,42 +132,28 @@ services:
   #     TZ: Asia/Tokyo
   #     CLIENT_MAX_BODY_SIZE: 64M
   
-  # code-server:
-  #   image: ghcr.io/linuxserver/code-server
-  #   container_name: code-server
-  #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Asia/Tokyo
-  #     - PASSWORD=Password1
-  #   volumes:
-  #     - .:/code
-  #   ports:
-  #     - 8888:8443
-  #   restart: unless-stopped
-
 
 volumes:
-  db-data: {}
+  mongoDbData:
 
-#  # using local volumes with absolute path for development.
-#  # specific path set to personal development folder
-#  image-storage:
-#    driver: local
-#    driver_opts:
-#      o: bind
-#      type: none
-#      device: c:/Users/anon/Documents/Programming/_work/IAS-project/image-storage
-#
-#  cache-storage:
-#    driver: local
-#    driver_opts:
-#      o: bind
-#      type: none
-#      device: c:/Users/anon/Documents/Programming/_work/IAS-project/cache-storage
-
+  # using local volumes with absolute path for development.
+  # specific path set to personal development folder
   image-storage:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: c:/Users/anon/Documents/Programming/_work/IAS-project/image-storage
+
   cache-storage:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: c:/Users/anon/Documents/Programming/_work/IAS-project/cache-storage
+
+#  image-storage:
+#  cache-storage:
 
 
 #networks:

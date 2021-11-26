@@ -1,0 +1,12 @@
+#bioformats==0.1.15
+celery # workers
+aioredis # asyncio redis api
+uvicorn #  asgi server
+
+fastapi # main api framework
+pydantic[email] # for models
+pymongo # mongoDb api
+motor # asyncio mongo driver
+passlib[bcrypt] # for password hashing
+python-jose[cryptography] # encryption
+python-multipart # form data, used for uploading multiple files
