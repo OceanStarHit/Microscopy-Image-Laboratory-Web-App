@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 # ----------------- Database variables (MongoDB) --------------------------
 client = AsyncIOMotorClient(os.environ["MONGODB_URL"])
-db = client.devDB
+db: AsyncIOMotorDatabase = client.devDB
 
 
 # mongo_db_client: AsyncIOMotorClient = None
