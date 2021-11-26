@@ -1,6 +1,9 @@
 from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
-from .settings import pwd_context, oauth2_scheme, SECRET_KEY, ALGORITHM, db
+from .settings import pwd_context, oauth2_scheme, SECRET_KEY, ALGORITHM
+from mainApi.config import db
+
+import pyotp
 
 from datetime import datetime, timedelta
 from typing import Optional
@@ -16,10 +19,12 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
+
 async def get_user(email: str):
     # if (user := await mongoDb["users"].find_one({"_id": id})) is not None:
-    if (user := await db["users"].find_one({"email": email})) is not None:
-        return user
+    # if (user := await db["users"].find_one({"email": email})) is not None:
+    #     return user
+    return await db["users"].find_one({"email": email})
 
 
 async def authenticate_user(email: str, password: str):

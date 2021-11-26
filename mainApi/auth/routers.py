@@ -1,3 +1,5 @@
+import pyotp
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -7,12 +9,13 @@ from fastapi import (
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
+from pymongo.results import InsertOneResult
 
 from .auth import (
     get_current_user,
     authenticate_user,
     create_access_token,
-    get_password_hash
+    get_password_hash, get_user
 )
 
 # from .settings import ACCESS_TOKEN_EXPIRE_MINUTES, db
@@ -22,55 +25,52 @@ from mainApi.config import db
 from typing import List
 from datetime import datetime, timedelta
 
-from mainApi.models.user import UserModel, ShowUserModel, UpdateUserModel, CreateUserModel
-from mainApi.models.models import UserModel as UserModel2
-
-import re
+from mainApi.models.user import UserModel, ShowUserModel, UpdateUserModel, CreateUserModel, CreateUserReplyModel
 
 router = APIRouter(
     prefix="/auth",
     tags=["auth"]
 )
 
-
 # ============= Creating path operations ==============
-@router.post("/", response_description="Add new user", response_model=UserModel2)
-async def create_user2(user: UserModel2):
-    if re.match("admin|dev|simple mortal", user.role):
-        datetime_now = datetime.now()
-        user.created_at = datetime_now.strftime("%m/%d/%y %H:%M:%S")
-        user.password = get_password_hash(user.password)
-        user = jsonable_encoder(user)
-        new_user = await db["users"].insert_one(user)
-        await db["users"].update_one({"_id": new_user.inserted_id}, {
-                                     "$rename": {"password": "hashed_pass"}})
-
-        created_user = await db["users"].find_one({"_id": new_user.inserted_id})
-        return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_user)
-
-    raise HTTPException(status_code=406, detail="User role not acceptable")
-
-# ============= Creating path operations ==============
-@router.post("/create_user", response_description="Add new user", response_model=ShowUserModel)
+@router.post("/create_user", response_description="Add new user", response_model=CreateUserReplyModel, status_code=status.HTTP_201_CREATED)
 async def create_user(user: CreateUserModel):
+    # check if another with the same email already exist
+    existing_email = await db["users"].find_one({"email": user.email})
+    if existing_email is not None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
+
+    # # check if another with the same mobile already exist
+    # existing_mobile = await db["users"].find_one({"mobile": user.mobile})
+    # if existing_mobile is not None:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Mobile already exists")
+
+    # turn user into a dictionary so that we can add keys
     new_user_dict = user.dict()
     new_user_dict['created_at'] = datetime.now().strftime("%m/%d/%y %H:%M:%S")
-    new_user_dict['last_login'] = new_user_dict['created_at'] ## last login same as created_at
-    new_user_dict['password'] = get_password_hash(user.password)
-    # turn new_user_dict into a Usermodel after adding created_at and changing password to hash
-    new_user: UserModel = UserModel.parse_obj(new_user_dict)
-    new_user = jsonable_encoder(new_user)
+    new_user_dict['last_login'] = new_user_dict['created_at']  # last login same as created_at
+    new_user_dict['password'] = get_password_hash(user.password)  # changing plain text password to hash
+    otp_secret = pyotp.random_base32()  # generate secret to be shared with user
+    new_user_dict['otp_secret'] = otp_secret
+    # turn new_user_dict into a Usermodel after adding created_at, changing password to hash and adding otp_secret
+    new_user: UserModel = UserModel.parse_obj(new_user_dict)  # turning it into a UserModel so that we get validation
+    new_user: dict = new_user.dict()  # turn new_user back into a dict after validation so that we can rename password
+    # change attribute name from password to hashed_pass, must be done after validation of UserModel
+    new_user['hashed_pass'] = new_user.get("password")
+    new_user.pop('password', None)
+    # add user to db
+    # when we insert new_user, _id gets added to new_user
+    insert_user_res: InsertOneResult = await db["users"].insert_one(new_user)
+    if not insert_user_res.acknowledged:
+        raise Exception(f"Failed to add User to Database, :{new_user}")
 
-    new_user_db = await db["users"].insert_one(new_user)
+    created_user = ShowUserModel.parse_obj(new_user)
 
+    otp_uri = pyotp.totp.TOTP(otp_secret).provisioning_uri(name=user.email, issuer_name='IAS App')
 
-    await db["users"].update_one({"_id": new_user_db.inserted_id}, {
-        "$rename": {"password": "hashed_pass"}})
+    created_user_reply = CreateUserReplyModel(user=created_user, otp_secret=otp_secret, otp_uri=otp_uri)
 
-    created_user = await db["users"].find_one({"_id": new_user_db.inserted_id})
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_user)
-
-    # raise HTTPException(status_code=406, detail="User role not acceptable")
+    return created_user_reply
 
 '''This is the login route, returns a token'''
 @router.post("/token")

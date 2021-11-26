@@ -27,20 +27,7 @@ services:
 #    command: ["sleep", "20s"]
 #    command: ["uvicorn", "mainApi.app:app", "--host", "0.0.0.0", "--port", "8000"]
     command: ["sh", "./mainApi/start.sh"]
-#
-#  api:
-#    build: ./api
-#    env_file:
-#      - ./env_files/fastApi.env
-#      - ./env_files/mongoDB_connect.env
-#    ports:
-#        - 80:80
-##    environment:
-##        - MONGODB_URL=mongodb://mongo:27017
-#    volumes:
-#      - ./api:/api
-#
-#    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+
 
   mongo:
     image: mongo:latest
@@ -69,6 +56,7 @@ services:
     ports:
       - 5672:5672
       - 15672:15672 # management
+    restart: unless-stopped
     deploy:
       replicas: 1
       restart_policy:

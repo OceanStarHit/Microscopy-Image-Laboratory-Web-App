@@ -2,6 +2,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, EmailStr
 from bson import ObjectId
 
+
 class PyObjectId(ObjectId):
     @classmethod
     def __get_validators__(cls):
@@ -10,7 +11,7 @@ class PyObjectId(ObjectId):
     @classmethod
     def validate(cls, v):
         if not ObjectId.is_valid(v):
-            raise ValueError("Invalid objectid")
+            raise ValueError("Invalid ObjectId")
         return ObjectId(v)
 
     @classmethod
@@ -19,27 +20,27 @@ class PyObjectId(ObjectId):
 
 
 class UserModel(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    # id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     full_name: str
     email: EmailStr
-    mobile: int
-    password: str
+    # mobile: int
+    password: str # plain text password, will be hashed and saved as hashed_pass on the db
+    otp_secret: str  # secret to be shared with user, either directly or through a QR code
 
     is_admin: bool = False
     is_active: bool = True
     created_at: str
     last_login: str
 
-
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
+        # json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
                 "full_name": "Jane Doe",
                 "email": "jdoe@example.com",
-                "mobile": "11112222",
+                # "mobile": "11112222",
                 "password": "fakeHashPassword",
 
                 "is_admin": "false",
@@ -49,10 +50,11 @@ class UserModel(BaseModel):
             }
         }
 
+
 class CreateUserModel(BaseModel):
     full_name: str
     email: EmailStr
-    mobile: int
+    # mobile: int
     password: str
     is_admin: Optional[bool] = False
     is_active: Optional[bool] = True
@@ -64,7 +66,7 @@ class CreateUserModel(BaseModel):
             "example": {
                 "full_name": "Jane Doe",
                 "email": "jdoe@example.com",
-                "mobile": "11112222",
+                # "mobile": "11112222",
                 "password": "fakeHashPassword",
             }
         }
@@ -73,7 +75,7 @@ class CreateUserModel(BaseModel):
 class UpdateUserModel(BaseModel):
     full_name: Optional[str]
     email: Optional[EmailStr]
-    mobile: Optional[int]
+    # mobile: Optional[int]
 
     is_admin: Optional[bool]
     is_active: Optional[bool]
@@ -87,7 +89,7 @@ class UpdateUserModel(BaseModel):
             "example": {
                 "full_name": "Jane Doe",
                 "email": "jdoe@example.com",
-                "mobile": "11112222",
+                # "mobile": "11112222",
 
                 "is_admin": "false",
                 "is_active": "True",
@@ -96,11 +98,14 @@ class UpdateUserModel(BaseModel):
             }
         }
 
+
+## REPLIES
+
 class ShowUserModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     full_name: Optional[str]
     email: Optional[EmailStr]
-    mobile: Optional[int]
+    # mobile: Optional[int]
 
     is_admin: Optional[bool]
     is_active: Optional[bool]
@@ -108,16 +113,34 @@ class ShowUserModel(BaseModel):
     last_login: Optional[str]
 
     class Config:
-        arbitrary_types_allowed = True
+        arbitrary_types_allowed = False
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
+                "_id": "random unique string",
                 "full_name": "Jane Doe",
                 "email": "jdoe@example.com",
-                "mobile": "11112222",
+                # "mobile": "11112222",
 
                 "is_admin": "false",
+                "is_active": "true",
                 "created_at": "datetime",
                 "last_login": "datetime",
             }
         }
+
+
+class CreateUserReplyModel(BaseModel):
+    """ This is what is returned in the reply when creating a new user """
+    user: ShowUserModel
+    otp_secret: str
+    otp_uri: str
+
+    class Config:
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        # schema_extra = {
+        #     "example": {
+        #         "otp_uri": "otpauth://totp/LABEL?PARAMETERS"
+        #     }
+        # }

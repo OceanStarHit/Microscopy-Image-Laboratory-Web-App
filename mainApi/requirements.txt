@@ -1,4 +1,5 @@
 #bioformats==0.1.15
+
 celery # workers
 aioredis # asyncio redis api
 uvicorn #  asgi server
@@ -10,3 +11,5 @@ motor # asyncio mongo driver
 passlib[bcrypt] # for password hashing
 python-jose[cryptography] # encryption
 python-multipart # form data, used for uploading multiple files
+
+pyotp # for OTP, One-time password
