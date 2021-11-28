@@ -1,4 +1,6 @@
 from enum import Enum
+from typing import Optional
+
 from pydantic import BaseModel, validator
 
 
@@ -13,11 +15,15 @@ class TileModel(BaseModel):
     content_type: str  # MIME type
     width_px: int
     height_px: int
+    offset_x: Optional[int] = 0
+    offset_y: Optional[int] = 0
 
 
 class AlignedTiledModel(TileModel):
-    x: int
-    y: int
+    """ offsets are not optional """
+    offset_x: int
+    offset_y: int
+
 
 class AlignRequest(BaseModel):
     method: AlignMethodEnum

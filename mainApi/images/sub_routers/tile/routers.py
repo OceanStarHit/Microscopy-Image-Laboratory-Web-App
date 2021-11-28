@@ -1,3 +1,5 @@
+import asyncio
+import concurrent
 import math
 import os
 from datetime import time
@@ -34,7 +36,6 @@ router = APIRouter(
              response_model=List[TileModel])
 async def upload_image_tiles(files: List[UploadFile] = File(...),
                              current_user: UserModelDB = Depends(get_current_user)) -> List[TileModel]:
-
     """ Saves the uploaded tiles to the cache-storage folder/volume under the user_id of the current_user """
     cache_path = get_user_cache_path(user_id=str(current_user.id), directory="tiles")  # get and create tile cache
     clear_path(cache_path)  # clear any previous tiles
@@ -75,8 +76,7 @@ async def get_uploaded_tile_list(current_user: UserModelDB = Depends(get_current
     tiles: List[TileModel] = []
 
     for file_path in tile_path_list:
-
-        width_px, height_px = Image.open(file_path).size
+        width_px, height_px = Image.open(file_path).size  # this is the slow bit
 
         mimetype = mimetypes.MimeTypes().guess_type(os.path.basename(file_path))[0]
 
@@ -97,9 +97,8 @@ async def get_uploaded_tile_list(current_user: UserModelDB = Depends(get_current
             response_description="Align Tiles",
             response_model=List[AlignedTiledModel],
             status_code=status.HTTP_200_OK)
-async def align_tiles(request: AlignRequest,
+def align_tiles(request: AlignRequest,
                       tiles: List[TileModel] = Depends(get_uploaded_tile_list)) -> List[AlignedTiledModel]:
-
     """
         performs a naive aligning of the tiles simply based on the given rows and method.
         does not perform any advanced stitching or pixel checking
@@ -141,9 +140,20 @@ async def align_tiles(request: AlignRequest,
     return aligned_tiles
 
 
-# @router.get("/export_stitched_image",
-#             response_description="Export stitched Image",
-#             response_model=List[AlignedTiledModel],
-#             status_code=status.HTTP_200_OK)
-# async def export_stitched_image(request: AlignRequest,
-#                                 tiles: List[TileModel] = Depends(get_uploaded_tile_list)) -> List[AlignedTiledModel]:
+def cpu_bound():
+    sleep(30)
+
+    return 3
+
+
+@router.get("/export_stitched_image",
+            response_description="Export stitched Image",
+            response_model=List[AlignedTiledModel],
+            status_code=status.HTTP_200_OK)
+# async def export_stitched_image(tiles: List[AlignedTiledModel]) -> List[TileModel]:
+async def export_stitched_image() -> List[TileModel]:
+    """ This is meant to called after the images are aligned, so it takes a list of AlignedTiledModel in the body """
+    loop = asyncio.get_event_loop()
+    with concurrent.futures.ProcessPoolExecutor() as pool:
+        result = await loop.run_in_executor(pool, cpu_bound)  # wait result
+        print(result)
