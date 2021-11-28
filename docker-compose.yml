@@ -126,22 +126,22 @@ volumes:
 
   # using local volumes with absolute path for development.
   # specific path set to personal development folder
-  image-storage:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: c:/Users/anon/Documents/Programming/_work/IAS-project-fastApi/_tmp/image-storage
-
-  cache-storage:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: c:/Users/anon/Documents/Programming/_work/IAS-project-fastApi/_tmp/cache-storage
-
 #  image-storage:
+#    driver: local
+#    driver_opts:
+#      o: bind
+#      type: none
+#      device: c:/Users/anon/Documents/Programming/_work/IAS-project-fastApi/_tmp/image-storage
+#
 #  cache-storage:
+#    driver: local
+#    driver_opts:
+#      o: bind
+#      type: none
+#      device: c:/Users/anon/Documents/Programming/_work/IAS-project-fastApi/_tmp/cache-storage
+
+  image-storage:
+  cache-storage:
 
 
 #networks:
