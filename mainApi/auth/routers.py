@@ -25,7 +25,8 @@ from mainApi.config import db
 from typing import List
 from datetime import datetime, timedelta
 
-from mainApi.models.user import UserModelDB, ShowUserModel, UpdateUserModel, CreateUserModel, CreateUserReplyModel
+from mainApi.models.user import UserModelDB, ShowUserModel, UpdateUserModel, CreateUserModel, CreateUserReplyModel, \
+    LoginUserReplyModel
 
 router = APIRouter(
     prefix="/auth",
@@ -65,8 +66,8 @@ async def create_user(user: CreateUserModel):
     return created_user_reply
 
 
-@router.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+@router.post("/token", response_model=LoginUserReplyModel)
+async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> LoginUserReplyModel:
     """
     Login route, returns Bearer Token.
     SWAGGER FRIENDLY.
@@ -86,19 +87,27 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             detail="Incorrect Authentication Data",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    # create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-
     access_token = create_access_token(user_id=str(user.id), expires_delta=access_token_expires)
+
+    # update db with last_login time and set the user to is_active=True
     await db["users"].update_one({"email": form_data.username}, {"$set": {
         "last_login": datetime.now().strftime("%m/%d/%y %H:%M:%S"),
         "is_active": "true"
     }})
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    reply = LoginUserReplyModel(
+        user=ShowUserModel.parse_obj(user),
+        access_token=access_token,
+        token_type="bearer"
+    )
+
+    return reply
 
 
-@router.post("/login")
-async def login2(form_data: OAuth2PasswordRequestForm = Depends(), otp: str = Form(...)):
+@router.post("/login", response_model=LoginUserReplyModel)
+async def login2(form_data: OAuth2PasswordRequestForm = Depends(), otp: str = Form(...)) -> LoginUserReplyModel:
     """
     Login route, returns Bearer Token.
     NOT SWAGGER FRIENDLY.
@@ -114,6 +123,21 @@ async def login2(form_data: OAuth2PasswordRequestForm = Depends(), otp: str = Fo
 @router.get("/current", response_description="Current User", response_model=ShowUserModel)
 async def current_user(current_user: UserModelDB = Depends(get_current_user)):
     return ShowUserModel.parse_obj(current_user.dict())  # we do not return the full UserModel, only the ShowUserModel
+
+
+@router.get("/renew_token", response_description=f"Renews token for another {ACCESS_TOKEN_EXPIRE_MINUTES} minutes", response_model=LoginUserReplyModel)
+async def renew_token(current_user: UserModelDB = Depends(get_current_user)) -> LoginUserReplyModel:
+    # create access token
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(user_id=str(current_user.id), expires_delta=access_token_expires)
+
+    reply = LoginUserReplyModel(
+        user=ShowUserModel.parse_obj(current_user),
+        access_token=access_token,
+        token_type="bearer"
+    )
+
+    return reply
 
 
 @router.get("/admin/list", response_description="List all users", response_model=List[ShowUserModel])

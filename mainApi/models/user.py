@@ -134,9 +134,19 @@ class ShowUserModel(BaseModel):
         }
 
 
-class CreateUserReplyModel(BaseModel):
-    """ This is what is returned in the reply when creating a new user """
+class LoginUserReplyModel(BaseModel):
+    """ This is what is returned when a user logins """
     user: ShowUserModel
+    access_token: str
+    token_type: str
+
+    class Config:
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+
+
+class CreateUserReplyModel(LoginUserReplyModel):
+    """ This is what is returned in the reply when creating a new user, notice that it extends LoginUserReplyModel """
     otp_secret: str
     otp_uri: str
 

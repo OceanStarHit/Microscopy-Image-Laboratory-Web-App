@@ -54,18 +54,6 @@ async def authenticate_user(email, password, otp: str) -> UserModelDB or None:
 
     return user
 
-# def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
-#     """ Create the token that the user will include in their header, data must be json encodable """
-#     # to_encode = data.copy()
-#     claims = {id: user_id}
-#     if expires_delta:
-#         expire = datetime.utcnow() + expires_delta
-#     else:
-#         expire = datetime.utcnow() + timedelta(minutes=15)
-#     to_encode.update({"exp": expire})
-#     encode_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-#     return encode_jwt
-
 
 def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
     """ Create the token that the user will include in their header, claims must be json encodable """
