@@ -15,3 +15,4 @@ COPY ./mainApi /app/mainApi/
 COPY ./utils /app/utils/
 COPY ./celery_tasks/ /app/celery_tasks/
 
+

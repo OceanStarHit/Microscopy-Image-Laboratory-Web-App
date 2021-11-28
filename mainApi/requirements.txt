@@ -13,3 +13,5 @@ python-jose[cryptography] # encryption
 python-multipart # form data, used for uploading multiple files
 
 pyotp # for OTP, One-time password
+aiofiles # file support for asyncio
+Pillow # Python Imaging Library

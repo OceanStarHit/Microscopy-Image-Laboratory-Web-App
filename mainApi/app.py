@@ -1,16 +1,8 @@
-import base64
-import binascii
-import subprocess
-
-import uvicorn
 from fastapi import (
     FastAPI,
-    HTTPException,
-    status,
-    Request,
 )
-from fastapi.security import OAuth2PasswordBearer
 from mainApi.auth.routers import router as auth_router
+from mainApi.images.routers import router as image_router
 # from mainApi.config import connect_db, close_db
 
 app = FastAPI()
@@ -20,6 +12,7 @@ app = FastAPI()
 
 # ================= Routers  ===============
 app.include_router(auth_router)
+app.include_router(image_router)
 #
 # # ================ Authentication Middleware =======================
 # #----------- Here authentication is based on basic scheme,

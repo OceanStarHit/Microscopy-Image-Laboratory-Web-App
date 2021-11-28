@@ -1,10 +1,15 @@
 import os
+from pathlib import Path
+
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 # ----------------- Database variables (MongoDB) --------------------------
 client = AsyncIOMotorClient(os.environ["MONGODB_URL"])
 db: AsyncIOMotorDatabase = client.devDB
 
+# --------------- Storage/Volume variables, must match the location set in docker-compose.yml -----------------------
+image_path = Path('/image-storage')
+cache_path = Path('/cache-storage')
 
 # mongo_db_client: AsyncIOMotorClient = None
 #

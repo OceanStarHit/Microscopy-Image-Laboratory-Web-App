@@ -1,5 +1,4 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from .settings import pwd_context, oauth2_scheme, SECRET_KEY, ALGORITHM
 from mainApi.config import db
@@ -10,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 # from mainApi.config import get_mongo_db
-from ..models.user import UserModelDB
+from mainApi.auth.models.user import UserModelDB
 
 
 def get_password_hash(password):

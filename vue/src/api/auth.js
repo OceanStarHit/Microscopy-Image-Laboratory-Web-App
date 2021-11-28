@@ -1,5 +1,7 @@
 import { api } from "./base";
 
+// const baseAuth = api + "/auth"
+
 export const login = params => {
   console.log(params);
   return api.post("login", params);

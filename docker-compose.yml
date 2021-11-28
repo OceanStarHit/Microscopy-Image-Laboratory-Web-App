@@ -131,14 +131,14 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: c:/Users/anon/Documents/Programming/_work/IAS-project/image-storage
+      device: c:/Users/anon/Documents/Programming/_work/IAS-project-fastApi/_tmp/image-storage
 
   cache-storage:
     driver: local
     driver_opts:
       o: bind
       type: none
-      device: c:/Users/anon/Documents/Programming/_work/IAS-project/cache-storage
+      device: c:/Users/anon/Documents/Programming/_work/IAS-project-fastApi/_tmp/cache-storage
 
 #  image-storage:
 #  cache-storage:

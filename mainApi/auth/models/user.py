@@ -2,7 +2,6 @@ from typing import Optional
 from pydantic import BaseModel, Field, EmailStr
 from bson import ObjectId
 
-
 class PyObjectId(ObjectId):
     @classmethod
     def __get_validators__(cls):

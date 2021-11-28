@@ -7,7 +7,6 @@ from fastapi import (
     HTTPException, Form
 )
 from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
 from pymongo.results import InsertOneResult
 
@@ -15,7 +14,7 @@ from .auth import (
     get_current_user,
     authenticate_user,
     create_access_token,
-    get_password_hash, get_user_by_email, get_admin_user
+    get_password_hash, get_admin_user
 )
 
 # from .settings import ACCESS_TOKEN_EXPIRE_MINUTES, db
@@ -25,7 +24,7 @@ from mainApi.config import db
 from typing import List
 from datetime import datetime, timedelta
 
-from mainApi.models.user import UserModelDB, ShowUserModel, UpdateUserModel, CreateUserModel, CreateUserReplyModel, \
+from mainApi.auth.models.user import UserModelDB, ShowUserModel, UpdateUserModel, CreateUserModel, CreateUserReplyModel, \
     LoginUserReplyModel
 
 router = APIRouter(

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const BASE_API_URL = "http://127.0.0.1:8000/apis/";
+export const BASE_API_URL = "http://127.0.0.1:8000/";
 // export const BASE_API_URL = "api:8000/apis/";
 // export const BASE_API_URL = "http://docker.for.mac.localhost:8000/apis/";
 
