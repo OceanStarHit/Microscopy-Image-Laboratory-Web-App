@@ -7,7 +7,7 @@ from mainApi.images.sub_routers.tile.routers import router as tile_router
 
 router = APIRouter(
     prefix="/image",
-    tags=["image"],
+    tags=[],
     dependencies=[Depends(get_current_user)]
 )
 

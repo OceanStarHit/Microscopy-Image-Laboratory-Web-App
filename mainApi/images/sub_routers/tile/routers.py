@@ -21,12 +21,14 @@ from mainApi.auth.auth import get_current_user
 from typing import List
 
 from mainApi.images.sub_routers.tile.models import AlignRequest, TileModel, AlignedTiledModel
+from mainApi.images.utils.align_tiles import align_tiles_naive
 from mainApi.images.utils.file import save_upload_file
 from mainApi.images.utils.folder import get_user_cache_path, clear_path
 from mainApi.auth.models.user import UserModelDB
 
 router = APIRouter(
     prefix="/tile",
+    tags=["tile"],
 )
 
 
@@ -97,53 +99,20 @@ async def get_uploaded_tile_list(current_user: UserModelDB = Depends(get_current
             response_description="Align Tiles",
             response_model=List[AlignedTiledModel],
             status_code=status.HTTP_200_OK)
-def align_tiles(request: AlignRequest,
+async def align_tiles(request: AlignRequest,
                       tiles: List[TileModel] = Depends(get_uploaded_tile_list)) -> List[AlignedTiledModel]:
     """
         performs a naive aligning of the tiles simply based on the given rows and method.
         does not perform any advanced stitching or pixel checking
+
+        Called using concurrent.futures to make it async
     """
 
-    if len(tiles) == 0:
-        return []
+    loop = asyncio.get_event_loop()
+    with concurrent.futures.ProcessPoolExecutor() as pool:
+        aligned_tiles = await loop.run_in_executor(pool, align_tiles_naive, request, tiles)  # await result
+        return aligned_tiles
 
-    # assumes they are all the same size
-    width_px = tiles[0].width_px
-    height_px = tiles[0].height_px
-
-    columns = math.ceil(len(tiles) / request.rows)
-
-    row = 0
-    col = 0
-
-    aligned_tiles: List[AlignedTiledModel] = []
-
-    for index, tile in enumerate(tiles):
-        if request.method == "byRow":
-            col = index % columns
-        else:
-            row = index % request.rows
-
-        tile = tile.dict()
-        tile["x"] = col * width_px
-        tile["y"] = row * height_px
-
-        aligned_tiles.append(AlignedTiledModel.parse_obj(tile))
-
-        if request.method == "byRow":
-            if col == columns - 1:
-                row = row + 1
-        else:
-            if row == request.rows - 1:
-                col = col + 1
-
-    return aligned_tiles
-
-
-def cpu_bound():
-    sleep(30)
-
-    return 3
 
 
 @router.get("/export_stitched_image",
