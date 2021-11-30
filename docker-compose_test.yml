@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: ./example/Dockerfile
-    env_file: ./.env
+    env_file: env_files/.env
     volumes:
       - image-storage:/code/image_storage
       - image-cache:/code/image_cache

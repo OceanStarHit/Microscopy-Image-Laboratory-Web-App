@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from utils import folder_utils, image_utils
+from shared_utils import folder_utils, image_utils
 from os.path import exists
 import json
 from PIL import Image

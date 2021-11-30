@@ -18,7 +18,7 @@ from traceback import print_exc
 from django.views.decorators.csrf import csrf_exempt
 from django.http.response import HttpResponse, JsonResponse
 
-from utils import image_utils
+from shared_utils import image_utils
 from .custom_bioformats import ImageInfo
 
 current_data = None

@@ -24,7 +24,7 @@ Frontend - Vue
   # this will install all modules and could take some time
   $ npm install 
   
-  # this will build the project and could take some time
+  # this will build and serve the project.
   $ npm run serve 
   ```
 - [http://localhost:8080/]() to see the frontend
@@ -39,7 +39,7 @@ Frontend - Vue
 To monitor the celery worker tasks / microservices. Go to [http://localhost:5555/]()
 
 To monitor RabbitMQ, the message broker. Go to [http://localhost:15672/]()
-And enter the username and password set in the .env file.
+And enter the username and password set in the celery_task.env file in ./env_files.
 Default: 
 - User: 'user'
 - Password: 'password'

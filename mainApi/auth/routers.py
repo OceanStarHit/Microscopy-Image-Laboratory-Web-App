@@ -24,8 +24,8 @@ from mainApi.config import db
 from typing import List
 from datetime import datetime, timedelta
 
-from mainApi.auth.models.user import UserModelDB, ShowUserModel, UpdateUserModel, CreateUserModel, CreateUserReplyModel, \
-    LoginUserReplyModel
+from mainApi.auth.models.user import UserModelDB, ShowUserModel, UpdateUserModel, CreateUserModel, \
+    CreateUserReplyModel, LoginUserReplyModel
 
 router = APIRouter(
     prefix="/auth",
@@ -47,8 +47,9 @@ async def create_user(user: CreateUserModel):
     new_user_dict['hashed_password'] = get_password_hash(user.password)  # changing plain text password to hash
     otp_secret = pyotp.random_base32()  # generate secret to be shared with user
     new_user_dict['otp_secret'] = otp_secret
-    # turn new_user_dict into a Usermodel after adding created_at, changing password to hash and adding otp_secret
-    new_user: UserModelDB = UserModelDB.parse_obj(new_user_dict)  # turning it into a UserModel so that we get validation
+    # turn new_user_dict into a UsermodelDB after adding created_at, changing password to hash and adding otp_secret
+    # turning it into a UserModelDB so that we get validation
+    new_user: UserModelDB = UserModelDB.parse_obj(new_user_dict)
 
     # add user to db
     # when we insert new_user, _id gets added to new_user

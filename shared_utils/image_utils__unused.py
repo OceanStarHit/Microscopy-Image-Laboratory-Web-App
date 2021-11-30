@@ -12,7 +12,7 @@ import numpy as np
 #####################
 # Generic Functions #
 #####################
-from utils import folder_utils
+from shared_utils import folder_utils
 
 
 def base64_encoded_image(image_path):

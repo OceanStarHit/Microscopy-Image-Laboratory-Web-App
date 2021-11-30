@@ -28,7 +28,7 @@ __version__ = "$Revision$"
 
 import logging
 
-from utils import image_utils
+from shared_utils import image_utils
 
 logger = logging.getLogger(__name__)
 import errno

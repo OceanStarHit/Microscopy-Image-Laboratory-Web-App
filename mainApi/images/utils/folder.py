@@ -4,7 +4,6 @@ from pathlib import Path
 
 from mainApi.config import image_path, cache_path
 
-
 def get_user_image_path(user_id: str, directory: str) -> Path:
     """ returns the Path and creates the directory if it does not exist """
     path = image_path.joinpath(user_id).joinpath(directory)

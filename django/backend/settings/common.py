@@ -13,7 +13,7 @@ Backlog:
 """
 
 import os
-from utils import folder_utils
+from shared_utils import folder_utils
 
 # import pymysql
 # pymysql.install_as_MySQLdb()

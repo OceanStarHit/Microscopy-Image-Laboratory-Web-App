@@ -1,4 +1,7 @@
 FROM ubuntu:18.04
+
+# ashlar dependencies
+
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         build-essential \
@@ -19,22 +22,24 @@ RUN pip3 install -q -U \
     numpy \
     pip
 
-
-COPY ./stitching/ashlar /ashlar/
-RUN pip3 install /ashlar
+COPY ./stitching/libs/ashlar /tmp/ashlar/
+RUN pip3 install /tmp/ashlar
 
 ENV OMP_NUM_THREADS 4
 
 ## end of ashlar build
-WORKDIR /code
 
-RUN pip3 install -q -U \
-    celery==4.2.0
+## start of stitching worker build
+WORKDIR /app
 
-## Copy shared  utils
-COPY ./utils /code/utils
+COPY ./stitching/requirements.txt /tmp/requirements.txt
+RUN pip3 install -r /tmp/requirements.txt
 
-COPY ./celery_tasks/ /code/celery_tasks/
-COPY ./stitching /code
+## Copy shared utils
+COPY ./shared_utils /app/shared_utils/
 
-ENTRYPOINT celery -A main worker --concurrency=4 --loglevel=info -n stitching_worker.%h
+COPY ./celery_tasks/ /app/celery_tasks/
+COPY ./stitching /app
+
+#ENTRYPOINT celery -A stitching.main worker --concurrency=4 --loglevel=info -n stitching_worker.%h
+#ENTRYPOINT python3 ./stitching/main.py

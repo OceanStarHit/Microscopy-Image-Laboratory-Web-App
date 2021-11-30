@@ -1,8 +1,3 @@
-from celery_tasks.tasks import StitchingCeleryTask
-from celery_tasks.utils import create_worker_from
-
-# create worker
-_, stitching_worker = create_worker_from(StitchingCeleryTask)
 
 @csrf_exempt
 def stitch(request):

@@ -12,7 +12,7 @@ EXPOSE 8000
 COPY ./mainApi /app/mainApi/
 
 ## Copy shared
-COPY ./utils /app/utils/
+COPY ./shared_utils /app/shared_utils/
 COPY ./celery_tasks/ /app/celery_tasks/
 
 

@@ -1,7 +1,7 @@
 import os.path
 import javabridge
 
-from utils import image_utils
+from shared_utils import image_utils
 
 _jars_dir = os.path.join(os.path.dirname(__file__), 'jars')
 
