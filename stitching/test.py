@@ -1,5 +1,6 @@
 import unittest
 
+
 class TestStitching(unittest.TestCase):
 
     tiles = [
