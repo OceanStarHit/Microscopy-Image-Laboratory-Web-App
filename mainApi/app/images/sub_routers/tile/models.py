@@ -4,7 +4,7 @@ from typing import Optional
 from bson import ObjectId
 from pydantic import BaseModel, validator, Field
 
-from mainApi.auth.models.user import PyObjectId
+from mainApi.app.auth.models.user import PyObjectId
 
 
 class AlignMethodEnum(str, Enum):

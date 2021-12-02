@@ -1,19 +1,35 @@
 from fastapi import (
     FastAPI, APIRouter,
 )
-from mainApi.auth.routers import router as auth_router
-from mainApi.images.routers import router as image_router
+from starlette.middleware.cors import CORSMiddleware
+
+from mainApi.app.auth.routers import router as auth_router
+from mainApi.app.db.mongodb_utils import connect_to_mongo, close_mongo_connection
+# from mainApi.app.images.routers import router as image_router
+from mainApi.config import ALLOWED_HOSTS
 
 # from mainApi.config import connect_db, close_db
 
-app = FastAPI()
+app = FastAPI(title='IAS Project')
 
-# app.add_event_handler("startup", connect_db)
-# app.add_event_handler("shutdown", close_db)
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_HOSTS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+app.add_event_handler("startup", connect_to_mongo)
+app.add_event_handler("shutdown", close_mongo_connection)
 
 # ================= Routers  ===============
 app.include_router(auth_router)
-app.include_router(image_router)
+# app.include_router(image_router)
 
 test_router = APIRouter(
     prefix="/test",
