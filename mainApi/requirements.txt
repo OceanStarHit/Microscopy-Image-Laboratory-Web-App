@@ -18,5 +18,4 @@ Pillow # Python Imaging Library
 
 pytest  # for testing
 pytest-asyncio
-anyio[trio]  # async plugin for pytest
 httpx  # http client for testing http endpoints

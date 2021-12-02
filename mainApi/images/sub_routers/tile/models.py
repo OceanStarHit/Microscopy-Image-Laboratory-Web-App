@@ -29,6 +29,7 @@ class TileModelDB(BaseModel):
     channel: Optional[str] = "not specified"
 
     class Config:
+        allow_population_by_field_name = True  # this is crucial for the id to work when given a set id from a dict
         json_encoders = {ObjectId: str}
 
 

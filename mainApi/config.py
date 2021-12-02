@@ -48,7 +48,7 @@ def get_settings() -> BasicSettings:
         return DevSettings()
 
 
-@functools.lru_cache
+# @functools.lru_cache
 def get_db() -> AsyncIOMotorDatabase:
     settings = get_settings()
 

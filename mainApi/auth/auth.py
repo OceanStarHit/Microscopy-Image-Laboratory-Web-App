@@ -1,6 +1,8 @@
 from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
-from .settings import pwd_context, oauth2_scheme, SECRET_KEY, ALGORITHM
+from pymongo.results import InsertOneResult
+
+from .settings import pwd_context, oauth2_scheme, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from mainApi.config import get_db
 from bson import ObjectId
 import pyotp
@@ -9,9 +11,51 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 # from mainApi.config import get_mongo_db
-from mainApi.auth.models.user import UserModelDB
+from mainApi.auth.models.user import UserModelDB, CreateUserModel, ShowUserModel, CreateUserReplyModel
 
 db = get_db()
+
+#
+# async def create_user(user: CreateUserModel) -> CreateUserReplyModel:
+#     # check if another with the same email already exist
+#     existing_email = await db["users"].find_one({"email": user.email})
+#     if existing_email is not None:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
+#
+#     # turn user into a dictionary so that we can add keys
+#     new_user_dict = user.dict()
+#     new_user_dict['created_at'] = datetime.now().strftime("%m/%d/%y %H:%M:%S")
+#     new_user_dict['last_login'] = new_user_dict['created_at']  # last login same as created_at
+#     new_user_dict['hashed_password'] = get_password_hash(user.password)  # changing plain text password to hash
+#     otp_secret = pyotp.random_base32()  # generate secret to be shared with user
+#     new_user_dict['otp_secret'] = otp_secret
+#     new_user_dict['is_admin'] = False
+#     # turn new_user_dict into a UsermodelDB after adding created_at, changing password to hash and adding otp_secret
+#     # turning it into a UserModelDB so that we get validation
+#     new_user: UserModelDB = UserModelDB.parse_obj(new_user_dict)
+#
+#     # add user to db
+#     # when we insert new_user, _id gets added to new_user
+#     insert_user_res: InsertOneResult = await db["users"].insert_one(new_user.dict())
+#     if not insert_user_res.acknowledged:
+#         raise Exception(f"Failed to add User to Database, :{new_user}")
+#
+#     created_user = ShowUserModel.parse_obj(new_user)
+#
+#     otp_uri = pyotp.totp.TOTP(otp_secret).provisioning_uri(name=user.email, issuer_name='IAS App')
+#
+#     # create access token
+#     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+#     access_token = create_access_token(user_id=str(new_user.id), expires_delta=access_token_expires)
+#
+#     created_user_reply = CreateUserReplyModel(user=created_user,
+#                                               otp_secret=otp_secret,
+#                                               otp_uri=otp_uri,
+#                                               access_token=access_token,
+#                                               token_type="bearer")
+#
+#     return created_user_reply
+
 
 def get_password_hash(password):
     return pwd_context.hash(password)

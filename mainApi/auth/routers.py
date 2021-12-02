@@ -1,4 +1,5 @@
 import pyotp
+from bson import ObjectId
 
 from fastapi import (
     APIRouter,
@@ -6,6 +7,7 @@ from fastapi import (
     status,
     HTTPException, Form
 )
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from pymongo.results import InsertOneResult
@@ -40,7 +42,7 @@ db = get_db()
              response_description="Add new user",
              response_model=CreateUserReplyModel,
              status_code=status.HTTP_201_CREATED)
-async def create_user(user: CreateUserModel):
+async def create_user(user: CreateUserModel) -> CreateUserReplyModel:
     # check if another with the same email already exist
     existing_email = await db["users"].find_one({"email": user.email})
     if existing_email is not None:
@@ -54,13 +56,13 @@ async def create_user(user: CreateUserModel):
     otp_secret = pyotp.random_base32()  # generate secret to be shared with user
     new_user_dict['otp_secret'] = otp_secret
     new_user_dict['is_admin'] = False
+    new_user_dict['_id'] = ObjectId()  # set specific unique id
     # turn new_user_dict into a UsermodelDB after adding created_at, changing password to hash and adding otp_secret
     # turning it into a UserModelDB so that we get validation
     new_user: UserModelDB = UserModelDB.parse_obj(new_user_dict)
 
-    # add user to db
-    # when we insert new_user, _id gets added to new_user
-    insert_user_res: InsertOneResult = await db["users"].insert_one(new_user.dict())
+    # must use jsonable_encoder
+    insert_user_res: InsertOneResult = await db["users"].insert_one(jsonable_encoder(new_user))
     if not insert_user_res.acknowledged:
         raise Exception(f"Failed to add User to Database, :{new_user}")
 

@@ -2,75 +2,67 @@ import asyncio
 import os
 
 import pytest
-from httpx import AsyncClient
-#
-# from mainApi.auth.models.user import CreateUserModel
-# from mainApi.auth.routers import create_user
-#
+from bson import ObjectId
+from fastapi.encoders import jsonable_encoder
 
-# from mainApi.app import app
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from mainApi.auth.models.user import ShowUserModel
 
 
 @pytest.fixture
 def db():
-    client = AsyncIOMotorClient(os.environ["MONGODB_URL"])
-    # db: AsyncIOMotorDatabase = client.testDB
-    db: AsyncIOMotorDatabase = client.devDB
+    from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+    from mainApi.config import get_settings, get_db
+
+    print('before db')
+    assert os.environ.get('IS_TESTING', None) == 'true', "Must set 'IS_TESTING' env variable to 'true' before running test"
+    os.environ.update({'IS_TESTING': 'true'})  # temporarily sets IS_TESTING environment variable
+    settings = get_settings()
+    assert settings.mongo_db_name == 'testDB'
+
+    db = get_db()
+    assert db.name == 'testDB'
+
     yield db
+
+    client = AsyncIOMotorClient(settings.mongo_url)
+
+    client.drop_database('testDB')  # delete testDB after test
+    print('after db')
 
 
 class TestAuth:
+
     @pytest.mark.asyncio
     async def test_create_user(self, db):
+        from mainApi.auth.models.user import CreateUserModel, UserModelDB
+        from mainApi.auth.routers import create_user
+
         users = await db["users"].find().to_list(None)
         assert len(users) == 0
 
+        user_to_create = CreateUserModel(
+            full_name="Test User",
+            email="test@test.com",
+            password="password",  # plain text password
+        )
 
-# @pytest.mark.asyncio
-# async def test_coroutine3():
-    # from mainApi.config import db
+        created_user = await create_user(user_to_create)
 
-    # res = await asyncio.sleep(5)
-    # assert len(users) == 0
-# This is the same as using the @pytest.mark.anyio on all test functions in the module
-# pytestmark = pytest.mark.anyio
-# loop = asyncio.get_event_loop()
-# @pytest.mark.asyncio
-# # @pytest.mark.anyio
-# async def test_root():
-#     await asyncio.sleep(5)
-#     users = await db["users"].find().to_list(None)
-    # assert len(users) == 1, "Single user in db"
-    # async with AsyncClient(app=app, base_url="http://localhost:8000") as client:
-    #     response = await client.get("/test")
-    # assert response.status_code == 200
-    # assert response.json() == {"message": "Tomato"}
+        # make sure the created user same as user to create, and that the defaults are corrent
+        assert created_user.user.full_name == user_to_create.full_name
+        assert created_user.user.email == user_to_create.email
+        assert created_user.user.is_admin is False
+        assert created_user.user.is_active is True
 
-# class AuthTestCase(unittest.IsolatedAsyncioTestCase):
-#
-#     user = CreateUserModel(
-#         full_name="Test User",
-#         email="test@test.com",
-#         password="password",  # plain text password
-#     )
-#
-#     async def asyncSetUp(self):
-#         """ Set up start by creating a user """
-#         self.assertEqual(os.environ.get("IS_PRODUCTION", 'true').lower(), 'false', "Must not be in production mode")
-#         self.assertEqual(os.environ.get("IS_TESTING", 'false').lower(), 'true', "Must be in testing mode")
-#         # existing_email = await db["users"].find_one({"email": self.user.email})
-#         # existing_email = await db["users"].find().to_list(None)
-#
-#
-#     # async def asyncTearDown(self):
-#     #     self.widget.dispose()
-#
-#     async def test_user_is_created(self):
-#         # await create_user(self.user)
-#         users = await db["users"].find().to_list(None)
-#         self.assertEqual(len(users), 1, "Single user in db")
-#
-#
-# if __name__ == '__main__':
-#     unittest.main()
+        # look for created user in 'users'...should only be one user..
+        users = await db["users"].find().to_list(None)
+        assert ShowUserModel.parse_obj(users[0]).id == created_user.user.id
+
+        # search for created user by email
+        user_db_by_email = await db["users"].find_one({"email": created_user.user.email})
+        assert user_db_by_email['_id'] == str(created_user.user.id)
+        assert ShowUserModel.parse_obj(user_db_by_email).id == created_user.user.id
+
+        # search for created user by id
+        user_db = await db["users"].find_one({"_id": str(created_user.user.id)})
+        assert user_db['_id'] == str(created_user.user.id)

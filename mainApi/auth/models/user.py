@@ -2,6 +2,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, EmailStr
 from bson import ObjectId
 
+
 class PyObjectId(ObjectId):
     @classmethod
     def __get_validators__(cls):
@@ -21,8 +22,15 @@ class PyObjectId(ObjectId):
 class UserModelDB(BaseModel):
     """
     This is the model as stored on the database
+
+    taken from here:
+    https://www.mongodb.com/developer/quickstart/python-quickstart-fastapi/
     """
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    # id: ObjectId = Field(..., alias="_id")
+    # _id: PyObjectId = Field(default_factory=PyObjectId)
+    # id: PyObjectId = Field(alias="_id")
+    # id: ObjectId = Field(...)
     full_name: str
     email: EmailStr
     # mobile: int
@@ -35,7 +43,7 @@ class UserModelDB(BaseModel):
     last_login: str
 
     class Config:
-        allow_population_by_field_name = True
+        allow_population_by_field_name = True  # this is crucial for the id to work when given a set id from a dict
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
         schema_extra = {
@@ -116,6 +124,7 @@ class ShowUserModel(BaseModel):
     last_login: Optional[str]
 
     class Config:
+        allow_population_by_field_name = True  # this is crucial for the id to work when given a set id from a dict
         arbitrary_types_allowed = False
         json_encoders = {ObjectId: str}
         schema_extra = {
