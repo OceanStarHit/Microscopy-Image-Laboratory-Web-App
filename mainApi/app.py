@@ -1,8 +1,9 @@
 from fastapi import (
-    FastAPI,
+    FastAPI, APIRouter,
 )
 from mainApi.auth.routers import router as auth_router
 from mainApi.images.routers import router as image_router
+
 # from mainApi.config import connect_db, close_db
 
 app = FastAPI()
@@ -13,6 +14,21 @@ app = FastAPI()
 # ================= Routers  ===============
 app.include_router(auth_router)
 app.include_router(image_router)
+
+test_router = APIRouter(
+    prefix="/test",
+    tags=["test"]
+)
+
+
+@test_router.get("/", response_description="Test endpoint, will return the request")
+async def _test(request: str = None):
+    if request:
+        return request
+    else:
+        return "Pass any string as 'request' query parameter and it will return it. ex. /test/?request=foo"
+
+app.include_router(test_router)
 #
 # # ================ Authentication Middleware =======================
 # #----------- Here authentication is based on basic scheme,

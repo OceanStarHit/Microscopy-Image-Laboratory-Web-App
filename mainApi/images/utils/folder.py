@@ -2,18 +2,18 @@ import os
 import shutil
 from pathlib import Path
 
-from mainApi.config import image_path, cache_path
+from mainApi.config import get_settings
 
 def get_user_image_path(user_id: str, directory: str) -> Path:
     """ returns the Path and creates the directory if it does not exist """
-    path = image_path.joinpath(user_id).joinpath(directory)
+    path = get_settings().image_path.joinpath(user_id).joinpath(directory)
     path.mkdir(parents=True, exist_ok=True)
     return path
 
 
 def get_user_cache_path(user_id: str, directory: str) -> Path:
     """ returns the Path and creates the directory if it does not exist """
-    path = cache_path.joinpath(user_id).joinpath(directory)
+    path = get_settings().cache_path.joinpath(user_id).joinpath(directory)
     path.mkdir(parents=True, exist_ok=True)
     return path
 

@@ -19,7 +19,7 @@ from .auth import (
 
 # from .settings import ACCESS_TOKEN_EXPIRE_MINUTES, db
 from .settings import ACCESS_TOKEN_EXPIRE_MINUTES
-from mainApi.config import db
+from mainApi.config import get_db
 
 from typing import List
 from datetime import datetime, timedelta
@@ -32,8 +32,14 @@ router = APIRouter(
     tags=["auth"]
 )
 
+db = get_db()
+
+
 # ============= Creating path operations ==============
-@router.post("/create_user", response_description="Add new user", response_model=CreateUserReplyModel, status_code=status.HTTP_201_CREATED)
+@router.post("/create_user",
+             response_description="Add new user",
+             response_model=CreateUserReplyModel,
+             status_code=status.HTTP_201_CREATED)
 async def create_user(user: CreateUserModel):
     # check if another with the same email already exist
     existing_email = await db["users"].find_one({"email": user.email})
@@ -47,6 +53,7 @@ async def create_user(user: CreateUserModel):
     new_user_dict['hashed_password'] = get_password_hash(user.password)  # changing plain text password to hash
     otp_secret = pyotp.random_base32()  # generate secret to be shared with user
     new_user_dict['otp_secret'] = otp_secret
+    new_user_dict['is_admin'] = False
     # turn new_user_dict into a UsermodelDB after adding created_at, changing password to hash and adding otp_secret
     # turning it into a UserModelDB so that we get validation
     new_user: UserModelDB = UserModelDB.parse_obj(new_user_dict)
@@ -61,7 +68,15 @@ async def create_user(user: CreateUserModel):
 
     otp_uri = pyotp.totp.TOTP(otp_secret).provisioning_uri(name=user.email, issuer_name='IAS App')
 
-    created_user_reply = CreateUserReplyModel(user=created_user, otp_secret=otp_secret, otp_uri=otp_uri)
+    # create access token
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(user_id=str(new_user.id), expires_delta=access_token_expires)
+
+    created_user_reply = CreateUserReplyModel(user=created_user,
+                                              otp_secret=otp_secret,
+                                              otp_uri=otp_uri,
+                                              access_token=access_token,
+                                              token_type="bearer")
 
     return created_user_reply
 

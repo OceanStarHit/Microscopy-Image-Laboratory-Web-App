@@ -15,3 +15,8 @@ python-multipart # form data, used for uploading multiple files
 pyotp # for OTP, One-time password
 aiofiles # file support for asyncio
 Pillow # Python Imaging Library
+
+pytest  # for testing
+pytest-asyncio
+anyio[trio]  # async plugin for pytest
+httpx  # http client for testing http endpoints

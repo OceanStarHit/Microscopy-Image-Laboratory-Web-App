@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
 from .settings import pwd_context, oauth2_scheme, SECRET_KEY, ALGORITHM
-from mainApi.config import db
+from mainApi.config import get_db
 from bson import ObjectId
 import pyotp
 
@@ -11,6 +11,7 @@ from typing import Optional
 # from mainApi.config import get_mongo_db
 from mainApi.auth.models.user import UserModelDB
 
+db = get_db()
 
 def get_password_hash(password):
     return pwd_context.hash(password)
@@ -39,7 +40,7 @@ async def get_user_by_id(user_id: str) -> UserModelDB or None:
 
 
 async def authenticate_user(email, password, otp: str) -> UserModelDB or None:
-# async def authenticate_user(form_data: OAuth2PasswordRequestForm = Depends()) -> UserModel or None:
+    # async def authenticate_user(form_data: OAuth2PasswordRequestForm = Depends()) -> UserModel or None:
     user: UserModelDB = await get_user_by_email(email)
     if not user:
         return None

@@ -18,7 +18,7 @@ from mainApi.auth.auth import get_current_user
 
 from typing import List
 
-from mainApi.config import db
+from mainApi.config import get_db
 
 from mainApi.images.sub_routers.tile.models import AlignNaiveRequest, TileModelDB, AlignedTiledModel
 from mainApi.images.utils.align_tiles import align_tiles_naive, align_ashlar
@@ -31,6 +31,7 @@ router = APIRouter(
     tags=["tile"],
 )
 
+db = get_db()
 
 @router.post("/upload_image_tiles",
              response_description="Upload Image Tiles",
@@ -119,8 +120,13 @@ async def delete_tiles(tiles: List[TileModelDB],
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
+    results = []
+
     for tile in tiles:
         result = await db['tile-image-cache'].delete_one({'_id': tile.id})
+        results.append(result)
+
+    return results
 
 
 @router.get("/align_tiles_naive",
@@ -143,8 +149,6 @@ async def _align_tiles_naive(request: AlignNaiveRequest,
         return aligned_tiles
 
 
-
-
 @router.get("/align_tiles_ashlar",
             response_description="Align Tiles",
             # response_model=List[AlignedTiledModel],
@@ -162,22 +166,6 @@ async def _align_tiles_ashlar(tiles: List[TileModelDB] = Depends(get_tile_list))
         aligned_tiles = await loop.run_in_executor(pool, align_ashlar, tiles, "img_r{row:03}_c{col:03}.tif")  # await result
 
         return aligned_tiles
-
-    #
-    # tiles_dict_list = [t.json() for t in tiles]
-    # results = stitching_worker.apply_async(args=[],
-    #                                        kwargs={'tiles': tiles_dict_list, 'pattern': "img_r{row:03}_c{col:03}.tif"},
-    #                                        serializer="json")
-    #
-    # res = results.get()
-    #
-    # return results
-
-    # loop = asyncio.get_event_loop()
-    # with concurrent.futures.ProcessPoolExecutor() as pool:
-    #     aligned_tiles = await loop.run_in_executor(pool, align_tiles_naive, request, tiles)  # await result
-    #
-    #     return aligned_tiles
 
 
 @router.get("/export_stitched_image",
