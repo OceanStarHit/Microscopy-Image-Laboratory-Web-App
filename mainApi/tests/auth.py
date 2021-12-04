@@ -12,7 +12,7 @@ from mainApi.app.db.mongodb_utils import connect_to_mongo, close_mongo_connectio
 from mainApi.config import MONGO_DB_NAME
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def test_user():
     test_user = CreateUserModel(
         full_name="Test User",
@@ -30,7 +30,7 @@ async def db():
     yield db
 
     db.drop_database(MONGO_DB_NAME)  # delete testDB after test
-    time.sleep(2)  # gotta sleep here for a while because so there is time to delete the db before running next test
+    time.sleep(2)  # gotta sleep here for a while so there is time to delete the db before running next test
 
     await close_mongo_connection()
 
@@ -66,7 +66,6 @@ class TestAuth:
     @pytest.mark.asyncio
     async def test_login(self, test_user, db):
         # start by creating a user, cannot be fixture due to async TODO
-
         created_user = await create_user(test_user, db)
 
         # start of login
@@ -79,3 +78,4 @@ class TestAuth:
         assert login_reply.user.email == test_user.email
         assert login_reply.access_token is not None
         assert login_reply.token_type == 'bearer'
+

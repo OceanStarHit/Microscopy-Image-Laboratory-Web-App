@@ -34,7 +34,7 @@ class UserModelDB(BaseModel):
     full_name: str
     email: EmailStr
     # mobile: int
-    hashed_password: str #
+    hashed_password: str  #
     otp_secret: str  # secret to be shared with user, either directly or through a QR code
 
     is_admin: bool
@@ -66,7 +66,7 @@ class CreateUserModel(BaseModel):
     full_name: str
     email: EmailStr
     # mobile: int
-    password: str # plain text password
+    password: str  # plain text password
     # is_admin: Optional[bool] = False
     is_active: Optional[bool] = True
 
@@ -84,10 +84,23 @@ class CreateUserModel(BaseModel):
 
 
 class UpdateUserModel(BaseModel):
+    """ Update the current user data """
     full_name: Optional[str]
     email: Optional[EmailStr]
-    # mobile: Optional[int]
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "full_name": "Jane Doe",
+                "email": "jdoe@example.com",
+            }
+        }
+
+
+class UpdateUserAdminModel(UpdateUserModel):
+    """ Update any user data, id of user to be updated is required """
+
+    id: str
     is_admin: Optional[bool]
     is_active: Optional[bool]
     created_at: Optional[str]
@@ -110,7 +123,13 @@ class UpdateUserModel(BaseModel):
         }
 
 
-## REPLIES
+class ChangeUserPasswordModel(BaseModel):
+    """ Change the user password """
+    old_password: str
+    otp: str
+    new_password: str
+
+# -------- REPLIES --------- #
 
 class ShowUserModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")

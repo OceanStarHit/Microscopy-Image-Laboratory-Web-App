@@ -17,7 +17,7 @@ from .auth import (
     get_current_user,
     authenticate_user,
     create_access_token,
-    get_password_hash, get_admin_user, create_user, login, login_swagger
+    get_password_hash, get_current_admin_user, create_user, login, login_swagger, update_user_password
 )
 
 # from .settings import ACCESS_TOKEN_EXPIRE_MINUTES, db
@@ -27,7 +27,7 @@ from typing import List
 from datetime import datetime, timedelta
 
 from mainApi.app.auth.models.user import UserModelDB, ShowUserModel, UpdateUserModel, CreateUserModel, \
-    CreateUserReplyModel, LoginUserReplyModel
+    CreateUserReplyModel, LoginUserReplyModel, ChangeUserPasswordModel
 from mainApi.app.db.mongodb import get_database
 
 router = APIRouter(
@@ -93,27 +93,39 @@ async def renew_token(current_user: UserModelDB = Depends(get_current_user)) -> 
     return reply
 
 
+@router.put("/update_current_user", response_description="Update Current User", response_model=ShowUserModel)
+async def _update_current_user(updated_user_data: UpdateUserModel,
+                               current_user: UserModelDB = Depends(get_current_user),
+                               db: AsyncIOMotorClient = Depends(get_database)):
+
+    return await _update_current_user(updated_user_data, current_user, db)
+
+
+@router.put("/change_password", response_description="Change User Password", response_model=ShowUserModel)
+async def _change_password(data: ChangeUserPasswordModel,
+                           current_user: UserModelDB = Depends(get_current_user),
+                           db: AsyncIOMotorClient = Depends(get_database)):
+
+    user: UserModelDB = await update_user_password(old_password=data.old_password,
+                                                   otp=data.otp,
+                                                   new_password=data.new_password,
+                                                   db=db,
+                                                   current_user=current_user)
+
+    return ShowUserModel.parse_obj(jsonable_encoder(user))
+
+
 @router.get("/admin/list", response_description="List all users", response_model=List[ShowUserModel])
 async def list_users(max_entries: int = 1000,
-                     admin_user: UserModelDB = Depends(get_admin_user),
+                     admin_user: UserModelDB = Depends(get_current_admin_user),
                      db: AsyncIOMotorClient = Depends(get_database)):
     users = await db["users"].find().to_list(max_entries)
-    # for user in users:
-    #     user["is_active"] = "false"
-    #     try:
-    #         last_login = datetime.strptime(user["last_login"], "%m/%d/%y %H:%M:%S")
-    #         my_delta = datetime.now() - last_login
-    #         if my_delta <= timedelta(days=30):
-    #             user["is_active"] = "true"
-    #     except ValueError:
-    #         pass
-
     return users
 
 
 @router.put("/admin/{user_id}", response_description="Update a user", response_model=UpdateUserModel)
 async def update_user(user_id: str, user: UpdateUserModel,
-                      admin_user: UserModelDB = Depends(get_admin_user),
+                      admin_user: UserModelDB = Depends(get_current_admin_user),
                       db: AsyncIOMotorClient = Depends(get_database)) -> ShowUserModel:
     user = {k: v for k, v in user.dict().items() if v is not None}  # todo not sure this is needed
 
@@ -132,7 +144,7 @@ async def update_user(user_id: str, user: UpdateUserModel,
 
 @router.delete("/admin/{user_id}", response_description="Delete a user")
 async def delete_user(user_id: str,
-                      admin_user: UserModelDB = Depends(get_admin_user),
+                      admin_user: UserModelDB = Depends(get_current_admin_user),
                       db: AsyncIOMotorClient = Depends(get_database)):
     delete_result = await db["users"].delete_one({"_id": user_id})
 

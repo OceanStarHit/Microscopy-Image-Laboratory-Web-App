@@ -4,7 +4,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from motor.motor_asyncio import AsyncIOMotorClient
-from pymongo.results import InsertOneResult
+from pymongo import ReturnDocument
+from pymongo.results import InsertOneResult, UpdateResult
 
 from .settings import pwd_context, oauth2_scheme, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 import pyotp
@@ -13,11 +14,12 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from mainApi.app.auth.models.user import UserModelDB, CreateUserModel, CreateUserReplyModel, ShowUserModel, \
-    LoginUserReplyModel
+    LoginUserReplyModel, UpdateUserModel, UpdateUserAdminModel
 
-### CRUD
-from ..db.mongodb import get_database
-from ...config import MONGO_DB_NAME
+from mainApi.app.db.mongodb import get_database
+from mainApi.config import MONGO_DB_NAME
+
+# CRUD
 
 
 async def create_user(user: CreateUserModel, db: AsyncIOMotorClient) -> CreateUserReplyModel:
@@ -61,6 +63,113 @@ async def create_user(user: CreateUserModel, db: AsyncIOMotorClient) -> CreateUs
     return created_user_reply
 
 
+async def get_current_user(db: AsyncIOMotorClient = Depends(get_database),
+                           token: str = Depends(oauth2_scheme)) -> UserModelDB:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        used_id: str = payload.get("id")
+        if used_id is None:
+            raise credentials_exception
+        # token_data = TokenData(username=username)
+    except JWTError:
+        raise credentials_exception
+    user = await get_user_by_id(used_id, db)
+    if user is None:
+        raise credentials_exception
+    return user
+
+
+async def get_current_active_user(current_user: UserModelDB = Depends(get_current_user)) -> UserModelDB:
+    if current_user.is_active:
+        return current_user
+    else:
+        raise HTTPException(status_code=400, detail="Inactive user")
+
+
+async def get_current_admin_user(current_user: UserModelDB = Depends(get_current_user)) -> UserModelDB:
+    if current_user.is_admin:
+        return current_user
+    else:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not admin")
+
+
+async def update_current_user(updated_user_data: UpdateUserModel,
+                              current_user: UserModelDB,
+                              db: AsyncIOMotorClient) -> UserModelDB:
+
+    result: UserModelDB = await db[MONGO_DB_NAME]["users"].find_one_and_update(
+        {'id': current_user.id},
+        {"$set": updated_user_data.dict()},
+        return_document=ReturnDocument.AFTER
+    )
+
+    return result
+
+
+async def update_user_admin(updated_user_data: UpdateUserAdminModel,
+                            db: AsyncIOMotorClient,
+                            current_user_admin: UserModelDB = Depends(get_current_admin_user)) -> UserModelDB:
+
+    result: UserModelDB = await db[MONGO_DB_NAME]["users"].find_one_and_update(
+        {'id': updated_user_data.id},
+        {"$set": updated_user_data.dict(exclude={'id'})},
+        return_document=ReturnDocument.AFTER
+    )
+
+    return result
+
+
+async def update_user_password(old_password,
+                               otp: str,
+                               new_password: str,
+                               db: AsyncIOMotorClient,
+                               current_user: UserModelDB) -> UserModelDB:
+
+    # check that the old password and otp is correct
+    is_user_auth = await authenticate_user(current_user, password=old_password, otp=otp)
+    if not is_user_auth:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect Authentication Data",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    new_password_hash = get_password_hash(new_password)  # changing plain text password to hash
+
+    updated_user: UserModelDB = await db[MONGO_DB_NAME]["users"].find_one_and_update(
+        {'id': current_user.id},
+        {"$set": {'hashed_password': new_password_hash}},
+        return_document=ReturnDocument.AFTER
+    )
+
+    return updated_user
+
+
+async def get_user_by_email(email: str, db: AsyncIOMotorClient) -> UserModelDB or None:
+    user = await db[MONGO_DB_NAME]["users"].find_one({"email": email})
+
+    if user is not None:
+        return UserModelDB.parse_obj(user)
+    else:
+        return None
+
+
+async def get_user_by_id(user_id: str, db: AsyncIOMotorClient) -> UserModelDB or None:
+    user = await db[MONGO_DB_NAME]["users"].find_one({"_id": user_id})
+
+    if user is not None:
+        return UserModelDB.parse_obj(user)
+    else:
+        return None
+
+
+# END OF CRUD
+
 async def login_swagger(form_data: OAuth2PasswordRequestForm, db: AsyncIOMotorClient) -> LoginUserReplyModel:
     """
         Login route, returns Bearer Token.
@@ -74,9 +183,9 @@ async def login_swagger(form_data: OAuth2PasswordRequestForm, db: AsyncIOMotorCl
     password = form_data.password[:-6]  # exclude the last 6 digits
     otp = form_data.password[-6:]  # include only the last 6 digits
 
-    user: UserModelDB = await authenticate_user(email=form_data.username, password=password, otp=otp,
-                                                db=db)  # username is email
-    if not user:
+    user: UserModelDB = await get_user_by_email(form_data.username, db) # username is email
+    is_user_auth = await authenticate_user(user, password=password, otp=otp)
+    if not is_user_auth:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect Authentication Data",
@@ -114,24 +223,6 @@ async def login(form_data: OAuth2PasswordRequestForm, otp: str, db: AsyncIOMotor
     return await login_swagger(form_data=form_data, db=db)
 
 
-async def get_user_by_email(email: str, db: AsyncIOMotorClient) -> UserModelDB or None:
-    user = await db[MONGO_DB_NAME]["users"].find_one({"email": email})
-
-    if user is not None:
-        return UserModelDB.parse_obj(user)
-    else:
-        return None
-
-
-async def get_user_by_id(user_id: str, db: AsyncIOMotorClient) -> UserModelDB or None:
-    user = await db[MONGO_DB_NAME]["users"].find_one({"_id": user_id})
-
-    if user is not None:
-        return UserModelDB.parse_obj(user)
-    else:
-        return None
-
-
 def get_password_hash(password):
     return pwd_context.hash(password)
 
@@ -140,20 +231,20 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-async def authenticate_user(email, password, otp: str, db: AsyncIOMotorClient) -> UserModelDB or None:
+async def authenticate_user(user: UserModelDB or None, password, otp: str) -> bool:
     # async def authenticate_user(form_data: OAuth2PasswordRequestForm = Depends()) -> UserModel or None:
-    user: UserModelDB = await get_user_by_email(email, db)
-    if not user:
-        return None
+    # user: UserModelDB = await get_user_by_email(email, db)
+    if user is None:
+        return False
     if not verify_password(password, user.hashed_password):
-        return None
+        return False
 
     # check the otp
     totp = pyotp.TOTP(user.otp_secret)
     if not totp.verify(otp):
-        return None
+        return False
 
-    return user
+    return True
 
 
 def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
@@ -167,37 +258,3 @@ def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None)
     claims.update({"exp": expire})
     encode_jwt = jwt.encode(claims=claims, key=SECRET_KEY, algorithm=ALGORITHM)
     return encode_jwt
-
-
-async def get_current_user(db: AsyncIOMotorClient = Depends(get_database), token: str = Depends(oauth2_scheme)) -> UserModelDB:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        used_id: str = payload.get("id")
-        if used_id is None:
-            raise credentials_exception
-        # token_data = TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
-    user = await get_user_by_id(used_id, db)
-    if user is None:
-        raise credentials_exception
-    return user
-
-
-async def get_current_active_user(current_user: UserModelDB = Depends(get_current_user)) -> UserModelDB:
-    if current_user.is_active:
-        return current_user
-    else:
-        raise HTTPException(status_code=400, detail="Inactive user")
-
-
-async def get_admin_user(current_user: UserModelDB = Depends(get_current_user)) -> UserModelDB:
-    if current_user.is_admin:
-        return current_user
-    else:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not admin")
