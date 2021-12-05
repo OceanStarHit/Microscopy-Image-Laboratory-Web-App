@@ -78,7 +78,9 @@ async def current_user(current_user: UserModelDB = Depends(get_current_user)):
     return ShowUserModel.parse_obj(current_user.dict())  # we do not return the full UserModel, only the ShowUserModel
 
 
-@router.get("/renew_token", response_description=f"Renews token for another {ACCESS_TOKEN_EXPIRE_MINUTES} minutes", response_model=LoginUserReplyModel)
+@router.get("/renew_token",
+            response_description=f"Renews token for another {ACCESS_TOKEN_EXPIRE_MINUTES} minutes",
+            response_model=LoginUserReplyModel)
 async def renew_token(current_user: UserModelDB = Depends(get_current_user)) -> LoginUserReplyModel:
     # create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

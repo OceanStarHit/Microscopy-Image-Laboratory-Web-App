@@ -142,7 +142,7 @@ async def update_user_password(old_password,
     new_password_hash = get_password_hash(new_password)  # changing plain text password to hash
 
     updated_user: UserModelDB = await db[MONGO_DB_NAME]["users"].find_one_and_update(
-        {'id': current_user.id},
+        {'_id': str(current_user.id)},
         {"$set": {'hashed_password': new_password_hash}},
         return_document=ReturnDocument.AFTER
     )

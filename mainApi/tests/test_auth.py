@@ -1,16 +1,9 @@
-import time
-
 import pyotp
 import pytest
 from fastapi.encoders import jsonable_encoder
-from fastapi.security import OAuth2PasswordRequestForm
-
-from mainApi.app.auth.auth import create_user, login
 from mainApi.app.auth.models.user import ShowUserModel, LoginUserReplyModel, CreateUserModel, CreateUserReplyModel, \
     ChangeUserPasswordModel
 
-from mainApi.app.db.mongodb import get_database
-from mainApi.app.db.mongodb_utils import connect_to_mongo, close_mongo_connection
 from mainApi.config import MONGO_DB_NAME
 from httpx import AsyncClient
 
@@ -53,7 +46,6 @@ class TestAuth:
     async def test_login(self, async_client: AsyncClient,
                          user_to_create: CreateUserModel,
                          created_user: CreateUserReplyModel):
-
         # start of login
         otp = pyotp.TOTP(created_user.otp_secret)
         login_form = {"username": user_to_create.email, "password": user_to_create.password, "otp": otp.now()}
@@ -63,7 +55,6 @@ class TestAuth:
         assert response.status_code == 200
 
         data = response.json()
-
         logged_in_user = LoginUserReplyModel.parse_obj(data)
 
         assert logged_in_user is not None
@@ -72,14 +63,43 @@ class TestAuth:
         assert logged_in_user.token_type == 'bearer'
 
     @pytest.mark.asyncio
-    async def test_change_password(self, async_client: AsyncClient,
+    async def test_current_user(self, async_client_auth: AsyncClient,
+                                created_user: CreateUserReplyModel):
+        response = await async_client_auth.get(url="auth/current")
+
+        assert response.status_code == 200
+
+        data = response.json()
+        current_user = ShowUserModel.parse_obj(data)
+
+        assert created_user.user.id == current_user.id
+
+    @pytest.mark.asyncio
+    async def test_change_password(self, async_client_auth: AsyncClient,
                                    user_to_create: CreateUserModel,
                                    created_user: CreateUserReplyModel):
-        # start of login
         otp = pyotp.TOTP(created_user.otp_secret)
-        login_form = {"username": user_to_create.email, "password": user_to_create.password, "otp": otp.now()}
-
-        # start of login
-        otp = pyotp.TOTP(created_user.otp_secret)
-
         data = ChangeUserPasswordModel(old_password=user_to_create.password, otp=otp.now(), new_password='new_password')
+
+        response = await async_client_auth.put(url="auth/change_password", json=jsonable_encoder(data))
+
+        assert response.status_code == 200
+
+        data = response.json()
+        user_w_new_password = ShowUserModel.parse_obj(data)
+
+        assert created_user.user.id == user_w_new_password.id
+
+        # Test new password by logging in
+        otp = pyotp.TOTP(created_user.otp_secret)
+        login_form = {"username": user_to_create.email, "password": "new_password", "otp": otp.now()}
+
+        response = await async_client_auth.post(url="auth/login", data=login_form)
+
+        assert response.status_code == 200
+
+        data = response.json()
+        logged_in_user = LoginUserReplyModel.parse_obj(data)
+
+        assert logged_in_user is not None
+        assert logged_in_user.user.email == user_to_create.email
