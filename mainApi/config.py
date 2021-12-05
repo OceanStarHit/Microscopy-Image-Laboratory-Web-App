@@ -1,23 +1,6 @@
 import os
 
-from pathlib import Path
-
-import functools
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-
 # ----------------- Database variables (MongoDB) --------------------------
-from pydantic import BaseSettings, Field, validator
-
-
-# if os.environ.get("IS_PRODUCTION", 'false').lower() == 'true':
-#     db = client.DB
-# elif os.environ.get("IS_TESTING", 'false').lower() == 'true':
-#     db = client.testDB
-# else:
-#     db = client.devDB
-# db = client.devDB
-
-# db: AsyncIOMotorDatabase = client.devDB
 
 # --------------- Storage/Volume variables, must match the location set in docker-compose.yml -----------------------
 # image_path = Path('/image-storage')
@@ -40,7 +23,6 @@ if not MONGODB_URL:
     else:
         MONGO_DB_NAME = os.getenv("MONGO_DB", "dev_db")
 
-    # MONGODB_URL = f"mongodb://{MONGO_USER}:{MONGO_PASS}@{MONGO_HOST}:{MONGO_PORT}/{MONGO_DB}"
     MONGODB_URL = f"mongodb://{MONGO_USER}:{MONGO_PASS}@{MONGO_HOST}:{MONGO_PORT}"
 
 #
@@ -78,23 +60,3 @@ if not MONGODB_URL:
 #
 #     return db
 
-# mongo_db_client: AsyncIOMotorClient = None
-#
-# # mongoDb = mongoDbClient.db
-#
-# def get_mongo_db() -> AsyncIOMotorDatabase:
-#     client: AsyncIOMotorClient = get_db_client()
-#     return client.get_database("test_db")
-#
-# async def get_db_client() -> AsyncIOMotorClient:
-#     """Return database client instance."""
-#     return mongo_db_client
-#
-# async def connect_db():
-#     """Create database connection."""
-#     mongo_db_client = AsyncIOMotorClient(os.environ["MONGODB_URL"])
-#     return mongo_db_client
-#
-# async def close_db():
-#     """Close database connection."""
-#     get_db_client().close()
