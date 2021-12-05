@@ -37,7 +37,7 @@ test_router = APIRouter(
 )
 
 
-@test_router.get("/", response_description="Test endpoint, will return the request")
+@test_router.get("", response_description="Test endpoint, will return the request")
 async def _test(request: str = None):
     if request:
         return request

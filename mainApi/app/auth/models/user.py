@@ -71,7 +71,8 @@ class CreateUserModel(BaseModel):
     is_active: Optional[bool] = True
 
     class Config:
-        arbitrary_types_allowed = True
+        # cannot add types..otherwise it might be possible to set is_admin when creating user
+        arbitrary_types_allowed = False
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
@@ -98,16 +99,15 @@ class UpdateUserModel(BaseModel):
 
 
 class UpdateUserAdminModel(UpdateUserModel):
-    """ Update any user data, id of user to be updated is required """
+    """ Update any user data """
 
-    id: str
+    # id: str
     is_admin: Optional[bool]
     is_active: Optional[bool]
     created_at: Optional[str]
     last_login: Optional[str]
 
     class Config:
-        arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {

@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import JWTError, jwt
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo import ReturnDocument
 from pymongo.results import InsertOneResult, UpdateResult
 
@@ -17,14 +17,13 @@ from mainApi.app.auth.models.user import UserModelDB, CreateUserModel, CreateUse
     LoginUserReplyModel, UpdateUserModel, UpdateUserAdminModel
 
 from mainApi.app.db.mongodb import get_database
-from mainApi.config import MONGO_DB_NAME
 
 # CRUD
 
 
-async def create_user(user: CreateUserModel, db: AsyncIOMotorClient) -> CreateUserReplyModel:
+async def create_user(user: CreateUserModel, db: AsyncIOMotorDatabase) -> CreateUserReplyModel:
     # check if another with the same email already exist
-    existing_email = await db[MONGO_DB_NAME]["users"].find_one({"email": user.email})
+    existing_email = await db["users"].find_one({"email": user.email})
     if existing_email is not None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists")
 
@@ -42,7 +41,7 @@ async def create_user(user: CreateUserModel, db: AsyncIOMotorClient) -> CreateUs
     new_user: UserModelDB = UserModelDB.parse_obj(new_user_dict)
 
     # must use jsonable_encoder
-    insert_user_res: InsertOneResult = await db[MONGO_DB_NAME]["users"].insert_one(jsonable_encoder(new_user))
+    insert_user_res: InsertOneResult = await db["users"].insert_one(jsonable_encoder(new_user))
     if not insert_user_res.acknowledged:
         raise Exception(f"Failed to add User to Database, :{new_user}")
 
@@ -63,7 +62,7 @@ async def create_user(user: CreateUserModel, db: AsyncIOMotorClient) -> CreateUs
     return created_user_reply
 
 
-async def get_current_user(db: AsyncIOMotorClient = Depends(get_database),
+async def get_current_user(db: AsyncIOMotorDatabase = Depends(get_database),
                            token: str = Depends(oauth2_scheme)) -> UserModelDB:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -88,23 +87,26 @@ async def get_current_active_user(current_user: UserModelDB = Depends(get_curren
     if current_user.is_active:
         return current_user
     else:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
 
 
 async def get_current_admin_user(current_user: UserModelDB = Depends(get_current_user)) -> UserModelDB:
     if current_user.is_admin:
         return current_user
     else:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not admin")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not admin")
 
 
-async def update_current_user(updated_user_data: UpdateUserModel,
+async def update_current_user(update_data: UpdateUserModel,
                               current_user: UserModelDB,
-                              db: AsyncIOMotorClient) -> UserModelDB:
+                              db: AsyncIOMotorDatabase) -> UserModelDB:
 
-    result: UserModelDB = await db[MONGO_DB_NAME]["users"].find_one_and_update(
-        {'id': current_user.id},
-        {"$set": updated_user_data.dict()},
+    # we must filter out the non set optional items in the update data
+    update_data = {k: v for (k, v) in update_data.dict().items() if k in update_data.__fields_set__}
+
+    result: UserModelDB = await db["users"].find_one_and_update(
+        {'_id': str(current_user.id)},
+        {"$set": update_data},
         return_document=ReturnDocument.AFTER
     )
 
@@ -112,11 +114,11 @@ async def update_current_user(updated_user_data: UpdateUserModel,
 
 
 async def update_user_admin(updated_user_data: UpdateUserAdminModel,
-                            db: AsyncIOMotorClient,
+                            db: AsyncIOMotorDatabase,
                             current_user_admin: UserModelDB = Depends(get_current_admin_user)) -> UserModelDB:
 
-    result: UserModelDB = await db[MONGO_DB_NAME]["users"].find_one_and_update(
-        {'id': updated_user_data.id},
+    result: UserModelDB = await db["users"].find_one_and_update(
+        {'_id': str(updated_user_data.id)},
         {"$set": updated_user_data.dict(exclude={'id'})},
         return_document=ReturnDocument.AFTER
     )
@@ -141,7 +143,7 @@ async def update_user_password(old_password,
 
     new_password_hash = get_password_hash(new_password)  # changing plain text password to hash
 
-    updated_user: UserModelDB = await db[MONGO_DB_NAME]["users"].find_one_and_update(
+    updated_user: UserModelDB = await db["users"].find_one_and_update(
         {'_id': str(current_user.id)},
         {"$set": {'hashed_password': new_password_hash}},
         return_document=ReturnDocument.AFTER
@@ -151,7 +153,7 @@ async def update_user_password(old_password,
 
 
 async def get_user_by_email(email: str, db: AsyncIOMotorClient) -> UserModelDB or None:
-    user = await db[MONGO_DB_NAME]["users"].find_one({"email": email})
+    user = await db["users"].find_one({"email": email})
 
     if user is not None:
         return UserModelDB.parse_obj(user)
@@ -160,7 +162,7 @@ async def get_user_by_email(email: str, db: AsyncIOMotorClient) -> UserModelDB o
 
 
 async def get_user_by_id(user_id: str, db: AsyncIOMotorClient) -> UserModelDB or None:
-    user = await db[MONGO_DB_NAME]["users"].find_one({"_id": user_id})
+    user = await db["users"].find_one({"_id": user_id})
 
     if user is not None:
         return UserModelDB.parse_obj(user)
@@ -196,7 +198,7 @@ async def login_swagger(form_data: OAuth2PasswordRequestForm, db: AsyncIOMotorCl
     access_token = create_access_token(user_id=str(user.id), expires_delta=access_token_expires)
 
     # update db with last_login time and set the user to is_active=True
-    await db[MONGO_DB_NAME]["users"].update_one({"email": form_data.username}, {"$set": {
+    await db["users"].update_one({"email": form_data.username}, {"$set": {
         "last_login": datetime.now().strftime("%m/%d/%y %H:%M:%S"),
         "is_active": "true"
     }})

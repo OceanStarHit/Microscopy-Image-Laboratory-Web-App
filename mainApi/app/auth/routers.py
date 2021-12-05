@@ -10,14 +10,16 @@ from fastapi import (
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from pymongo import ReturnDocument
 from pymongo.results import InsertOneResult
 
 from .auth import (
     get_current_user,
     authenticate_user,
     create_access_token,
-    get_password_hash, get_current_admin_user, create_user, login, login_swagger, update_user_password
+    get_password_hash, get_current_admin_user, create_user, login, login_swagger, update_user_password,
+    update_current_user
 )
 
 # from .settings import ACCESS_TOKEN_EXPIRE_MINUTES, db
@@ -27,7 +29,7 @@ from typing import List
 from datetime import datetime, timedelta
 
 from mainApi.app.auth.models.user import UserModelDB, ShowUserModel, UpdateUserModel, CreateUserModel, \
-    CreateUserReplyModel, LoginUserReplyModel, ChangeUserPasswordModel
+    CreateUserReplyModel, LoginUserReplyModel, ChangeUserPasswordModel, UpdateUserAdminModel
 from mainApi.app.db.mongodb import get_database
 
 router = APIRouter(
@@ -41,12 +43,13 @@ router = APIRouter(
              response_description="Add new user",
              response_model=CreateUserReplyModel,
              status_code=status.HTTP_201_CREATED)
-async def register(user: CreateUserModel, db: AsyncIOMotorClient = Depends(get_database)) -> CreateUserReplyModel:
+async def register(user: CreateUserModel, db: AsyncIOMotorDatabase = Depends(get_database)) -> CreateUserReplyModel:
     return await create_user(user, db)
 
 
 @router.post("/token", response_model=LoginUserReplyModel)
-async def _login_swagger(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncIOMotorClient = Depends(get_database)) -> LoginUserReplyModel:
+async def _login_swagger(form_data: OAuth2PasswordRequestForm = Depends(),
+                         db: AsyncIOMotorDatabase = Depends(get_database)) -> LoginUserReplyModel:
     """
         Login route, returns Bearer Token.
         SWAGGER FRIENDLY.
@@ -96,18 +99,19 @@ async def renew_token(current_user: UserModelDB = Depends(get_current_user)) -> 
 
 
 @router.put("/update_current_user", response_description="Update Current User", response_model=ShowUserModel)
-async def _update_current_user(updated_user_data: UpdateUserModel,
+async def _update_current_user(update_data: UpdateUserModel,
                                current_user: UserModelDB = Depends(get_current_user),
                                db: AsyncIOMotorClient = Depends(get_database)):
 
-    return await _update_current_user(updated_user_data, current_user, db)
+    result: UserModelDB = await update_current_user(update_data, current_user, db)
+
+    return ShowUserModel.parse_obj(jsonable_encoder(result))
 
 
 @router.put("/change_password", response_description="Change User Password", response_model=ShowUserModel)
 async def _change_password(data: ChangeUserPasswordModel,
                            current_user: UserModelDB = Depends(get_current_user),
                            db: AsyncIOMotorClient = Depends(get_database)):
-
     user: UserModelDB = await update_user_password(old_password=data.old_password,
                                                    otp=data.otp,
                                                    new_password=data.new_password,
@@ -117,31 +121,45 @@ async def _change_password(data: ChangeUserPasswordModel,
     return ShowUserModel.parse_obj(jsonable_encoder(user))
 
 
+#  ---------- ADMIN ----------
+
 @router.get("/admin/list", response_description="List all users", response_model=List[ShowUserModel])
-async def list_users(max_entries: int = 1000,
+async def list_users(max_entries: int = None,
                      admin_user: UserModelDB = Depends(get_current_admin_user),
                      db: AsyncIOMotorClient = Depends(get_database)):
+    if max_entries is None:
+        max_entries = 1000
+
     users = await db["users"].find().to_list(max_entries)
+    users = [ShowUserModel.parse_obj(jsonable_encoder(user)) for user in users]
+
     return users
 
 
-@router.put("/admin/{user_id}", response_description="Update a user", response_model=UpdateUserModel)
-async def update_user(user_id: str, user: UpdateUserModel,
+@router.put("/admin/{user_id}", response_description="Update a user", response_model=ShowUserModel)
+async def update_user(user_id: str,
+                      update_data: UpdateUserAdminModel,
                       admin_user: UserModelDB = Depends(get_current_admin_user),
                       db: AsyncIOMotorClient = Depends(get_database)) -> ShowUserModel:
-    user = {k: v for k, v in user.dict().items() if v is not None}  # todo not sure this is needed
 
-    if len(user) >= 1:
-        update_result = await db["users"].update_one({"_id": user_id}, {"$set": user})
+    # we must filter out the non set optional items in the update data
+    update_data = {k: v for (k, v) in update_data.dict().items() if k in update_data.__fields_set__}
 
-        if update_result.modified_count == 1:
-            if updated_user := await db["users"].find_one({"_id": user_id}) is not None:
-                return updated_user
+    if len(update_data) < 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not update data")
 
-    if (existing_user := await db["users"].find_one({"_id": user_id})) is not None:
-        return existing_user
+    if len(update_data) >= 1:
 
-    raise HTTPException(status_code=404, detail=f"User {user_id} not found")
+        result: UserModelDB = await db["users"].find_one_and_update(
+            {'_id': user_id},
+            {"$set": update_data},
+            return_document=ReturnDocument.AFTER
+        )
+
+        if result is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"User {user_id} not found")
+        else:
+            return ShowUserModel.parse_obj(jsonable_encoder(result))
 
 
 @router.delete("/admin/{user_id}", response_description="Delete a user")
