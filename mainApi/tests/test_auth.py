@@ -152,7 +152,7 @@ class TestAuth:
     async def test_list_users_non_admin(self,
                                         async_client_auth: AsyncClient,
                                         created_user: CreateUserReplyModel):
-        # normal non admin user
+
         response = await async_client_auth.get(url="auth/admin/list")
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -161,7 +161,7 @@ class TestAuth:
                                     async_client_auth_admin: AsyncClient,
                                     created_user: CreateUserReplyModel,
                                     other_created_user: CreateUserReplyModel):
-        # normal non admin user
+
         response = await async_client_auth_admin.get(url="auth/admin/list")
         assert response.status_code == status.HTTP_200_OK
 

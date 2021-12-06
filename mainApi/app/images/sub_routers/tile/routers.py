@@ -11,14 +11,16 @@ from fastapi import (
     UploadFile,
     File, Form, HTTPException
 )
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from mainApi.app.auth.auth import get_current_user
 
 from typing import List
 
+from mainApi.app.db.mongodb import get_database
 from mainApi.app.images.sub_routers.tile.models import AlignNaiveRequest, TileModelDB, AlignedTiledModel
 from mainApi.app.images.utils.align_tiles import align_tiles_naive, align_ashlar
-from mainApi.app.images.utils.file import save_upload_file
+from mainApi.app.images.utils.file import save_upload_file, add_image_tiles
 from mainApi.app.images.utils.folder import get_user_cache_path, clear_path
 from mainApi.app.auth.models.user import UserModelDB, PyObjectId
 
@@ -30,53 +32,28 @@ router = APIRouter(
 
 @router.post("/upload_image_tiles",
              response_description="Upload Image Tiles",
-             status_code=status.HTTP_200_OK,
+             status_code=status.HTTP_201_CREATED,
              response_model=List[TileModelDB])
 async def upload_image_tiles(files: List[UploadFile] = File(...),
                              clear_previous: bool = Form(True),
-                             current_user: UserModelDB = Depends(get_current_user)) -> List[TileModelDB]:
+                             current_user: UserModelDB = Depends(get_current_user),
+                             db: AsyncIOMotorDatabase = Depends(get_database)) -> List[TileModelDB]:
     """
     Saves the uploaded tiles to the cache-storage folder/volume under the user_id of the current_user
 
     Front end should include a validator that checks if the file has already been uploaded and then reject it.
     No validation is done in the backend
     """
-    cache_path = get_user_cache_path(user_id=str(current_user.id), directory="tiles")  # get and create tile cache
 
-    if clear_previous:
-        clear_path(cache_path)  # clear any previous tiles
-        await db['tile-image-cache'].delete_many({'user_id': current_user.id})  # deletes the database entries
-
-    tiles: List[TileModelDB] = []
-
-    for file in files:
-        file_path = cache_path.joinpath(file.filename)
-
-        await save_upload_file(upload_file=file, destination=file_path)  # saves file to cache
-
-        width_px, height_px = Image.open(file.file).size
-
-        tile = TileModelDB(
-            user_id=PyObjectId(current_user.id),
-            absolute_path=str(file_path),
-            file_name=file.filename,
-            content_type=file.content_type,
-            width_px=width_px,
-            height_px=height_px
-        )
-
-        tiles.append(tile)
-
-    await db['tile-image-cache'].insert_many([t.dict(exclude={'id'}) for t in tiles])
-
-    return tiles
+    return await add_image_tiles(files=files, clear_previous=clear_previous, current_user=current_user, db=db)
 
 
 @router.get("/list",
             response_description="Upload Image Tiles",
             response_model=List[TileModelDB],
             status_code=status.HTTP_200_OK)
-async def get_tile_list(current_user: UserModelDB = Depends(get_current_user)) -> List[TileModelDB]:
+async def get_tile_list(current_user: UserModelDB = Depends(get_current_user),
+                        db: AsyncIOMotorDatabase = Depends(get_database)) -> List[TileModelDB]:
     tiles = await db['tile-image-cache'].find({'user_id': current_user.id}).to_list(None)
     return pydantic.parse_obj_as(List[TileModelDB], tiles)
 
@@ -85,7 +62,8 @@ async def get_tile_list(current_user: UserModelDB = Depends(get_current_user)) -
              response_description="Update Image Tiles",
              status_code=status.HTTP_200_OK)
 async def update_tiles(tiles: List[TileModelDB],
-                       current_user: UserModelDB = Depends(get_current_user)):
+                       current_user: UserModelDB = Depends(get_current_user),
+                       db: AsyncIOMotorDatabase = Depends(get_database)):
     # make sure we are not trying to alter any tiles we do not own
     # we check this first and if they are trying to update any un owned docs we dont update any
     for tile in tiles:
@@ -104,7 +82,8 @@ async def update_tiles(tiles: List[TileModelDB],
              response_description="Update Image Tiles",
              status_code=status.HTTP_200_OK)
 async def delete_tiles(tiles: List[TileModelDB],
-                       current_user: UserModelDB = Depends(get_current_user)):
+                       current_user: UserModelDB = Depends(get_current_user),
+                       db: AsyncIOMotorDatabase = Depends(get_database)):
     # make sure we are not trying to delete any tiles we do not own
     # we check this first and if they are trying to delete any un owned docs we dont update any
     for tile in tiles:
@@ -158,7 +137,8 @@ async def _align_tiles_ashlar(tiles: List[TileModelDB] = Depends(get_tile_list))
 
     loop = asyncio.get_event_loop()
     with concurrent.futures.ProcessPoolExecutor() as pool:
-        aligned_tiles = await loop.run_in_executor(pool, align_ashlar, tiles, "img_r{row:03}_c{col:03}.tif")  # await result
+        aligned_tiles = await loop.run_in_executor(pool, align_ashlar, tiles,
+                                                   "img_r{row:03}_c{col:03}.tif")  # await result
 
         return aligned_tiles
 

@@ -62,7 +62,6 @@ def align_ashlar(tiles: List[TileModelDB], pattern: str) -> any:
 
     """
 
-
     tiles_dict_list = [t.json() for t in tiles]
     results = stitching_worker.apply_async(args=[],
                                            kwargs={'tiles': tiles_dict_list, 'pattern': pattern},

@@ -3,9 +3,12 @@ import os
 # ----------------- Database variables (MongoDB) --------------------------
 
 # --------------- Storage/Volume variables, must match the location set in docker-compose.yml -----------------------
-# image_path = Path('/image-storage')
-# cache_path = Path('/cache-storage')
+from pathlib import Path
+
 from starlette.datastructures import CommaSeparatedStrings
+
+IMAGE_PATH = Path('/image-storage')
+CACHE_PATH = Path('/cache-storage')
 
 ALLOWED_HOSTS = CommaSeparatedStrings(os.getenv("ALLOWED_HOSTS", ""))
 

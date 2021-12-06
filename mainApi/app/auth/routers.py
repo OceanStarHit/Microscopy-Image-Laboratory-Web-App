@@ -65,7 +65,7 @@ async def _login_swagger(form_data: OAuth2PasswordRequestForm = Depends(),
 @router.post("/login", response_model=LoginUserReplyModel)
 async def _login(form_data: OAuth2PasswordRequestForm = Depends(),
                  otp: str = Form(...),
-                 db: AsyncIOMotorClient = Depends(get_database)) -> LoginUserReplyModel:
+                 db: AsyncIOMotorDatabase = Depends(get_database)) -> LoginUserReplyModel:
     """
     Login route, returns Bearer Token.
     NOT SWAGGER FRIENDLY.
@@ -101,7 +101,7 @@ async def renew_token(current_user: UserModelDB = Depends(get_current_user)) -> 
 @router.put("/update_current_user", response_description="Update Current User", response_model=ShowUserModel)
 async def _update_current_user(update_data: UpdateUserModel,
                                current_user: UserModelDB = Depends(get_current_user),
-                               db: AsyncIOMotorClient = Depends(get_database)):
+                               db: AsyncIOMotorDatabase = Depends(get_database)):
 
     result: UserModelDB = await update_current_user(update_data, current_user, db)
 
@@ -111,7 +111,7 @@ async def _update_current_user(update_data: UpdateUserModel,
 @router.put("/change_password", response_description="Change User Password", response_model=ShowUserModel)
 async def _change_password(data: ChangeUserPasswordModel,
                            current_user: UserModelDB = Depends(get_current_user),
-                           db: AsyncIOMotorClient = Depends(get_database)):
+                           db: AsyncIOMotorDatabase = Depends(get_database)):
     user: UserModelDB = await update_user_password(old_password=data.old_password,
                                                    otp=data.otp,
                                                    new_password=data.new_password,
@@ -126,7 +126,7 @@ async def _change_password(data: ChangeUserPasswordModel,
 @router.get("/admin/list", response_description="List all users", response_model=List[ShowUserModel])
 async def list_users(max_entries: int = None,
                      admin_user: UserModelDB = Depends(get_current_admin_user),
-                     db: AsyncIOMotorClient = Depends(get_database)):
+                     db: AsyncIOMotorDatabase = Depends(get_database)):
     if max_entries is None:
         max_entries = 1000
 
@@ -140,7 +140,7 @@ async def list_users(max_entries: int = None,
 async def update_user(user_id: str,
                       update_data: UpdateUserAdminModel,
                       admin_user: UserModelDB = Depends(get_current_admin_user),
-                      db: AsyncIOMotorClient = Depends(get_database)) -> ShowUserModel:
+                      db: AsyncIOMotorDatabase = Depends(get_database)) -> ShowUserModel:
 
     # we must filter out the non set optional items in the update data
     update_data = {k: v for (k, v) in update_data.dict().items() if k in update_data.__fields_set__}
@@ -165,7 +165,7 @@ async def update_user(user_id: str,
 @router.delete("/admin/{user_id}", response_description="Delete a user")
 async def delete_user(user_id: str,
                       admin_user: UserModelDB = Depends(get_current_admin_user),
-                      db: AsyncIOMotorClient = Depends(get_database)):
+                      db: AsyncIOMotorDatabase = Depends(get_database)):
     delete_result = await db["users"].delete_one({"_id": user_id})
 
     if delete_result.deleted_count == 1:

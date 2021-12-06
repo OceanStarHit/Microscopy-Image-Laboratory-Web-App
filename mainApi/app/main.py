@@ -5,7 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from mainApi.app.auth.routers import router as auth_router
 from mainApi.app.db.mongodb_utils import connect_to_mongo, close_mongo_connection
-# from mainApi.app.images.routers import router as image_router
+from mainApi.app.images.routers import router as image_router
 from mainApi.config import ALLOWED_HOSTS
 
 # from mainApi.config import connect_db, close_db
@@ -29,7 +29,7 @@ app.add_event_handler("shutdown", close_mongo_connection)
 
 # ================= Routers  ===============
 app.include_router(auth_router)
-# app.include_router(image_router)
+app.include_router(image_router)
 
 test_router = APIRouter(
     prefix="/test",
