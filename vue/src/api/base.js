@@ -18,17 +18,27 @@ export const api = axios.create({
 api.interceptors.request.use(request => {
   console.log("[API Request]", request);
 
+  /* add auth headers */
+  if (sessionStorage.getItem("authToken")) {
+    request.headers["Authorization"] =
+      "Bearer " + sessionStorage.getItem("authToken");
+    request.headers["Content-Type"] = "application/json";
+  }
+
   return request;
 });
 
 api.interceptors.response.use(
   response => {
     // console.log("[API Response]", response);
-    return response.data;
+    // return response.data;
+    return response
   },
   error => {
     console.log("[API ERROR]", error);
-
+    if (error.response.status === 401) {
+      this.$store.dispatch("auth/logOut");
+    }
     return Promise.reject(error);
   }
 );

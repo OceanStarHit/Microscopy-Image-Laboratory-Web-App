@@ -17,6 +17,7 @@
         "log-timestamp": "^0.3.0",
         "openseadragon": "^2.4.2",
         "percentile": "^1.5.0",
+        "qrcode": "^1.5.0",
         "save": "^2.4.0",
         "tiff": "^5.0.0",
         "tiff.js": "^1.0.0",

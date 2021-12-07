@@ -747,6 +747,7 @@ export default {
       }
       this.resetConfig();
     },
+
     traverseFileTree(item, path, doneCB) {
       let self = this;
       path = path || "";

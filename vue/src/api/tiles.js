@@ -1,13 +1,7 @@
 import { api, BASE_API_URL } from "./base";
 import axios from "axios";
 
-function client() {
-  api.defaults.headers["Authorization"] =
-    "Token " + sessionStorage.getItem("authToken");
-  api.defaults.headers["Content-Type"] = "application/json";
 
-  return api;
-}
 
 export const listTiles = (success, failed) => {
   let c = client();

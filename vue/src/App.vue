@@ -1,11 +1,12 @@
 <template>
   <div>
-    <v-app v-if="showRegist">
+    <v-app v-if="isShowAuthPage">
       <v-main>
-        <RegistPage />
+        <AuthPage />
       </v-main>
     </v-app>
-    <v-app v-else-if="isLoggedIn">
+
+    <v-app v-else-if="!isShowAuthPage">
       <v-app-bar app dark>
         <v-toolbar dark flat>
           <v-app-bar-nav-icon></v-app-bar-nav-icon>
@@ -41,38 +42,27 @@
         <MainFrame />
       </v-main>
     </v-app>
-    <v-app v-else-if="!isLoggedIn">
-      <v-main>
-        <LoginPage />
-      </v-main>
-    </v-app>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import LoginPage from "./components/login/login";
-import RegistPage from "./components/login/regist";
+import AuthPage from "./components/auth/auth";
 import MainFrame from "./components/MainFrame";
-import * as API from "./api/auth";
 
 export default {
   name: "App",
 
   components: {
-    LoginPage,
-    RegistPage,
+    AuthPage,
     MainFrame
   },
 
   data: () => ({}),
 
   computed: {
-    // logind: () => {
-    //   return sessionStorage.getItem("logind") == "true" ? true : false;
-    // },
     ...mapState({
-      showRegist: state => state.auth.showRegist,
+      isShowAuthPage: state => state.auth.authPage !== null,
       isLoggedIn: state => state.auth.isLoggedIn
     })
   },
@@ -83,16 +73,7 @@ export default {
 
   methods: {
     handleLogout() {
-      // API.logout()
-      //   .then(response => {
-      //     if (response.code == "LOGOUT_SUCCESS") {
-      //       sessionStorage.setItem("logind", false);
-      //       location.reload();
-      //     }
-      //   })
-      //   .catch(error => {
-      //     console.error(error);
-      //   });
+      this.$store.dispatch("auth/logOut");
     }
   }
 };
