@@ -14,10 +14,11 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from mainApi.app.auth.models.user import UserModelDB, CreateUserModel, CreateUserReplyModel, ShowUserModel, \
-    LoginUserReplyModel, UpdateUserModel, UpdateUserAdminModel
+    LoginUserReplyModel, UpdateUserModel, UpdateUserAdminModel, to_camel
 
 from mainApi.app.db.mongodb import get_database
-
+import qrcode
+import qrcode.image.svg
 # CRUD
 
 
@@ -41,13 +42,15 @@ async def create_user(user: CreateUserModel, db: AsyncIOMotorDatabase) -> Create
     new_user: UserModelDB = UserModelDB.parse_obj(new_user_dict)
 
     # must use jsonable_encoder
-    insert_user_res: InsertOneResult = await db["users"].insert_one(jsonable_encoder(new_user))
+    insert_user_res: InsertOneResult = await db["users"].insert_one(new_user.dict(by_alias=True))
     if not insert_user_res.acknowledged:
         raise Exception(f"Failed to add User to Database, :{new_user}")
 
     created_user = ShowUserModel.parse_obj(new_user)
 
     otp_uri = pyotp.totp.TOTP(otp_secret).provisioning_uri(name=user.email, issuer_name='IAS App')
+
+    otp_uri_qr = generate_qr_code_svg(otp_uri)
 
     # create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -56,10 +59,16 @@ async def create_user(user: CreateUserModel, db: AsyncIOMotorDatabase) -> Create
     created_user_reply = CreateUserReplyModel(user=created_user,
                                               otp_secret=otp_secret,
                                               otp_uri=otp_uri,
+                                              otp_uri_qr=otp_uri_qr,
                                               access_token=access_token,
-                                              token_type="bearer")
+                                              token_type="Bearer")
 
     return created_user_reply
+
+
+def generate_qr_code_svg(data: str) -> str:
+    svg = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathImage)
+    return svg.to_string()
 
 
 async def get_current_user(db: AsyncIOMotorDatabase = Depends(get_database),
@@ -102,28 +111,16 @@ async def update_current_user(update_data: UpdateUserModel,
                               db: AsyncIOMotorDatabase) -> UserModelDB:
 
     # we must filter out the non set optional items in the update data
-    update_data = {k: v for (k, v) in update_data.dict().items() if k in update_data.__fields_set__}
+    # the key is also converted into lowerCamelCase
+    update_data = {to_camel(k): v for (k, v) in update_data.dict().items() if k in update_data.__fields_set__}
 
-    result: UserModelDB = await db["users"].find_one_and_update(
-        {'_id': str(current_user.id)},
+    result = await db["users"].find_one_and_update(
+        {'_id': current_user.id},
         {"$set": update_data},
         return_document=ReturnDocument.AFTER
     )
 
-    return result
-
-
-async def update_user_admin(updated_user_data: UpdateUserAdminModel,
-                            db: AsyncIOMotorDatabase,
-                            current_user_admin: UserModelDB = Depends(get_current_admin_user)) -> UserModelDB:
-
-    result: UserModelDB = await db["users"].find_one_and_update(
-        {'_id': str(updated_user_data.id)},
-        {"$set": updated_user_data.dict(exclude={'id'})},
-        return_document=ReturnDocument.AFTER
-    )
-
-    return result
+    return UserModelDB.parse_obj(result)
 
 
 async def update_user_password(old_password,
@@ -131,9 +128,8 @@ async def update_user_password(old_password,
                                new_password: str,
                                db: AsyncIOMotorClient,
                                current_user: UserModelDB) -> UserModelDB:
-
     # check that the old password and otp is correct
-    is_user_auth = await authenticate_user(current_user, password=old_password, otp=otp)
+    is_user_auth = authenticate_user(current_user, password=old_password, otp=otp)
     if not is_user_auth:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -143,13 +139,13 @@ async def update_user_password(old_password,
 
     new_password_hash = get_password_hash(new_password)  # changing plain text password to hash
 
-    updated_user: UserModelDB = await db["users"].find_one_and_update(
-        {'_id': str(current_user.id)},
-        {"$set": {'hashed_password': new_password_hash}},
+    updated_user = await db["users"].find_one_and_update(
+        {'_id': current_user.id},
+        {"$set": {'hashedPassword': new_password_hash}},
         return_document=ReturnDocument.AFTER
     )
 
-    return updated_user
+    return UserModelDB.parse_obj(updated_user)
 
 
 async def get_user_by_email(email: str, db: AsyncIOMotorClient) -> UserModelDB or None:
@@ -161,8 +157,9 @@ async def get_user_by_email(email: str, db: AsyncIOMotorClient) -> UserModelDB o
         return None
 
 
-async def get_user_by_id(user_id: str, db: AsyncIOMotorClient) -> UserModelDB or None:
-    user = await db["users"].find_one({"_id": user_id})
+async def get_user_by_id(user_id: str or ObjectId, db: AsyncIOMotorClient) -> UserModelDB or None:
+
+    user = await db["users"].find_one({"_id": ObjectId(user_id)})
 
     if user is not None:
         return UserModelDB.parse_obj(user)
@@ -185,8 +182,8 @@ async def login_swagger(form_data: OAuth2PasswordRequestForm, db: AsyncIOMotorCl
     password = form_data.password[:-6]  # exclude the last 6 digits
     otp = form_data.password[-6:]  # include only the last 6 digits
 
-    user: UserModelDB = await get_user_by_email(form_data.username, db) # username is email
-    is_user_auth = await authenticate_user(user, password=password, otp=otp)
+    user: UserModelDB = await get_user_by_email(form_data.username, db)  # username is email
+    is_user_auth = authenticate_user(user, password=password, otp=otp)
     if not is_user_auth:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -199,14 +196,14 @@ async def login_swagger(form_data: OAuth2PasswordRequestForm, db: AsyncIOMotorCl
 
     # update db with last_login time and set the user to is_active=True
     await db["users"].update_one({"email": form_data.username}, {"$set": {
-        "last_login": datetime.now().strftime("%m/%d/%y %H:%M:%S"),
-        "is_active": "true"
+        "lastLogin": datetime.now().strftime("%m/%d/%y %H:%M:%S"),
+        "isActive": "true"
     }})
 
     reply = LoginUserReplyModel(
         user=ShowUserModel.parse_obj(user),
         access_token=access_token,
-        token_type="bearer"
+        token_type="Bearer"
     )
 
     return reply
@@ -233,12 +230,20 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-async def authenticate_user(user: UserModelDB or None, password, otp: str) -> bool:
+def authenticate_email_password(user: UserModelDB or None, password) -> bool:
     # async def authenticate_user(form_data: OAuth2PasswordRequestForm = Depends()) -> UserModel or None:
     # user: UserModelDB = await get_user_by_email(email, db)
     if user is None:
         return False
     if not verify_password(password, user.hashed_password):
+        return False
+
+    return True
+
+
+def authenticate_user(user: UserModelDB or None, password, otp: str) -> bool:
+    email_password_authenticated = authenticate_email_password(user, password)
+    if email_password_authenticated is False:
         return False
 
     # check the otp

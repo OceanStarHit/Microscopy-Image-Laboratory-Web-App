@@ -4,7 +4,7 @@ from typing import Optional
 from bson import ObjectId
 from pydantic import BaseModel, validator, Field
 
-from mainApi.app.auth.models.user import PyObjectId
+from mainApi.app.auth.models.user import PyObjectId, to_camel
 
 
 class AlignMethodEnum(str, Enum):
@@ -29,14 +29,21 @@ class TileModelDB(BaseModel):
     channel: Optional[str] = "not specified"
 
     class Config:
-        allow_population_by_field_name = True  # this is crucial for the id to work when given a set id from a dict
+        # this is crucial for the id to work when given a set id from a dict, also needed when using alias_generator
+        allow_population_by_field_name = True
         json_encoders = {ObjectId: str}
+        alias_generator = to_camel
 
 
 class AlignedTiledModel(TileModelDB):
     """ offsets are not optional """
     offset_x: int
     offset_y: int
+
+    class Config:
+        # this is crucial for the id to work when given a set id from a dict, also needed when using alias_generator
+        allow_population_by_field_name = True
+        alias_generator = to_camel
 
 
 class AlignNaiveRequest(BaseModel):
@@ -49,7 +56,9 @@ class AlignNaiveRequest(BaseModel):
         return v
 
     class Config:
+        # this is crucial for the id to work when given a set id from a dict, also needed when using alias_generator
         allow_population_by_field_name = True
+        alias_generator = to_camel
         schema_extra = {
             "example": {
                 "method": "byRow",

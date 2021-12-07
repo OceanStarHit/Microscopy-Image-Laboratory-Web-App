@@ -50,13 +50,13 @@ async def async_client() -> AsyncClient:
 
 @pytest.fixture(scope="function")
 async def async_client_auth(async_client, created_user) -> AsyncClient:
-    async_client.auth = BearerAuth(token_type="Bearer", token=created_user.access_token)
+    async_client.auth = BearerAuth(token_type=created_user.token_type, token=created_user.access_token)
     yield async_client
 
 
 @pytest.fixture(scope="function")
 async def async_client_auth_admin(async_client, created_user, db) -> AsyncClient:
-    update_result = await db["users"].update_one({"_id": str(created_user.user.id)}, {"$set": {"is_admin": True}})
+    update_result = await db["users"].update_one({"_id": created_user.user.id}, {"$set": {"isAdmin": True}})
 
     async_client.auth = BearerAuth(token_type="Bearer", token=created_user.access_token)
     yield async_client
@@ -69,6 +69,8 @@ async def db() -> AsyncIOMotorDatabase:
     yield db
 
     db_client = await get_database_client()
+
+    assert MONGO_DB_NAME == "test_db"
 
     db_client.drop_database(MONGO_DB_NAME)  # delete testDB after test
     time.sleep(2)  # gotta sleep here for a while so there is time to delete the db before running next test

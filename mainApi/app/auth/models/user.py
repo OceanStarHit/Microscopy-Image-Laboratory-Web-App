@@ -19,6 +19,14 @@ class PyObjectId(ObjectId):
         field_schema.update(type="string")
 
 
+def to_camel(string: str) -> str:
+    """
+    takes a snake_case string and returns a lowerCamelCase string
+    """
+    string_split = string.split('_')
+    return string_split[0]+''.join(word.capitalize() for word in string_split[1:])
+
+
 class UserModelDB(BaseModel):
     """
     This is the model as stored on the database
@@ -43,9 +51,11 @@ class UserModelDB(BaseModel):
     last_login: str
 
     class Config:
-        allow_population_by_field_name = True  # this is crucial for the id to work when given a set id from a dict
-        arbitrary_types_allowed = True
+        # this is crucial for the id to work when given a set id from a dict, also needed when using alias_generator
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True  # required for the _id
         json_encoders = {ObjectId: str}
+        alias_generator = to_camel
         schema_extra = {
             "example": {
                 "_id": "random unique string",
@@ -71,9 +81,12 @@ class CreateUserModel(BaseModel):
     is_active: Optional[bool] = True
 
     class Config:
+        # this is crucial for the id to work when given a set id from a dict, also needed when using alias_generator
+        allow_population_by_field_name = True
         # cannot add types..otherwise it might be possible to set is_admin when creating user
         arbitrary_types_allowed = False
         json_encoders = {ObjectId: str}
+        alias_generator = to_camel
         schema_extra = {
             "example": {
                 "full_name": "Jane Doe",
@@ -90,6 +103,9 @@ class UpdateUserModel(BaseModel):
     email: Optional[EmailStr]
 
     class Config:
+        # this is crucial for the id to work when given a set id from a dict, also needed when using alias_generator
+        allow_population_by_field_name = True
+        alias_generator = to_camel
         schema_extra = {
             "example": {
                 "full_name": "Jane Doe",
@@ -101,14 +117,16 @@ class UpdateUserModel(BaseModel):
 class UpdateUserAdminModel(UpdateUserModel):
     """ Update any user data """
 
-    # id: str
     is_admin: Optional[bool]
     is_active: Optional[bool]
     created_at: Optional[str]
     last_login: Optional[str]
 
     class Config:
+        # this is crucial for the id to work when given a set id from a dict, also needed when using alias_generator
+        allow_population_by_field_name = True
         json_encoders = {ObjectId: str}
+        alias_generator = to_camel
         schema_extra = {
             "example": {
                 "full_name": "Jane Doe",
@@ -129,6 +147,7 @@ class ChangeUserPasswordModel(BaseModel):
     otp: str
     new_password: str
 
+
 # -------- REPLIES --------- #
 
 
@@ -144,9 +163,11 @@ class ShowUserModel(BaseModel):
     last_login: Optional[str]
 
     class Config:
-        allow_population_by_field_name = True  # this is crucial for the id to work when given a set id from a dict
+        # this is crucial for the id to work when given a set id from a dict, also needed when using alias_generator
+        allow_population_by_field_name = True
         arbitrary_types_allowed = False
         json_encoders = {ObjectId: str}
+        alias_generator = to_camel
         schema_extra = {
             "example": {
                 "_id": "random unique string",
@@ -169,18 +190,25 @@ class LoginUserReplyModel(BaseModel):
     token_type: str
 
     class Config:
+        # this is crucial for the id to work when given a set id from a dict, also needed when using alias_generator
+        allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
+        alias_generator = to_camel
 
 
 class CreateUserReplyModel(LoginUserReplyModel):
     """ This is what is returned in the reply when creating a new user, notice that it extends LoginUserReplyModel """
     otp_secret: str
     otp_uri: str
+    otp_uri_qr: str
 
     class Config:
+        # this is crucial for the id to work when given a set id from a dict, also needed when using alias_generator
+        allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
+        alias_generator = to_camel
         # schema_extra = {
         #     "example": {
         #         "otp_uri": "otpauth://totp/LABEL?PARAMETERS"

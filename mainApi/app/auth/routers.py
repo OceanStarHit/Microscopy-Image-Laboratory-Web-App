@@ -19,7 +19,7 @@ from .auth import (
     authenticate_user,
     create_access_token,
     get_password_hash, get_current_admin_user, create_user, login, login_swagger, update_user_password,
-    update_current_user
+    update_current_user, get_user_by_email, authenticate_email_password
 )
 
 # from .settings import ACCESS_TOKEN_EXPIRE_MINUTES, db
@@ -29,7 +29,7 @@ from typing import List
 from datetime import datetime, timedelta
 
 from mainApi.app.auth.models.user import UserModelDB, ShowUserModel, UpdateUserModel, CreateUserModel, \
-    CreateUserReplyModel, LoginUserReplyModel, ChangeUserPasswordModel, UpdateUserAdminModel
+    CreateUserReplyModel, LoginUserReplyModel, ChangeUserPasswordModel, UpdateUserAdminModel, to_camel
 from mainApi.app.db.mongodb import get_database
 
 router = APIRouter(
@@ -76,6 +76,32 @@ async def _login(form_data: OAuth2PasswordRequestForm = Depends(),
     return await login(form_data=form_data, otp=otp, db=db)
 
 
+@router.post("/auth_email_password", status_code=status.HTTP_200_OK, response_description="Authenticate Email and Password")
+async def _auth_email_password(form_data: OAuth2PasswordRequestForm = Depends(),
+                               db: AsyncIOMotorDatabase = Depends(get_database)):
+    """
+    First step in 2 Factor Auth, user_name and password only.
+    Returns either HTTP_200_OK or HTTP_401_UNAUTHORIZED, depending on the email and password given.
+
+    This does not log the user in, no token is given.
+    They must still call the /login endpoint with email, password and otp to login.
+    This just allows the front end to verify that the email and password is good and that they can
+    go ahead and show the OTP form.
+
+    Notice that the front end still needs to keep the email and password to be reset in the full /login
+    with the otp.
+    """
+
+    user: UserModelDB = await get_user_by_email(form_data.username, db)  # username is email
+    is_user_auth = authenticate_email_password(user, password=form_data.password)
+    if not is_user_auth:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect Authentication Data",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 @router.get("/current", response_description="Current User", response_model=ShowUserModel)
 async def current_user(current_user: UserModelDB = Depends(get_current_user)):
     return ShowUserModel.parse_obj(current_user.dict())  # we do not return the full UserModel, only the ShowUserModel
@@ -92,7 +118,7 @@ async def renew_token(current_user: UserModelDB = Depends(get_current_user)) -> 
     reply = LoginUserReplyModel(
         user=ShowUserModel.parse_obj(current_user),
         access_token=access_token,
-        token_type="bearer"
+        token_type="Bearer"
     )
 
     return reply
@@ -102,7 +128,6 @@ async def renew_token(current_user: UserModelDB = Depends(get_current_user)) -> 
 async def _update_current_user(update_data: UpdateUserModel,
                                current_user: UserModelDB = Depends(get_current_user),
                                db: AsyncIOMotorDatabase = Depends(get_database)):
-
     result: UserModelDB = await update_current_user(update_data, current_user, db)
 
     return ShowUserModel.parse_obj(jsonable_encoder(result))
@@ -131,7 +156,7 @@ async def list_users(max_entries: int = None,
         max_entries = 1000
 
     users = await db["users"].find().to_list(max_entries)
-    users = [ShowUserModel.parse_obj(jsonable_encoder(user)) for user in users]
+    users = [ShowUserModel.parse_obj(user) for user in users]
 
     return users
 
@@ -141,25 +166,23 @@ async def update_user(user_id: str,
                       update_data: UpdateUserAdminModel,
                       admin_user: UserModelDB = Depends(get_current_admin_user),
                       db: AsyncIOMotorDatabase = Depends(get_database)) -> ShowUserModel:
-
     # we must filter out the non set optional items in the update data
-    update_data = {k: v for (k, v) in update_data.dict().items() if k in update_data.__fields_set__}
+    # the key is also converted into lowerCamelCase
+    update_data = {to_camel(k): v for (k, v) in update_data.dict().items() if k in update_data.__fields_set__}
 
     if len(update_data) < 1:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not update data")
 
-    if len(update_data) >= 1:
+    result: UserModelDB = await db["users"].find_one_and_update(
+        {'_id': ObjectId(user_id)},
+        {"$set": update_data},
+        return_document=ReturnDocument.AFTER
+    )
 
-        result: UserModelDB = await db["users"].find_one_and_update(
-            {'_id': user_id},
-            {"$set": update_data},
-            return_document=ReturnDocument.AFTER
-        )
-
-        if result is None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"User {user_id} not found")
-        else:
-            return ShowUserModel.parse_obj(jsonable_encoder(result))
+    if result is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"User {user_id} not found")
+    else:
+        return ShowUserModel.parse_obj(result)
 
 
 @router.delete("/admin/{user_id}", response_description="Delete a user")

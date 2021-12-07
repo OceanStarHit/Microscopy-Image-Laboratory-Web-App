@@ -36,12 +36,32 @@ class TestAuth:
 
         # search for created user by email
         user_db_by_email = await db["users"].find_one({"email": created_user.user.email})
-        assert user_db_by_email['_id'] == str(created_user.user.id)
+        assert user_db_by_email['_id'] == created_user.user.id
         assert ShowUserModel.parse_obj(user_db_by_email).id == created_user.user.id
 
         # search for created user by id
-        user_db = await db["users"].find_one({"_id": str(created_user.user.id)})
-        assert user_db['_id'] == str(created_user.user.id)
+        user_db = await db["users"].find_one({"_id": created_user.user.id})
+        assert user_db['_id'] == created_user.user.id
+
+    @pytest.mark.asyncio
+    async def test_auth_email_and_password(self, async_client: AsyncClient,
+                                           user_to_create: CreateUserModel,
+                                           created_user: CreateUserReplyModel):
+        # incorrect email
+        login_form = {"username": "wrong_email", "password": user_to_create.password}
+        response_wrong_email = await async_client.post(url="auth/auth_email_password", data=login_form)
+        assert response_wrong_email.status_code == status.HTTP_401_UNAUTHORIZED
+
+        # incorrect password
+        login_form = {"username": user_to_create.email, "password": "wrong_password"}
+        response_wrong_password = await async_client.post(url="auth/auth_email_password", data=login_form)
+        assert response_wrong_password.status_code == status.HTTP_401_UNAUTHORIZED
+
+        login_form = {"username": user_to_create.email, "password": user_to_create.password}
+        response = await async_client.post(url="auth/auth_email_password", data=login_form)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() is None
 
     @pytest.mark.asyncio
     async def test_login(self, async_client: AsyncClient,
@@ -74,7 +94,7 @@ class TestAuth:
         assert logged_in_user is not None
         assert logged_in_user.user.email == user_to_create.email
         assert logged_in_user.access_token is not None
-        assert logged_in_user.token_type == 'bearer'
+        assert logged_in_user.token_type == 'Bearer'
 
     @pytest.mark.asyncio
     async def test_current_user(self, async_client_auth: AsyncClient,
@@ -152,7 +172,6 @@ class TestAuth:
     async def test_list_users_non_admin(self,
                                         async_client_auth: AsyncClient,
                                         created_user: CreateUserReplyModel):
-
         response = await async_client_auth.get(url="auth/admin/list")
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -161,7 +180,6 @@ class TestAuth:
                                     async_client_auth_admin: AsyncClient,
                                     created_user: CreateUserReplyModel,
                                     other_created_user: CreateUserReplyModel):
-
         response = await async_client_auth_admin.get(url="auth/admin/list")
         assert response.status_code == status.HTTP_200_OK
 
@@ -188,7 +206,7 @@ class TestAuth:
                                other_created_user: CreateUserReplyModel):
         data = UpdateUserModel(full_name="new_fullname", email="new_email@test.com")
 
-        response = await async_client_auth_admin.put(url=f"auth/admin/{other_created_user.user.id}",
+        response = await async_client_auth_admin.put(url=f"auth/admin/{str(other_created_user.user.id)}",
                                                      json=jsonable_encoder(data))
         assert response.status_code == status.HTTP_200_OK
         updated_user = ShowUserModel.parse_obj(response.json())
