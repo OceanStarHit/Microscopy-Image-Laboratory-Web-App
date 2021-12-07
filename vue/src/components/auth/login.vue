@@ -51,7 +51,6 @@
       <v-col>
         <button
           :loading="loading"
-          :disabled="loginRules"
           type="primary"
           size="large"
           style="width: 100%; height: 50px; margin-bottom: 3px; background: lightblue; border-radius: 2px;"

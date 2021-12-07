@@ -9,8 +9,13 @@
         </p>
       </div>
 
-      <v-col prop="name">
-        <label>Name</label>
+      <v-col>
+        <div class="d-flex justify-center" v-html="otpSecrets.qrSVG"></div>
+      </v-col>
+
+      <v-col>
+        <p>Secret:</p>
+        <p>{{ otpSecrets.secret }}</p>
       </v-col>
 
       <v-col>
@@ -31,16 +36,22 @@
 <script>
 // import { mapGetters, mapActions } from 'vuex'
 import * as API from "../../api/auth";
+import { mapState } from "vuex";
 
 export default {
   name: "RegisterOTPQRPage",
   layout: "login",
   components: {},
 
-  computed: {},
+  computed: {
+    ...mapState({
+      otpSecrets: state => state.auth.otpSecrets
+    })
+  },
   methods: {
     async handleContinue() {
       this.$store.dispatch("auth/setAuthPage", null);
+      this.$store.commit("auth/setAuthSecrets", null);
     }
   }
 };

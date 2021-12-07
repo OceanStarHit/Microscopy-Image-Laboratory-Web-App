@@ -1,4 +1,5 @@
 import axios from "axios";
+import store from "../vuex";
 
 export const BASE_API_URL = "http://127.0.0.1:8000/";
 // export const BASE_API_URL = "api:8000/apis/";
@@ -14,14 +15,17 @@ export const api = axios.create({
   }
 });
 
-
 api.interceptors.request.use(request => {
   console.log("[API Request]", request);
+
+  console.log(store.state);
 
   /* add auth headers */
   if (sessionStorage.getItem("authToken")) {
     request.headers["Authorization"] =
-      "Bearer " + sessionStorage.getItem("authToken");
+      sessionStorage.getItem("authTokenType") +
+      " " +
+      sessionStorage.getItem("authToken");
     request.headers["Content-Type"] = "application/json";
   }
 
@@ -32,7 +36,7 @@ api.interceptors.response.use(
   response => {
     // console.log("[API Response]", response);
     // return response.data;
-    return response
+    return response;
   },
   error => {
     console.log("[API ERROR]", error);

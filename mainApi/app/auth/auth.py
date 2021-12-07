@@ -59,7 +59,7 @@ async def create_user(user: CreateUserModel, db: AsyncIOMotorDatabase) -> Create
     created_user_reply = CreateUserReplyModel(user=created_user,
                                               otp_secret=otp_secret,
                                               otp_uri=otp_uri,
-                                              otp_uri_qr=otp_uri_qr,
+                                              otp_uri_qr=jsonable_encoder(otp_uri_qr),
                                               access_token=access_token,
                                               token_type="Bearer")
 
