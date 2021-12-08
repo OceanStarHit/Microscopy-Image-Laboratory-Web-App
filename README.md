@@ -7,6 +7,16 @@ Frontend - Vue
 
 ## Environment Setup
 
+### Use scripts
+
+1. double click the start.sh file. This will download, build and run both the back-end and front-end.
+2. To stop, press CTRL-C in the terminal that opened when you started the start.sh script, or close the terminal.
+3. double click the stop.sh script. This will stop the back-end services.
+
+If for some reason start.sh is not working it could be because a container or volume got corrupted.
+
+Please run the reset.sh script and once that has finished running you can run start.sh again.
+
 
 ### Use docker compose
 - Run the following command in the IAS-project folder to start all backend services
