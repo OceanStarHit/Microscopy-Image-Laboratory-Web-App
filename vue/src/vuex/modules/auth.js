@@ -1,4 +1,4 @@
-import * as API from "@/api/auth";
+import * as authApi from "@/api/auth";
 const LOGIN_PAGE = "loginPage";
 const REGISTRATION_PAGE = "registrationPage";
 const OTP_QR_PAGE = "otpQRPage";
@@ -26,7 +26,8 @@ const state = () => ({
 
 const actions = {
   logIn(context, loginForm) {
-    API.login(loginForm)
+    authApi
+      .login(loginForm)
       .then(response => {
         if (response.status === 200) {
           context.dispatch("loggedIn", {
@@ -48,36 +49,9 @@ const actions = {
       });
   },
 
-  loggedIn({ commit }, payload) {
-    /* Called once we are logged in */
-    commit("setLoggedIn", {
-      token: payload.token,
-      tokenType: payload.tokenType
-    });
-    commit("setUser", payload.user);
-    sessionStorage.setItem("authToken", payload.token);
-    sessionStorage.setItem("authTokenType", payload.tokenType);
-    // this.$message({
-    //   content: "Login Success!",
-    //   type: "success"
-    // }).show();
-  },
-  logOut({ commit }) {
-    /* called when logged out */
-    commit("setLoggedOut");
-    sessionStorage.removeItem("authToken");
-    sessionStorage.removeItem("authTokenType");
-    // this.$message({
-    //   content: "Logged out!",
-    //   type: "success"
-    // }).show();
-  },
-  setAuthPage(context, authPage) {
-    context.commit("setAuthPage", authPage);
-  },
-
   registerUser(context, registerForm) {
-    API.register_user(registerForm)
+    authApi
+      .register_user(registerForm)
       .then(response => {
         if (response.status === 201) {
           /* After successful registration user is logged in */
@@ -107,6 +81,35 @@ const actions = {
         //   }).show();
         // }
       });
+  },
+
+  loggedIn({ commit }, payload) {
+    /* Called once we are logged in */
+    commit("setLoggedIn", {
+      token: payload.token,
+      tokenType: payload.tokenType
+    });
+    commit("setUser", payload.user);
+    sessionStorage.setItem("authToken", payload.token);
+    sessionStorage.setItem("authTokenType", payload.tokenType);
+    // this.$message({
+    //   content: "Login Success!",
+    //   type: "success"
+    // }).show();
+  },
+  logOut({ commit }) {
+    /* called when logged out */
+
+    sessionStorage.removeItem("authToken");
+    sessionStorage.removeItem("authTokenType");
+    commit("setLoggedOut");
+    // this.$message({
+    //   content: "Logged out!",
+    //   type: "success"
+    // }).show();
+  },
+  setAuthPage({ commit }, authPage) {
+    commit("setAuthPage", authPage);
   }
 };
 
@@ -117,12 +120,12 @@ const mutations = {
   setLoggedIn(state, payload) {
     state.isLoggedIn = true;
     state.token = payload.token;
-    state.tokeType = payload.tokenType;
+    state.tokenType = payload.tokenType;
   },
   setLoggedOut(state) {
     state.isLoggedIn = false;
     state.token = null;
-    state.tokeType = null;
+    state.tokenType = null;
     state.authPage = LOGIN_PAGE;
   },
   setAuthPage(state, page) {

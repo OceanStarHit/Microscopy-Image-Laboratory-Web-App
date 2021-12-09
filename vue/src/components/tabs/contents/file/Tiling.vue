@@ -493,7 +493,7 @@ import {
   TILING_SCALE_OPTIONS
 } from "../../../../utils/constants";
 
-import * as tilingApi from "../../../../api/tiles";
+import * as tilingApi from "@/api/tiles";
 
 const positionModule = createNamespacedHelpers("files/position");
 
@@ -720,7 +720,7 @@ export default {
     }),
     alignButtonImage() {
       return index =>
-        require(`../../../../assets/images/pos_align_${index - 1}.png`);
+        require(`@/assets/images/pos_align_${index - 1}.png`);
     },
     scaleRate() {
       return (this.coordinateScale * 100).toFixed(0);
@@ -1374,7 +1374,7 @@ export default {
       this.tiling.canvasShiftX = 0;
 
       // The new backend solution
-      tilingApi.alignTiles(this.tiling.alignment.rows, "byCol", res => {
+      tilingApi.alignTiles(this.tiling.alignment.rows, "byColumn", (tiles) => {
         tilingApi.listTiles(tiles => {
           console.log("Fetch the list again");
           console.log(tiles);
@@ -1629,7 +1629,7 @@ export default {
               imgData,
               params.lumRatio + this.luminance
             );
-          } else if (this.luminance != 0) {
+          } else if (this.luminance !== 0) {
             changeImageLuminance(imgData, this.luminance);
           } else if (this.autoFit) {
             autoFitLuminance(imgData);
@@ -2324,7 +2324,6 @@ export default {
           }
         }
       }
-      this.performDrawing();
 
       // this.tiling.drawList.forEach(function(item) {
       //   that.calculateBondingOffsets(item);
@@ -2336,7 +2335,7 @@ export default {
       //   }
       // });
       // this.findImageTo(this.tiling.drawList, )
-
+      //
       // this.performDrawing();
       // if (this.tiling.alignment.rows > 0 && this.tiling.alignment.cols > 0) {
       //   const r = this.tiling.alignment.rows;
@@ -2428,6 +2427,8 @@ export default {
         this.drawImages(); // 刷新drawingIntervalNeedRedraw
       }
 
+      /* For some reason the previous dev is calling this every second for the
+       * life of the component */
       if (this.drawingIntervalHd == null) {
         let that = this;
         this.drawingIntervalHd = setInterval(function() {

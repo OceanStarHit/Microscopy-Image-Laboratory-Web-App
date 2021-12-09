@@ -17,17 +17,23 @@ export const api = axios.create({
 
 api.interceptors.request.use(request => {
   console.log("[API Request]", request);
-
   console.log(store.state);
 
   /* add auth headers */
-  if (sessionStorage.getItem("authToken")) {
+  if (store.state.auth.token) {
     request.headers["Authorization"] =
-      sessionStorage.getItem("authTokenType") +
-      " " +
-      sessionStorage.getItem("authToken");
+      store.state.auth.tokenType + " " + store.state.auth.token;
     request.headers["Content-Type"] = "application/json";
   }
+  
+  //
+  // if (sessionStorage.getItem("authToken")) {
+  //   request.headers["Authorization"] =
+  //     sessionStorage.getItem("authTokenType") +
+  //     " " +
+  //     sessionStorage.getItem("authToken");
+  //   request.headers["Content-Type"] = "application/json";
+  // }
 
   return request;
 });
@@ -41,7 +47,7 @@ api.interceptors.response.use(
   error => {
     console.log("[API ERROR]", error);
     if (error.response.status === 401) {
-      this.$store.dispatch("auth/logOut");
+      store.dispatch("auth/logOut");
     }
     return Promise.reject(error);
   }
