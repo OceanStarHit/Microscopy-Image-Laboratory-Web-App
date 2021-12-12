@@ -1,22 +1,26 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import protectedRoute from '../middlewares/protected'
-import Home from '../views/Home.vue'
+import Home from '../views/test.vue'
 import PageTwo from '../views/pageTwo.vue'
 import AuthPage from '@/views/auth/auth.vue'
+import MainComponent from '@/views/main.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'Auh',
+    name: 'Main',
+    component: MainComponent,
+  },
+  {
+    path: '/auth',
+    name: 'Auth',
     component: AuthPage,
   },
-
   {
-    path: '/home',
-    name: 'Home',
+    path: '/test',
+    name: 'Test',
     component: Home,
   },
-
   {
     path: '/pagetwo',
     name: 'PageTwo',

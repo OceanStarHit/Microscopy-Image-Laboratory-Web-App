@@ -21,7 +21,7 @@
     >
   </div>
 
-  <v-btn class="ma-2" color="#41B883" elevation="0" @click="$router.push('/')"
+  <v-btn class="ma-2" color="#41B883" elevation="0" @click="$router.push('/test')"
     >Go back</v-btn
   >
 </template>

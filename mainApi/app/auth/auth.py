@@ -50,7 +50,7 @@ async def create_user(user: CreateUserModel, db: AsyncIOMotorDatabase) -> Create
 
     otp_uri = pyotp.totp.TOTP(otp_secret).provisioning_uri(name=user.email, issuer_name='IAS App')
 
-    otp_uri_qr = generate_qr_code_svg(otp_uri)
+    otp_qr_svg = generate_qr_code_svg(otp_uri)
 
     # create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -59,7 +59,7 @@ async def create_user(user: CreateUserModel, db: AsyncIOMotorDatabase) -> Create
     created_user_reply = CreateUserReplyModel(user=created_user,
                                               otp_secret=otp_secret,
                                               otp_uri=otp_uri,
-                                              otp_uri_qr=jsonable_encoder(otp_uri_qr),
+                                              otp_qr_svg=jsonable_encoder(otp_qr_svg),
                                               access_token=access_token,
                                               token_type="Bearer")
 

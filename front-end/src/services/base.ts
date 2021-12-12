@@ -46,7 +46,7 @@ apiClient.interceptors.response.use(
     // return response.data;
     return response
   },
-  (error) => {
+  (error: any) => {
     console.log('[API ERROR]', error)
     if (error.response.status === 401) {
       store.dispatch('auth/logOut')

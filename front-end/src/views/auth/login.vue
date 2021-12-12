@@ -10,18 +10,12 @@
       :validate-on-rule-change="false"
     >
       <div class="title-container">
-        <h3 class="title">{{ "Login" }}</h3>
+        <h3 class="title">{{ 'Login' }}</h3>
       </div>
 
       <v-col prop="email">
         <label>Email</label>
-        <input
-          v-model="loginForm.email"
-          name="email"
-          type="text"
-          auto-complete="on"
-          class="txt"
-        />
+        <input v-model="loginForm.email" name="email" type="text" auto-complete="on" class="txt" />
       </v-col>
 
       <v-col prop="password">
@@ -38,13 +32,7 @@
 
       <v-col prop="totp">
         <label>Totp</label>
-        <input
-          v-model="loginForm.otp"
-          class="txt"
-          type="text"
-          name="otp"
-          auto-complete="false"
-        />
+        <input v-model="loginForm.otp" class="txt" type="text" name="otp" auto-complete="false" />
       </v-col>
 
       <v-col>
@@ -61,7 +49,7 @@
           "
           @click="handleLogin"
         >
-          {{ "Login" }}
+          {{ 'Login' }}
         </button>
         <a style="float: right" @click="showRegistration">Switch to register</a>
       </v-col>
@@ -70,96 +58,104 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
-// import { authStore } from "@/store/modules/auth.module";
-// import { mapState } from "vuex";
+  import { Options, Vue } from 'vue-class-component'
+  import { AuthPageEnum } from '@/store/auth.module'
+  import { LoginModel } from '@/services/authService'
 
-@Options({
-  data() {
-    return {
-      loginForm: { email: "", password: "", otp: "" },
-      loginRules: {
-        email: [
-          {
-            required: true,
-            trigger: "blur",
-            message: "Email",
-          },
-        ],
-        password: [
-          {
-            required: true,
-            trigger: "blur",
-            message: "Password",
-          },
-        ],
-        otp: [
-          {
-            required: true,
-            trigger: "blur",
-            message: "otp",
-          },
-        ],
+  @Options({
+    data() {
+      return {
+        loginForm: { email: '', password: '', otp: '' },
+        loginRules: {
+          email: [
+            {
+              required: true,
+              trigger: 'blur',
+              message: 'Email',
+            },
+          ],
+          password: [
+            {
+              required: true,
+              trigger: 'blur',
+              message: 'Password',
+            },
+          ],
+          otp: [
+            {
+              required: true,
+              trigger: 'blur',
+              message: 'otp',
+            },
+          ],
+        },
+        loading: false,
+      }
+    },
+    computed: {},
+    methods: {
+      handleLogin() {
+        this.loading = true
+        console.log(this.$store.state.auth)
+        const loginData: LoginModel = { ...this.loginForm }
+        this.$store.dispatch('auth/logIn', loginData)
       },
-      loading: false,
-    };
-  },
-  computed: {},
-  methods: {
-    async handleLogin() {
-      this.loading = true;
-      // await this.$store.dispatch("auth/logIn", this.loginForm);
+      showRegistration() {
+        this.$store.dispatch('auth/changeAuthPage', AuthPageEnum.registrationPage)
+        // this.$store.dispatch("auth/setAuthPage", "registrationPage");
+      },
     },
-    showRegistration: function () {
-      // this.$store.dispatch("auth/setAuthPage", "registrationPage");
-    },
-  },
-})
-export default class LoginPage extends Vue {}
+  })
+  export default class LoginPage extends Vue {}
 </script>
 
 <style lang="scss" scoped>
-.login-container {
-  background-color: #283443;
-  min-height: 100vh;
-  position: relative;
+  .login-container {
+    background-color: #283443;
+    min-height: 100vh;
+    position: relative;
 
-  .inner-container {
-    box-sizing: border-box;
-    width: 500px;
-    height: 500px;
-    border-radius: 5px;
-    padding: 60px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #fff;
-    .title-container {
-      padding-bottom: 20px;
-      .title {
-        text-align: center;
+    .inner-container {
+      box-sizing: border-box;
+      width: 500px;
+      height: 500px;
+      border-radius: 5px;
+      padding: 60px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+
+      .title-container {
+        padding-bottom: 20px;
+
+        .title {
+          text-align: center;
+        }
+      }
+
+      .set-language {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+
+      .txt {
+        width: 100%;
+        height: 38px;
+        padding: 9px 10px;
+        line-height: 38px;
+        box-sizing: border-box;
+        background: transparent;
+        background-color: rgb(232, 240, 254);
+        appearance: none;
+        -webkit-appearance: none;
+      }
+
+      .txt:focus {
+        outline: none;
       }
     }
-    .set-language {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-    }
-    .txt {
-      width: 100%;
-      height: 38px;
-      padding: 9px 10px;
-      line-height: 38px;
-      box-sizing: border-box;
-      background: transparent;
-      background-color: rgb(232, 240, 254);
-      appearance: none;
-      -webkit-appearance: none;
-    }
-    .txt:focus {
-      outline: none;
-    }
   }
-}
 </style>

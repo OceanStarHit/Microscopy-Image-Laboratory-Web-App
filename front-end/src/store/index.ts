@@ -1,17 +1,27 @@
-import Auth from '../types/authType'
 import { InjectionKey } from 'vue'
-import { createStore, Store } from 'vuex'
-import { authStore } from '@/store/auth.module'
-// import { AuthStore } from './authStore'
+import { createStore, useStore as baseUseStore, Store } from 'vuex'
+import TestModel, { TestStore } from './test.module'
+import { AuthState, AuthStore } from '@/store/auth.module'
 
-interface State {}
+// export interface State extends TestModel, AuthState {}
+// interface storeTypes {
+// }
 
-// interface storeTypes extends Auth {}
+export interface State {
+  test: TestModel
+  auth: AuthState
+}
+
 export const key: InjectionKey<Store<State>> = Symbol()
 
 export const store = createStore<State>({
   modules: {
-    auth: authStore,
+    test: TestStore,
+    auth: AuthStore,
   },
 })
 
+// define your own `useStore` composition function
+export function useStore(): Store<State> {
+  return baseUseStore(key)
+}

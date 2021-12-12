@@ -26,7 +26,7 @@ export interface RegisteredModel {
   tokenType: string
   otpSecret: string
   otpUri: string
-  otpUriQr: string
+  otpQrSvg: string
 }
 
 class AuthService {

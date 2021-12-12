@@ -201,7 +201,7 @@ class CreateUserReplyModel(LoginUserReplyModel):
     """ This is what is returned in the reply when creating a new user, notice that it extends LoginUserReplyModel """
     otp_secret: str
     otp_uri: str
-    otp_uri_qr: str
+    otp_qr_svg: str
 
     class Config:
         # this is crucial for the id to work when given a set id from a dict, also needed when using alias_generator

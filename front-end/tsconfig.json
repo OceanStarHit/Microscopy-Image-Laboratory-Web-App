@@ -11,6 +11,7 @@
     "lib": ["esnext", "dom"],
     "types": ["vuetify", "@intlify/vite-plugin-vue-i18n/client", "node"],
     "baseUrl": ".",
+    "experimentalDecorators": true,
     "paths": {
       "@/*": ["./src/*"]
     }

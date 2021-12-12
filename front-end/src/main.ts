@@ -6,4 +6,3 @@ import i18n from './plugins/i18n'
 import { store, key } from './store/index'
 
 createApp(App).use(store, key).use(router).use(vuetify).use(i18n).mount('#app')
-

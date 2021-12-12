@@ -3,37 +3,34 @@
     <v-app v-if="authPage === 'loginPage'">
       <LoginPage />
     </v-app>
-    <!--    <v-app v-else-if="authPage === 'registrationPage'">-->
-    <!--      <RegistrationPage />-->
-    <!--    </v-app>-->
-    <!--    <v-app v-else-if="authPage === 'otpQRPage'">-->
-    <!--      <RegisterOTP_QR_Page />-->
-    <!--    </v-app>-->
+    <v-app v-else-if="authPage === 'registrationPage'">
+      <RegisterPage />
+    </v-app>
+    <v-app v-else-if="authPage === 'otpQRPage'">
+      <RegisterOTPQRPage />
+    </v-app>
   </div>
 </template>
 
 <script lang="ts">
-  import { mapGetters, mapActions, mapState } from 'vuex'
   import { Options, Vue } from 'vue-class-component'
   import LoginPage from './login.vue'
-  // import LoginPage from "@/components/auth/login";
-  // import RegistrationPage from "@/components/auth/register";
-  // import RegisterOTP_QR_Page from "@/components/auth/register_otp_qr";
+  import { AuthPageEnum } from '@/store/auth.module'
+  import RegisterPage from '@/views/auth/register.vue'
+  import RegisterOTPQRPage from '@/views/auth/register_otp_qr.vue'
 
   @Options({
     components: {
       LoginPage,
-      // RegistrationPage,
-      // RegisterOTP_QR_Page,
+      RegisterPage,
+      RegisterOTPQRPage,
     },
-    computed: {
-      ...mapState({
-        authPage: (state) => state.auth.authPage,
-      }),
-    },
-    methods: {},
   })
-  export default class AuthPage extends Vue {}
+  export default class AuthPage extends Vue {
+    get authPage(): AuthPageEnum | null {
+      return this.$store.state.auth.authPage
+    }
+  }
 </script>
 
 <style lang="scss" scoped>
