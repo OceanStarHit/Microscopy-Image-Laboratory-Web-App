@@ -63,7 +63,7 @@ const actions = {
           context.commit("setAuthSecrets", {
             secret: response.data.otpSecret,
             uri: response.data.otpUri,
-            qrSVG: response.data.otpUriQr
+            qrSVG: response.data.otpQrSvg
           });
           /* then we show the QR code so that the user may save it */
           context.commit("setAuthPage", OTP_QR_PAGE);

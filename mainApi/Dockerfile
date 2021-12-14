@@ -1,5 +1,12 @@
-FROM python:3.8
+FROM python:3.8-slim
+# set env variables
+ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+
+# additional dependencies
+# netcat used for checking for resources on the network before start, see start.sh for use
+RUN apt-get update && \
+    apt-get install -y netcat
 
 WORKDIR /app
 

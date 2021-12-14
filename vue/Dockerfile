@@ -1,21 +1,27 @@
 # Build stage
-FROM ubuntu:20.04 as build-stage
+#FROM node:16-alpine as builder
 
-WORKDIR /code/ui
+# because python is needed and c++ compilers, we do not use a node container directly
+FROM ubuntu:20.04 as builder
 
-RUN apt-get update && apt-get install -y nodejs && apt-get install -y npm
+RUN apt-get update && \
+    apt-get install -y nodejs && \
+    apt-get install -y npm
 
-RUN npm install -g @vue/cli @vue/cli-service @vue/cli-service-global
+WORKDIR /app
 
-COPY package.json .
-RUN npm install --quiet
+COPY ./vue .
+# install node modules and build assets
+RUN npm install
+RUN npm run build:production
 
-COPY . .
-RUN npm run build:staging
-# RUN npm run serve
-
-# # Production stage
-# FROM nginx:1.16.1-alpine as production-stage
-# COPY --from=build-stage /code/ui/dist /usr/share/nginx/html
-# EXPOSE 80
-# CMD [ "nginx", "-g", "daemon off;"]
+# nginx state for serving content
+FROM nginx:alpine
+# Set working directory to nginx asset directory
+WORKDIR /usr/share/nginx/html
+# Remove default nginx static assets
+RUN rm -rf ./*
+# Copy static assets from builder stage
+COPY --from=builder /app/dist .
+# Containers run nginx with global directives and daemon off
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
