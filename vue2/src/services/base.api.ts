@@ -49,7 +49,7 @@ apiClient.interceptors.response.use(
   (error: any) => {
     console.log('[API ERROR]', error);
     if (error.response.status === 401) {
-      store.dispatch('auth/logOut');
+      // store.dispatch('auth/logOut');
     }
     return Promise.reject(error);
   }

@@ -124,7 +124,6 @@ export const AuthStore = {
       sessionStorage.removeItem('authToken');
       sessionStorage.removeItem('authTokenType');
       context.commit('loggedOut');
-      // router.push('/auth'); /* go back to auth view */
     },
 
     changeAuthPage(context: ActionContext<AuthState, State>, authPage: AuthPageEnum) {
@@ -179,6 +178,7 @@ export const AuthStore = {
 
       sessionStorage.removeItem('authToken');
       sessionStorage.removeItem('authTokenType');
+      router.push('/auth'); /* go back to auth view */
     },
 
     setOtpSecrets(state: AuthState, otpSecrets: OtpSecrets) {

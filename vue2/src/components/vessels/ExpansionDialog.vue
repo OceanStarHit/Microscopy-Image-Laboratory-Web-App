@@ -1,95 +1,91 @@
 <template>
-  <v-dialog v-model="visibleDialog" :max-width="width" :max-height="width">
+  <v-dialog
+    v-model="isShowProp"
+    :max-width="width"
+    :max-height="width"
+  >
     <simple-dialog title="Vessel Expansion" @select="visibleDialog = false">
       <div class="pa-4">
         <slide
-          v-if="currentVessel.type == 'Slide'"
+          v-if="currentVessel.type === 'Slide'"
           :width="width"
           :count="currentVessel.count"
           :show-number="true"
-        ></slide>
+        />
         <well-plate
-          v-if="currentVessel.type == 'WellPlate'"
+          v-if="currentVessel.type === 'WellPlate'"
           :width="width"
           :rows="currentVessel.rows"
           :cols="currentVessel.cols"
           :show-number="true"
-        ></well-plate>
+        />
         <dish
-          v-if="currentVessel.type == 'Dish'"
+          v-if="currentVessel.type === 'Dish'"
           :width="width"
           :size="currentVessel.size"
-        ></dish>
+        />
         <wafer
-          v-if="currentVessel.type == 'Wafer'"
+          v-if="currentVessel.type === 'Wafer'"
           :width="width"
           :size="currentVessel.size"
-        ></wafer>
+        />
       </div>
     </simple-dialog>
   </v-dialog>
 </template>
 
-<script>
-import { mapGetters } from "vuex";
+<script lang="ts">
+import Component from 'vue-class-component';
+import Vue from 'vue';
 
-import { VESSELS, getVesselById } from "../../utils/vessel-types";
+import {VESSELS, getVesselById, VesselBaseModel} from '@/utils/vessel-types';
 
-import SimpleDialog from "../custom/SimpleDialog";
-import Slide from "./Slides";
-import Dish from "./Dishes.vue";
-import WellPlate from "./WellPlates";
-import Wafer from "./Wafers";
+import SimpleDialog from '../custom/SimpleDialog.vue';
+import Slide from './Slides.vue';
+import Dish from './Dishes.vue';
+import WellPlate from './WellPlates.vue';
+import Wafer from './Wafers.vue';
 
-export default {
-  name: "ExpansionDialog",
+const ExpansionDialogProps = Vue.extend({
+  props: {
+    isShow: {
+      type: Boolean,
+      default: false
+    }
+  }
+})
 
+@Component({
   components: {
     SimpleDialog,
     Slide,
     Dish,
     Wafer,
     WellPlate
-  },
+  }
+})
+export default class ExpansionDialog extends ExpansionDialogProps {
+  width = 800;
 
-  props: {
-    value: {
-      type: Boolean,
-      default: false
-    }
-  },
+  get currentVessel(): VesselBaseModel | null {
+    return this.$store.getters['vessel/currentVessel'];
+  }
 
-  data: () => ({
-    vessels: VESSELS,
-    width: 800
-  }),
+  get isShowProp(): boolean {
+    return this.isShow
+  }
 
-  computed: {
-    ...mapGetters("vessel", {
-      currentVesselId: "currentVesselId"
-    }),
-    currentVessel() {
-      return getVesselById(this.currentVesselId);
-    },
-    visibleDialog: {
-      get() {
-        return this.value;
-      },
-      set(val) {
-        this.$emit("input", val);
-      }
-    }
-  },
+  set isShowProp(val: boolean) {
+    this.$emit('input', val);
+  }
 
-  methods: {
-    onSelectVessel: function(v_idx, idx) {
-      const vesselId = this.vessels[v_idx - 1][idx - 1].id;
-      if (this.currentVesselId !== vesselId) {
-        this.$store.dispatch("vessel/selectVessel", vesselId);
-      }
+  onSelectVessel(vesselTypeIndex: number, vesselIndex: number) {
+    const vessel= VESSELS[vesselTypeIndex - 1][vesselIndex - 1];
+    if (this.currentVessel && this.currentVessel.id !== vessel.id) {
+      this.$store.dispatch('vessel/selectVessel', vessel.id);
     }
   }
-};
+}
 </script>
 
 <style scoped>

@@ -1,5 +1,10 @@
 <template>
-  <v-card ref="frame" v-resize="onResize" class="pa-1" flat>
+  <v-card
+    ref="frame"
+    v-resize="onResize"
+    class="pa-1"
+    flat
+  > 
     <v-row class="px-5 py-0 my-1">
       <h5>{{ vesselTitle }}</h5>
     </v-row>
@@ -7,23 +12,23 @@
       v-if="currentVessel.type === 'Slide'"
       :width="width"
       :count="currentVessel.count"
-    ></slide>
+    />
     <well-plate
       v-if="currentVessel.type === 'WellPlate'"
       :width="width"
       :rows="currentVessel.rows"
       :cols="currentVessel.cols"
-    ></well-plate>
+    />
     <dish
       v-if="currentVessel.type === 'Dish'"
       :width="width"
       :size="currentVessel.size"
-    ></dish>
+    />
     <wafer
       v-if="currentVessel.type === 'Wafer'"
       :width="width"
       :size="currentVessel.size"
-    ></wafer>
+    />
     <v-card-actions>
       <v-row
         class="mt-1"
@@ -39,22 +44,55 @@
   </v-card>
 </template>
 
-<script>
-import { mapGetters } from "vuex";
+<script lang="ts">
+import Component from 'vue-class-component';
+import Vue from 'vue';
 
-import { VESSELS, getVesselById } from "../../../../utils/vessel-types";
+import { VESSELS, getVesselById } from '@/utils/vessel-types';
 
-import CustomButton from "../../../custom/CustomButton";
-import Dish from "../../../vessels/Dishes.vue";
-import Slide from "../../../vessels/Slides";
-import Wafer from "../../../vessels/Wafers";
-import WellPlate from "../../../vessels/WellPlates";
-import VesselSelectDialog from "../../../vessels/SelectDialog";
-import VesselExpansionDialog from "../../../vessels/ExpansionDialog";
+import CustomButton from '../../../custom/CustomButton.vue';
+import Dish from '../../../vessels/Dishes.vue';
+import Slide from '../../../vessels/Slides.vue';
+import Wafer from '../../../vessels/Wafers.vue';
+import WellPlate from '../../../vessels/WellPlates.vue';
+import VesselSelectDialog from '../../../vessels/SelectDialog.vue';
+import VesselExpansionDialog from '../../../vessels/ExpansionDialog.vue';
+import {VesselBaseModel} from '@/store/vessel.module';
 
-export default {
-  name: "Vessel",
+const VesselProps = Vue.extend({
+  props: {
+    size: {
+      type: Number,
+      default: 1
+    },
+    width: {
+      type: Number,
+      default: 0
+    },
+    active: {
+      type: Boolean,
+      default: false
+    },
+    selected: {
+      type: Boolean,
+      default: false
+    },
+    check: {
+      type: Boolean,
+      default: false
+    },
+    interaction: {
+      type: Boolean,
+      default: true
+    },
+    requsetRender: {
+      type: Boolean,
+      default: false
+    }
+  }
+})
 
+@Component({
   components: {
     CustomButton,
     VesselSelectDialog,
@@ -64,47 +102,40 @@ export default {
     Wafer,
     WellPlate
   },
+})
+export default class Vessel extends VesselProps {
 
-  data: () => ({
-    width: 0,
-    selectDialog: false,
-    expansionDialog: false,
-    vessels: VESSELS
-  }),
+  width= 0;
+  selectDialog= false;
+  expansionDialog= false;
+  vessels= VESSELS
 
-  created() {
-    this.currentPageDataWatch = this.$store.watch(
-      (state, getters) => getters["files/position/getFiles"],
-      files => {
-        if (files && files.length > 0) {
-          this.$store.dispatch("vessel/setVesselId", files);
-        }
-      }
-    );
-  },
 
-  beforeDestroy() {
-    this.currentPageDataWatch();
-  },
 
-  computed: {
-    ...mapGetters("vessel", {
-      currentVesselId: "currentVesselId"
-      // activeHoles: "activeHoles",
-      // activeHole: "activeHole"
-    }),
-    currentVessel() {
-      return getVesselById(this.currentVesselId);
-    },
-    vesselTitle() {
-      const vessel = this.currentVessel;
+  // currentPageDataWatch = this.$store.watch(
+  //   (state, getters) => getters['files/position/getFiles'],
+  //     files => {
+  //     if (files && files.length > 0) {
+  //     this.$store.dispatch('vessel/setVesselId', files);
+  //   }
+  // }
+
+  get currentVessel(): VesselBaseModel | null {
+    return this.$store.getters['vessel/currentVessel'];
+  }
+
+  get vesselTitle(): string {
+    const vessel = this.currentVessel;
+    if (vessel) {
       return `${vessel.title} - ${vessel.type}`;
     }
-  },
+    return '';
+  }
 
   mounted() {
-    let that = this;
-    let hd = setInterval(function(){
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const that = this;
+    const hd = setInterval(function(){
       that.width = that.getWidth();
       if (that.width != 0) {
         clearInterval(hd);
@@ -113,28 +144,33 @@ export default {
     // this.$nextTick(function() {
     //   this.width = this.getWidth();
     // });
-  },
+  }
 
-  methods: {
-    getWidth: function() {
-      if (this.$refs) {
-        const frame = this.$refs.frame;
+  getWidth() {
+    if (this.$refs) {
+      if (this.$refs && this.$refs.frame) {
+        const frame: Vue = this.$refs.frame as Vue;
         const frameSize = frame.$el.getBoundingClientRect();
         const width = Math.trunc(frameSize.width);
         return width;
       }
 
-      return 0;
-    },
-    onResize: function() {
-      this.width = this.getWidth();
-    },
-    select2: function() {
-      console.log("Select-2");
-    },
-    select3: function() {
-      console.log("Select-3");
     }
+
+    return 0;
   }
-};
+
+  onResize() {
+    this.width = this.getWidth();
+  }
+
+  select2() {
+    console.log('Select-2');
+  }
+
+  select3() {
+    console.log('Select-3');
+  }
+
+}
 </script>

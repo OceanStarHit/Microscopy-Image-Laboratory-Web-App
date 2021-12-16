@@ -61,6 +61,7 @@
     }
 
     handleContinue(): void {
+      this.$router.push('/');
       this.$store.dispatch('auth/changeAuthPage', null)
       this.$store.commit('auth/deleteOTPSecrets')
     }

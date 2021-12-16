@@ -129,8 +129,7 @@ async def _align_tiles_naive(request: AlignNaiveRequest,
             status_code=status.HTTP_200_OK)
 async def _align_tiles_ashlar(tiles: List[TileModelDB] = Depends(get_tile_list)) -> any:
     """
-        performs a naive aligning of the tiles simply based on the given rows and method.
-        does not perform any advanced stitching or pixel checking
+        Performs aligning of the tiles using the Ashlar library.
 
         Called using concurrent.futures to make it async
     """

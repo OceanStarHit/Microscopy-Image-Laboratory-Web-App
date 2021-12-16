@@ -25,9 +25,9 @@
       </v-tabs>
 
       <v-tabs-items v-model="selectedTab">
-        <v-tab-item value="1">
-          <ViewTab />
-        </v-tab-item>
+        <!--        <v-tab-item value="1">-->
+        <!--          <ViewTab />-->
+        <!--        </v-tab-item>-->
         <v-tab-item value="2">
           <MeasureTab />
         </v-tab-item>
@@ -44,14 +44,14 @@
 <script lang="ts">
 import Component from 'vue-class-component';
 import Vue from 'vue';
-import ViewTab from '@/components/rightToolBar/tabs/ViewTab.vue';
+// import ViewTab from '@/components/rightToolBar/tabs/ViewTab.vue';
 import MeasureTab from '@/components/rightToolBar/tabs/MeasureTab.vue';
 import ReportTab from '@/components/rightToolBar/tabs/ReportTab.vue';
 import SettingsTab from '@/components/rightToolBar/tabs/SettingsTab.vue';
 
 @Component({
   components: {
-    ViewTab,
+    // ViewTab,
     MeasureTab,
     ReportTab,
     SettingsTab

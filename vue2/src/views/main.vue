@@ -23,7 +23,7 @@
           <!--          </v-col>-->
 
           <!-- Right Sidebar -->
-          <!--          <RightToolBar />-->
+          <RightToolBar />
         </v-row>
 
         <!--        <loading-->
@@ -74,14 +74,14 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import TopToolBar from '@/components/topToolBar.vue';
 import LeftToolBar from '@/components/leftToolBar/leftToolBar.vue';
-// import RightToolBar from '@/components/rightToolBar/rightToolBar.vue';
+import RightToolBar from '@/components/rightToolBar/rightToolBar.vue';
 import windowSizeService from '@/services/windowSizeService';
 
 @Component({
   components: {
     TopToolBar,
     LeftToolBar,
-    // RightToolBar,
+    RightToolBar,
   },
 })
 export default class MainComponent extends Vue {

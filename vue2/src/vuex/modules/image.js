@@ -2,6 +2,8 @@
 // import { of } from "core-js/core/array";
 import * as API from '../../api';
 import './files';
+import {adjustImage} from '../../api';
+import {changeParameters, filteredByParameters} from '../../store/image/image.helpers';
 
 const DEFAULT_PARAMS = {
   Z: 1,
@@ -16,8 +18,8 @@ const DEFAULT_PARAMS = {
 // state
 const state = () => ({
   loading: false,
-  loading_count: 0,
-  loading_count_max: 0,
+  loadingCount: 0,
+  loadingCountMax: 0,
 
 
   coreMetadata: null,
@@ -89,7 +91,7 @@ const getters = {
 
       if (idxes.length > 0) {
         const rs = idxes.map(idx => data.get(idx));
-        const images = filtteredByParameters(state.parameters, rs);
+        const images = filteredByParameters(state.parameters, rs);
         if (images.length > 0) return images[0].metadata.imageData;
       }
     }
@@ -295,7 +297,7 @@ const actions = {
 
   changeParameterByObjective({ commit, state }, o) {
     if (state.parameters.objective != o) {
-      changeParameter(commit, state, {
+      changeParameters(commit, state, {
         objective: o
       });
     }
@@ -303,20 +305,20 @@ const actions = {
 
   changeParameterByZ({ commit, state }, z) {
     if (state.parameters.Z != z) {
-      changeParameter(commit, state, {
+      changeParameters(commit, state, {
         Z: z
       });
     }
   },
 
   changeParameterByT({ commit, state }, t) {
-    changeParameter(commit, state, {
+    changeParameters(commit, state, {
       T: t,
     });
   },
 
   changeParameterByC({ commit, state }, c) {
-    changeParameter(commit, state, {
+    changeParameters(commit, state, {
       T: state.parameters.T,
       Z: state.parameters.Z,
       C: c,
@@ -371,14 +373,14 @@ const mutations = {
   },
 
   incLoadingCount(state, data) {
-    state.loading_count++;
-    state.loading_count_max = state.loading_count;
+    state.loadingCount++;
+    state.loadingCountMax = state.loading_count;
   },
 
   decLoadingCount(state, data) {
-    state.loading_count--;
+    state.loadingCount--;
     if (state.loading_count == 0) {
-      state.loading_count_max = state.loading_count;
+      state.loadingCountMax = state.loading_count;
     }
   },
   setImageResponse(state, payload) {

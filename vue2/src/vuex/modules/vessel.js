@@ -1,4 +1,4 @@
-var vessel = require("../../utils/vessel-types");
+const vessel = require('../../utils/vessel-types');
 
 // import { position } from "./image";
 
@@ -6,7 +6,7 @@ var vessel = require("../../utils/vessel-types");
 const DEFAULT_PARAMS = {
   loading: false,
 
-  currentVesselId: 1,
+  currentVessel: 1,
   activeHole: false,
   activeHoles: []
 };
@@ -16,30 +16,27 @@ const state = () => ({
   ...DEFAULT_PARAMS
 });
 
-// getters
 const getters = {
-  currentVesselId: (state, getters) => state.currentVesselId,
-  activeHoles: (state, getters) => state.activeHoles,
-  activeHole: (state, getters) => state.activeHole
-};
+  getSelectedVessel()
+}
 
 // actions
 const actions = {
   selectVessel({ commit }, vesselId) {
-    commit("selectVessel", vesselId);
+    commit('selectVessel', vesselId);
   },
   setActiveHoles({ commit }, activeHoles) {
-    commit("setActiveHoles", activeHoles);
+    commit('setActiveHoles', activeHoles);
   },
   setActiveHole({ commit }, activeHole) {
-    commit("setActiveHole", activeHole);
+    commit('setActiveHole', activeHole);
   },
   // selectVessel({ commit, state }, vesselId) {
   //   commit("selectVessel", vesselId);
   // }
 
   setVesselId({ commit }, data) {
-    commit("setVesselId", data);
+    commit('setVesselId', data);
   }
 };
 
@@ -63,8 +60,8 @@ const mutations = {
     // get column and row from name type
     files.forEach(file => {
       if (file.metaData) {
-        let r = file.metaData.row;
-        let c = file.metaData.col;
+        const r = file.metaData.row;
+        const c = file.metaData.col;
 
         row = row > r ? row : r;
         col = col > c ? col : c;
@@ -73,8 +70,8 @@ const mutations = {
 
     // calc the current vessel id
     if (row !== -1 && col !== -1) {
-      let r = row;
-      let c = col;
+      const r = row;
+      const c = col;
       for (let idx = 0; idx < 6; idx++) {
         const item = vessel.VESSELS[1][idx];
         if (r <= item.rows && c <= item.cols) {

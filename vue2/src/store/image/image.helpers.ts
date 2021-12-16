@@ -25,43 +25,6 @@ export function changeParameters(state: ImageState, params: Partial<ImageParamet
     }
 
     return newParams;
-
-    // commit("changeParameterData", {
-    //     params: newParams
-    // });
-
-    // if (state.loading) return;
-
-    // commit("setLoading", true);
-
-    // API.changeParameter(params)
-    //   .then(response => {
-    //     const imageObj = new Image();
-    //     imageObj.src = response.imageData;
-
-    //     setTimeout(() => {
-    //       if (imageObj.height) {
-    //         commit("changeParameterData", {
-    //           imageData: imageObj.src,
-    //           params
-    //         });
-    //       } else {
-    //         setTimeout(function() {
-    //           commit("changeParameterData", {
-    //             imageData: imageObj.src,
-    //             params
-    //           });
-    //         }, 1000);
-    //       }
-    //     }, 100);
-
-    //     commit("setLoading", false);
-    //   })
-    //   .catch(error => {
-    //     commit("setLoading", false);
-
-    //     console.log(error);
-    //   });
 }
 
 

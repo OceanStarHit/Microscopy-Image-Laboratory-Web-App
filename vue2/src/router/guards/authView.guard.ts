@@ -3,7 +3,7 @@ import {Route} from 'vue-router';
 import authService from '@/services/authService.api';
 
 export default async (to: Route, from: Route, next: any) => {
-    /** Guard made specifially for the Auth View with the purpose to redirect back to the main page if the user
+    /** Guard made specifically for the Auth View with the purpose to redirect back to the main page if the user
      * is already logged in
      */
 
