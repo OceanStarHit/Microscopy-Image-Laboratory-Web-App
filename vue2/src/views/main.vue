@@ -63,9 +63,7 @@
         <!--          </v-container>-->
         <!--        </loading>-->
       </v-container>
-      <button @click="deleteTest">
-        TEST
-      </button>
+
       here
       <!--      <MainFrame />-->
     </v-main>
@@ -79,7 +77,6 @@ import TopToolBar from '@/components/topToolBar.vue';
 import LeftToolBar from '@/components/leftToolBar/leftToolBar.vue';
 import RightToolBar from '@/components/rightToolBar/rightToolBar.vue';
 import windowSizeService from '@/services/windowSizeService';
-// import {lensObjectives} from '@/store/tiles.module';
 
 @Component({
   components: {
@@ -89,19 +86,6 @@ import windowSizeService from '@/services/windowSizeService';
   },
 })
 export default class MainComponent extends Vue {
-
-  // test2 = lensObjectives; // todo remove, for testing only
-
-  // get test() { // todo remove, for testing only
-  //   const objectives = this.$store.getters['tiles/getAllLensObjectives'];
-  //   console.log(objectives);
-  //   return objectives;
-  // }
-
-
-  deleteTest() {
-    this.$store.dispatch('tiles/deleteAllTiles').then(resp => console.log(resp));
-  }
 
 }
 </script>

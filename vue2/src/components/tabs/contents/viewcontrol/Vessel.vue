@@ -122,6 +122,16 @@ export default class Vessel extends VesselProps {
     return '';
   }
 
+  get widthProp(): number {
+    if (this.$refs && this.$refs.frame) {
+      const frame: Vue = this.$refs.frame as Vue;
+      const frameSize = frame.$el.getBoundingClientRect();
+      const width = Math.trunc(frameSize.width);
+      return width;
+    }
+    return 0;
+  }
+
   mounted() {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const that = this;
@@ -135,17 +145,6 @@ export default class Vessel extends VesselProps {
     //   this.width = this.getWidth();
     // });
   }
-
-  get widthProp(): number {
-    if (this.$refs && this.$refs.frame) {
-      const frame: Vue = this.$refs.frame as Vue;
-      const frameSize = frame.$el.getBoundingClientRect();
-      const width = Math.trunc(frameSize.width);
-      return width;
-    }
-    return 0;
-  }
-
 
   onResize() {
     this.width = this.widthProp;

@@ -34,6 +34,9 @@ import Component from 'vue-class-component';
 import Vue from 'vue';
 
 import SmallCard from '../../../custom/SmallCard.vue';
+import {imageChannels} from '@/utils/constants';
+import {TileModel, TileSelection} from '@/store/tiles.module';
+import {ImageChannelModel} from '@/services/imageService.api';
 
 @Component({
   components: {
@@ -41,30 +44,30 @@ import SmallCard from '../../../custom/SmallCard.vue';
   },
 })
 export default class Channel extends Vue {
-  //
-  // channels = imageChannels;
-  //
-  // private _selected: boolean[] = [];
-  //
-  // get selected(): boolean[] {
-  //   return this._selected; // todo, legacy was faking it..this should be updated from the store as well
-  // }
-  //
-  // get tilesAtSelection(): TileModel[] {
-  //   return this.$store.getters['tiles/getTilesAtSelection'];
-  // }
-  //
-  // get allChannelLabels(): number[] {
-  //   return this.$store.getters['tiles/getAllChannels']
-  //       .map((channel: ImageChannelModel) => channel.label)
-  // }
-  //
-  // onChange(channel: ImageChannelModel) {
-  //   const selectedChannels: ImageChannelModel[] = this.$store.state.tiles.selection.channels;
-  //   selectedChannels.push(channel);
-  //   const selection: Partial<TileSelection> = { channels: selectedChannels };
-  //   this.$store.commit('tiles/addSelection', selection)
-  // }
+
+  channels = imageChannels;
+
+  private _selected: boolean[] = [];
+
+  get selected(): boolean[] {
+    return this._selected; // todo, legacy was faking it..this should be updated from the store as well
+  }
+
+  get tilesAtSelection(): TileModel[] {
+    return this.$store.getters['tiles/getTilesAtSelection'];
+  }
+
+  get allChannelLabels(): number[] {
+    return this.$store.getters['tiles/getAllChannels']
+        .map((channel: ImageChannelModel) => channel.label)
+  }
+
+  onChange(channel: ImageChannelModel) {
+    const selectedChannels: ImageChannelModel[] = this.$store.state.tiles.selection.channels;
+    selectedChannels.push(channel);
+    const selection: Partial<TileSelection> = { channels: selectedChannels };
+    this.$store.commit('tiles/addSelection', selection)
+  }
 }
 </script>
 

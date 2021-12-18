@@ -5,22 +5,29 @@
     >
       <h5>Z Position</h5>
       <div>
-        <v-spacer></v-spacer>
-        <v-btn class="pa-1" height="20" color="primary" small @click="on3DView">
+        <v-spacer />
+        <v-btn
+          class="pa-1"
+          height="20"
+          color="primary"
+          small
+          @click="on3dView"
+        >
           3-D View
         </v-btn>
       </div>
     </div>
     <v-slider
-      v-model="z_value"
+      v-model="selectedZValue"
       prepend-icon="mdi-swap-vertical"
-      :min="z_min"
-      :max="z_max"
-      :readonly="z_max == 0"
+      :min="zMinIndex"
+      :max="zMaxIndex"
+      :readonly="zMaxIndex === 0"
       dense
       hide-details
-      @end="changeSelectsByZ"
-    ></v-slider>
+    />
+    <!--    @end="onChangeZValueChange"-->
+    <!--    />-->
     <!-- <v-row class="pa-0 ml-10 mr-2 my-0" justify="space-between">
       <input
         class="range-field"
@@ -40,69 +47,50 @@
   </v-card>
 </template>
 
-<script>
-import { mapState, mapGetters, mapActions } from "vuex";
+<script lang="ts">
+import Component from 'vue-class-component';
+import Vue from 'vue';
+import {TileModel} from '@/store/tiles.module';
 
-export default {
-  name: "ZPosition",
+@Component({})
+export default class ZPosition extends Vue {
 
-  components: {},
-
-  computed: {
-    ...mapGetters("files/position", {
-      filesAtRowCol: "getFilesAtRowCol"
-    }),
-    z_max() {
-      var rs = [0];
-      if (this.filesAtRowCol) {
-        for (let idx in this.filesAtRowCol) {
-          let f = this.filesAtRowCol[idx];
-          if (f.metaData) {
-            rs.push(f.metaData.z);
-          }
-        }
-        rs = Math.max(...rs);
-      }
-      return rs;
-    },
-    z_min() {
-      var rs = [0];
-      if (this.filesAtRowCol) {
-        for (let idx in this.filesAtRowCol) {
-          let f = this.filesAtRowCol[idx];
-          if (f.metaData) {
-            rs.push(f.metaData.z);
-          }
-        }
-        if (rs.length == 0) rs.push(0);
-        rs = Math.min(...rs);
-      }
-      return rs;
-    }
-  },
-
-  data: () => ({
-    z_value: 1
-  }),
-
-  created() {},
-  beforeDestroy() {},
-
-  methods: {
-    ...mapActions("files/position", {
-      changeSelectsByZ: "changeSelectsByZ"
-    }),
-    onChangeZmin: function(event) {
-      this.$forceUpdate();
-    },
-    onChangeZmax: function(event) {
-      this.$forceUpdate();
-    },
-    on3DView: function() {
-      console.log("3D View");
-    }
+  get selectedZValue(): number {
+    return this.$store.state.tiles.selection.zIndex;
   }
-};
+
+  set selectedZValue(zValue: number) {
+    this.$store.commit('tiles/addSelection', {zIndex: zValue})
+  }
+
+  get tilesAtRowAndColumnSelection(): TileModel[] {
+    return this.$store.getters['tiles/getTilesAtRowAndColumnSelection'];
+  }
+
+  get zMaxIndex(): number {
+    return this.$store.getters['tiles/getMaxZIndex'];
+  }
+
+  get zMinIndex(): number {
+    return this.$store.getters['tiles/getMinZIndex'];
+  }
+
+  // onChangeZMin() {
+  //   this.$forceUpdate();
+  // }
+  //
+  // onChangeZMax() {
+  //   this.$forceUpdate();
+  // }
+
+  // onChangeZValueChange(zValue: number) {
+  //   this.$store.commit('t')
+  // }
+
+  on3dView() {
+    console.log('3d view');
+  }
+}
 </script>
 
 <style scoped>

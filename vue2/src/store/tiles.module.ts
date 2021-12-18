@@ -89,7 +89,7 @@ export const TileStore = {
 
   getters: {
 
-    getTilesAtSelection(state: TileState): TileApiModel[] {
+    getTilesAtSelection(state: TileState): TileModel[] {
       return state.tiles.filter(tile => {
         if (state.selection.rowIndex && tile.rowIndex !== state.selection.rowIndex) {
           return false;
@@ -117,7 +117,24 @@ export const TileStore = {
       })
     },
 
-    getTilesSortedByFileName(state: TileState): TileApiModel[] {
+    getTilesAtRowAndColumnSelection(state: TileState): TileModel[] {
+      /**
+       * Returns tiles selected only by row and column, ignores all other selections
+       */
+
+      return state.tiles.filter(tile => {
+        if (state.selection.rowIndex && tile.rowIndex !== state.selection.rowIndex) {
+          return false;
+        }
+        if (state.selection.columnIndex && tile.columnIndex !== state.selection.columnIndex) {
+          return false;
+        }
+
+        return true;
+      })
+    },
+
+    getTilesSortedByFileName(state: TileState): TileModel[] {
       return state.tiles.sort((tileA, tileB) => {
         /**
          * If filenames are the same length then sort alphabetically
@@ -162,6 +179,66 @@ export const TileStore = {
 
       return [...new Set(lensObjectives)] // no duplicates
     },
+
+    getMaxZIndex(state: TileState): number {
+      const zValues: number[] = [];
+      state.tiles.forEach(tile => {
+        if (tile.zIndex) {
+          zValues.push(tile.zIndex);
+        }
+      })
+
+      if (zValues.length > 0) {
+        return Math.max(...zValues);
+      } else {
+        return 0;
+      }
+    },
+
+    getMinZIndex(state: TileState): number {
+      const zValues: number[] = [];
+      state.tiles.forEach(tile => {
+        if (tile.zIndex) {
+          zValues.push(tile.zIndex);
+        }
+      })
+      if (zValues.length > 0) {
+        return Math.min(...zValues);
+      } else {
+        return 0;
+      }
+    },
+
+    getMaxTimeIndex(state: TileState): number {
+      const timeValues: number[] = [];
+      state.tiles.forEach(tile => {
+        if (tile.timeIndex) {
+          timeValues.push(tile.timeIndex);
+        }
+      })
+
+      if (timeValues.length > 0) {
+        return Math.max(...timeValues);
+      } else {
+        return 0;
+      }
+    },
+
+    getMinTimeIndex(state: TileState): number {
+      const timeValues: number[] = [];
+      state.tiles.forEach(tile => {
+        if (tile.timeIndex) {
+          timeValues.push(tile.timeIndex);
+        }
+      })
+
+      if (timeValues.length > 0) {
+        return Math.min(...timeValues);
+      } else {
+        return 0;
+      }
+    },
+
   }, // END OF GETTERS
 
   mutations: {

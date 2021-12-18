@@ -1,14 +1,14 @@
 <template>
   <small-card title="Objective">
     <v-row class="mx-3 my-0" justify="space-around">
-      <!--      <ObjectiveButton-->
-      <!--        v-for="objective in objectives"-->
-      <!--        :key="objective.id"-->
-      <!--        :label="objective.m + 'X'"-->
-      <!--        :active="tileSelection.lensObjectiveM === objective.m"-->
-      <!--        :disabled="!allLensObjectives.includes(objective.m)"-->
-      <!--        @click="onSelect(objective)"-->
-      <!--      />-->
+      <ObjectiveButton
+        v-for="objective in objectives"
+        :key="objective.id"
+        :label="objective.m + 'X'"
+        :active="tileSelection.lensObjectiveM === objective.m"
+        :disabled="!allLensObjectives.includes(objective.m)"
+        @click="onSelect(objective)"
+      />
     </v-row>
   </small-card>
 </template>

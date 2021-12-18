@@ -47,7 +47,6 @@ export interface TileApiModel extends BaseTileApiModel {
 
 class ImageServiceApi {
 
-
     uploadTiles(files: File[], clearPrevious = false): Promise<AxiosResponse<TileApiModel[]>> {
         /**
          * Uploads the given files as tiles to the backend.

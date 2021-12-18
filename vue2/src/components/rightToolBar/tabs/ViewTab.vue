@@ -15,21 +15,21 @@
     <Vessel />
     <v-divider />
     <Objective />
+    <v-divider />
+    <Channel />
+    <v-divider />
+    <ImageAdjust />
+    <!--        &lt;!&ndash; <div v-if="seriesCount > 1">-->
     <!--    <v-divider />-->
-    <!--    <Channel />-->
-    <!--    <v-divider />-->
-    <!--    <ImageAdjust />-->
-    <!--    &lt;!&ndash; <div v-if="seriesCount > 1">-->
-    <!--      <v-divider></v-divider>-->
-    <!--      <ImageSeries />-->
-    <!--    </div> &ndash;&gt;-->
+    <!--    <ImageSeries />-->
+    <!--        </div> &ndash;&gt;-->
     <!--    <div>-->
-    <!--      <v-divider />-->
-    <!--      <ZPosition />-->
+    <v-divider />
+    <ZPosition />
     <!--    </div>-->
     <!--    <div>-->
-    <!--      <v-divider />-->
-    <!--      <Timeline />-->
+    <v-divider />
+    <Timeline />
     <!--    </div>-->
   </tab-item>
 </template>
@@ -41,22 +41,22 @@ import Vue from 'vue';
 import TabItem from '../../custom/TabItem.vue';
 import Vessel from '../../tabs/contents/viewcontrol/Vessel.vue';
 import Objective from '../../tabs/contents/viewcontrol/Objective.vue';
-// import Channel from '../../tabs/contents/viewcontrol/Channel.vue';
-// import ImageAdjust from '../../tabs/contents/viewcontrol/ImageAdjust.vue';
-// // import ImageSeries from "./contents/viewcontrol/ImageSeries.vue";
-// import ZPosition from '../../tabs/contents/viewcontrol/ZPosition.vue';
-// import Timeline from '../../tabs/contents/viewcontrol/Timeline.vue';
+import Channel from '../../tabs/contents/viewcontrol/Channel.vue';
+import ImageAdjust from '../../tabs/contents/viewcontrol/ImageAdjust.vue';
+// import ImageSeries from "./contents/viewcontrol/ImageSeries.vue";
+import ZPosition from '../../tabs/contents/viewcontrol/ZPosition.vue';
+import Timeline from '../../tabs/contents/viewcontrol/Timeline.vue';
 
 @Component({
   components: {
     TabItem,
     Vessel,
     Objective,
-    // Channel,
-    // ImageAdjust,
-    // // ImageSeries,
-    // ZPosition,
-    // Timeline
+    Channel,
+    ImageAdjust,
+    // ImageSeries,
+    ZPosition,
+    Timeline
   }
 })
 export default class ViewTab extends Vue {
