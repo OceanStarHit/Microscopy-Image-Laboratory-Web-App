@@ -45,15 +45,15 @@ class TestImagesTiles:
         assert tiles[0].height_px == 1040
 
         assert tiles[0].file_name == "img_r001_c001.tif"
-        assert tiles[0].absolute_path == str(CACHE_PATH
-                                             .joinpath(str(created_user.user.id))
-                                             .joinpath("tiles")
-                                             .joinpath(tiles[0].file_name))
+        assert tiles[0].absolute_backend_path == str(CACHE_PATH
+                                                     .joinpath(str(created_user.user.id))
+                                                     .joinpath("tiles")
+                                                     .joinpath(tiles[0].file_name))
 
         assert tiles[0].user_id == created_user.user.id
         assert tiles[0].content_type == 'image/tiff'
 
-        folder_path = Path(tiles[0].absolute_path).parent.parent
+        folder_path = Path(tiles[0].absolute_backend_path).parent.parent
 
         # manually delete the folder
         shutil.rmtree(str(folder_path))

@@ -1,65 +1,53 @@
 <template>
   <small-card title="Objective">
     <v-row class="mx-3 my-0" justify="space-around">
-      <ObjectiveButton
-        v-for="o in objectives"
-        :key="o.id"
-        :label="o.m + 'X'"
-        :active="selects.objectLense == o.m"
-        :disabled="!allOptions.includes(o.m)"
-        @click="onSelect(o)"
-      />
+      <!--      <ObjectiveButton-->
+      <!--        v-for="objective in objectives"-->
+      <!--        :key="objective.id"-->
+      <!--        :label="objective.m + 'X'"-->
+      <!--        :active="tileSelection.lensObjectiveM === objective.m"-->
+      <!--        :disabled="!allLensObjectives.includes(objective.m)"-->
+      <!--        @click="onSelect(objective)"-->
+      <!--      />-->
     </v-row>
   </small-card>
 </template>
 
-<script>
-import SmallCard from "../../../custom/SmallCard";
-import ObjectiveButton from "../../../custom/ObjectiveButton";
-import { mapState, mapGetters, mapActions } from "vuex";
-import { createNamespacedHelpers } from "vuex";
-const positionModule = createNamespacedHelpers("files/position");
+<script lang="ts">
+import Component from 'vue-class-component';
+import Vue from 'vue';
 
-export default {
-  name: "Objective",
+import SmallCard from '../../../custom/SmallCard.vue';
+import ObjectiveButton from '../../../custom/ObjectiveButton.vue';
+import {lensObjectives} from '@/utils/constants';
+import {LensObjectiveModel, TileModel, TileSelection} from '@/store/tiles.module';
 
+const ObjectiveProps = Vue.extend()
+@Component({
   components: {
     SmallCard,
     ObjectiveButton
   },
+})
+export default class Objective extends ObjectiveProps {
 
-  computed: {
-    ...mapState({
-      selects: state => state.files.position.selects
-    }),
-    ...positionModule.mapGetters({
-      filesAtRowCol: "getFilesAtRowCol"
-    }),
+  objectives = lensObjectives;
 
-    allOptions: function() {
-      let os = this.filesAtRowCol.map(file => file.metaData.objectLense);
-      os = [...new Set(os)];
-      return os;
-    }
-  },
-
-  data: () => ({
-    objectives: [
-      { id: 0, m: 4, active: true },
-      { id: 1, m: 10, active: false },
-      { id: 2, m: 20, active: false },
-      { id: 3, m: 40, active: false },
-      { id: 4, m: 100, active: false }
-    ]
-  }),
-
-  methods: {
-    ...mapActions("files/position", {
-      changeSelectsByObjectLense: "changeSelectsByObjectLense"
-    }),
-    onSelect: function(x) {
-      this.changeSelectsByObjectLense(x.m);
-    }
+  get tileSelection(): TileSelection {
+    return this.$store.state.tiles.selection;
   }
-};
+
+  get tilesAtSelection(): TileModel[] {
+    return this.$store.getters['tiles/getTilesAtSelection'];
+  }
+
+  get allLensObjectives(): number[] {
+    return this.$store.getters['tiles/getAllLensObjectives'];
+  }
+
+  onSelect(lensObjective: LensObjectiveModel) {
+    const selection: Partial<TileSelection> = { lensObjectiveM: lensObjective.m };
+    this.$store.commit('tiles/addSelection', selection)
+  }
+}
 </script>

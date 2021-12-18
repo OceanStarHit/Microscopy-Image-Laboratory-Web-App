@@ -31,7 +31,7 @@ export interface ImageState {
   wellSamples: any[];
 
   // allData: {[key: number]: any}[]; /* I have no idea what this list of objects is */
-  allData: Map<number, any>[]; /* I have no idea what this list of objects is */
+  allData: Map<number, any>[]; /* I have no idea what this list of objects is, it is used in the ViewTab */
   allDataMap: any;
   allIndice: any[];
   allIndices: any[][];

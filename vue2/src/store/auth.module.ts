@@ -5,10 +5,10 @@ import authService, {
   RegisteredModel,
   RegisterModel
 } from '@/services/authService.api';
+
 import { AxiosResponse } from 'axios';
 import { State } from '@/store/index';
 import router from '@/router';
-// import { State } from '@/store/index'
 
 export enum AuthPageEnum {
   LoginPage = 'loginPage',
@@ -69,6 +69,8 @@ export const AuthStore = {
     ...initialState
   },
   actions: {
+
+
     logIn(context: ActionContext<AuthState, State>, data: LoginModel): Promise<AxiosResponse<LoggedInModel> | void> {
       return authService
         .login(data)

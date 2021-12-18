@@ -1,17 +1,21 @@
 <template>
-  <v-dialog v-model="visibleDialog" max-width="980">
-    <simple-dialog title="Vessel Select" @select="visibleDialog = false">
+  <v-dialog v-model="isShowProp" max-width="980">
+    <simple-dialog title="Vessel Select" @select="isShowProp = false">
       <v-tabs v-model="selectedTab" fixed-tabs>
         <v-tab
           v-for="i in vesselTypes.length"
           :key="i"
           :href="`#tabs-${i}`"
           class="primary--text"
-          >{{ vesselTypes[i - 1] }}</v-tab
         >
-        <v-tab :href="`#tabs-${vesselTypes.length + 1}`" class="primary--text"
-          >Custom</v-tab
+          {{ vesselTypes[i - 1] }}
+        </v-tab>
+        <v-tab
+          :href="`#tabs-${vesselTypes.length + 1}`"
+          class="primary--text"
         >
+          Custom
+        </v-tab>
       </v-tabs>
 
       <v-tabs-items v-model="selectedTab">
@@ -27,14 +31,14 @@
               text
               class="pa-0 ma-0"
               :class="
-                vessels[v_idx - 1][i - 1].id === currentVesselId ? 'active' : ''
+                vessels[v_idx - 1][i - 1].id === currentVessel.id ? 'active' : ''
               "
               width="160"
               height="150"
               color="teal"
               @click="onSelectVessel(v_idx, i)"
             >
-              <div v-if="v_idx == 1">
+              <div v-if="v_idx === 1">
                 <slide
                   :width="140"
                   :count="vessels[v_idx - 1][i - 1].count"
@@ -44,7 +48,7 @@
                   {{ vessels[v_idx - 1][i - 1].title }}
                 </div>
               </div>
-              <div v-if="v_idx == 2">
+              <div v-if="v_idx === 2">
                 <well-plate
                   :width="140"
                   :show-name="vessels[v_idx - 1][i - 1].showName"
@@ -56,7 +60,7 @@
                   {{ vessels[v_idx - 1][i - 1].title }}
                 </div>
               </div>
-              <div v-if="v_idx == 3">
+              <div v-if="v_idx === 3">
                 <dish
                   :width="140"
                   :size="vessels[v_idx - 1][i - 1].size"
@@ -66,7 +70,7 @@
                   {{ vessels[v_idx - 1][i - 1].title }}
                 </div>
               </div>
-              <div v-if="v_idx == 4">
+              <div v-if="v_idx === 4">
                 <wafer
                   :width="140"
                   :size="vessels[v_idx - 1][i - 1].size"
@@ -80,27 +84,34 @@
           </v-row>
         </v-tab-item>
         <v-tab-item :value="`tabs-${vesselTypes.length + 1}`">
-          <v-row class="pa-5" style="height: 220px"></v-row>
+          <v-row class="pa-5" style="height: 220px" />
         </v-tab-item>
       </v-tabs-items>
     </simple-dialog>
   </v-dialog>
 </template>
 
-<script>
-import { mapGetters } from "vuex";
+<script lang="ts">
+import Component from 'vue-class-component';
+import Vue from 'vue';
 
-import SimpleDialog from "../custom/SimpleDialog";
-import Slide from "./Slides";
-import Dish from "./Dishes.vue";
-import WellPlate from "./WellPlates";
-import Wafer from "./Wafers";
+import SimpleDialog from '../custom/SimpleDialog.vue';
+import Slide from './Slides.vue';
+import Dish from './Dishes.vue';
+import WellPlate from './WellPlates.vue';
+import Wafer from './Wafers.vue';
+import {VESSEL_TYPES, VesselBaseModel, VESSELS} from '@/utils/vessel_types';
 
-import { VESSEL_TYPES, VESSELS } from "../../utils/vessel-types";
+const SelectDialogProps = Vue.extend({
+  props: {
+    isShow: {
+      type: Boolean,
+      default: false
+    }
+  }
+})
 
-export default {
-  name: "SelectDialog",
-
+@Component({
   components: {
     SimpleDialog,
     Slide,
@@ -108,43 +119,33 @@ export default {
     Wafer,
     WellPlate
   },
+})
+export default class SelectDialog extends SelectDialogProps {
+  selectedTab = null;
 
-  props: {
-    value: {
-      type: Boolean,
-      default: false
-    }
-  },
+  vesselTypes = VESSEL_TYPES;
+  vessels = VESSELS;
 
-  data: () => ({
-    vesselTypes: VESSEL_TYPES,
-    vessels: VESSELS,
-    selectedTab: null
-  }),
+  get isShowProp(): boolean {
+    return this.isShow
+  }
 
-  computed: {
-    ...mapGetters("vessel", {
-      currentVesselId: "currentVesselId"
-    }),
-    visibleDialog: {
-      get() {
-        return this.value;
-      },
-      set(val) {
-        this.$emit("input", val);
-      }
-    }
-  },
+  set isShowProp(val: boolean) {
+    this.isShow = val;
+    this.$emit('input', val);
+  }
 
-  methods: {
-    onSelectVessel: function(v_idx, idx) {
-      const vesselId = this.vessels[v_idx - 1][idx - 1].id;
-      if (this.currentVesselId !== vesselId) {
-        this.$store.dispatch("vessel/selectVessel", vesselId);
-      }
+  get currentVessel(): VesselBaseModel | null {
+    return this.$store.getters['vessel/currentVessel'];
+  }
+
+  onSelectVessel(vesselTypeIndex: number, vesselIndex: number) {
+    const vessel= VESSELS[vesselTypeIndex - 1][vesselIndex - 1];
+    if (this.currentVessel && this.currentVessel.id !== vessel.id) {
+      this.$store.dispatch('vessel/selectVessel', vessel.id);
     }
   }
-};
+}
 </script>
 
 <style scoped>

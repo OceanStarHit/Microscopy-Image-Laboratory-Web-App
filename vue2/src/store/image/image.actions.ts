@@ -1,7 +1,6 @@
 import {ImageState} from '@/store/image/image.module';
 import {ActionContext} from 'vuex';
 import {State} from '@/store';
-import {LoginModel} from '@/services/authService.api';
 import {changeParameters} from '@/store/image/image.helpers';
 
 export default {

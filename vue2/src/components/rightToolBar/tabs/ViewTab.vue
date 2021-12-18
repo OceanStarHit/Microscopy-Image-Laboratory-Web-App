@@ -3,11 +3,11 @@
     <v-row justify="center">
       <v-container class="max-width pagination">
         <v-pagination
-          v-model="curPageIdx"
+          v-model="currentPageIndex"
           class="my-4 pagination"
           total-visible="5"
           :length="allData.length"
-          @input="handlePageChange"
+          @input="onPageChange"
         />
       </v-container>
     </v-row>
@@ -15,94 +15,76 @@
     <Vessel />
     <v-divider />
     <Objective />
-    <v-divider />
-    <Channel />
-    <v-divider />
-    <ImageAdjust />
-    <!-- <div v-if="seriesCount > 1">
-      <v-divider></v-divider>
-      <ImageSeries />
-    </div> -->
-    <div>
-      <v-divider />
-      <ZPosition />
-    </div>
-    <div>
-      <v-divider />
-      <Timeline />
-    </div>
+    <!--    <v-divider />-->
+    <!--    <Channel />-->
+    <!--    <v-divider />-->
+    <!--    <ImageAdjust />-->
+    <!--    &lt;!&ndash; <div v-if="seriesCount > 1">-->
+    <!--      <v-divider></v-divider>-->
+    <!--      <ImageSeries />-->
+    <!--    </div> &ndash;&gt;-->
+    <!--    <div>-->
+    <!--      <v-divider />-->
+    <!--      <ZPosition />-->
+    <!--    </div>-->
+    <!--    <div>-->
+    <!--      <v-divider />-->
+    <!--      <Timeline />-->
+    <!--    </div>-->
   </tab-item>
 </template>
 
-<script>
-import { mapGetters, mapState } from 'vuex';
+<script lang="ts">
+import Component from 'vue-class-component';
+import Vue from 'vue';
 
-import TabItem from '../../custom/TabItem';
-import Vessel from '../../tabs/contents/viewcontrol/Vessel';
-import Objective from '../../tabs/contents/viewcontrol/Objective';
-import Channel from '../../tabs/contents/viewcontrol/Channel';
-import ImageAdjust from '../../tabs/contents/viewcontrol/ImageAdjust';
-// import ImageSeries from "./contents/viewcontrol/ImageSeries";
-import ZPosition from '../../tabs/contents/viewcontrol/ZPosition';
-import Timeline from '../../tabs/contents/viewcontrol/Timeline';
+import TabItem from '../../custom/TabItem.vue';
+import Vessel from '../../tabs/contents/viewcontrol/Vessel.vue';
+import Objective from '../../tabs/contents/viewcontrol/Objective.vue';
+// import Channel from '../../tabs/contents/viewcontrol/Channel.vue';
+// import ImageAdjust from '../../tabs/contents/viewcontrol/ImageAdjust.vue';
+// // import ImageSeries from "./contents/viewcontrol/ImageSeries.vue";
+// import ZPosition from '../../tabs/contents/viewcontrol/ZPosition.vue';
+// import Timeline from '../../tabs/contents/viewcontrol/Timeline.vue';
 
-export default {
-  name: 'ViewTab',
-
+@Component({
   components: {
     TabItem,
     Vessel,
     Objective,
-    Channel,
-    ImageAdjust,
-    // ImageSeries,
-    ZPosition,
-    Timeline
-  },
-
-  data: () => ({
-    totalPageCnt: 0,
-    curPageIdx: 0
-  }),
-
-  created() {
-    this.curPageIdxWatch = this.$store.watch(
-      (state, getters) => getters['image/currentPageIndex'],
-      res => {
-        this.curPageIdx = res;
-      }
-    );
-  },
-
-  beforeDestroy() {
-    this.curPageIdxWatch();
-  },
-
-  computed: {
-    ...mapGetters('image', {
-      seriesCount: 'seriesCount',
-      selectedImagesAtRowCol: 'selectedImagesAtRowCol'
-    }),
-    ...mapState({
-      allData: state => state.image.allData
-    }),
-    sizeZ: function() {
-      let zs = this.selectedImagesAtRowCol.map(img => img.extParams.z);
-      zs = [...new Set(zs)];
-      return zs.length;
-    },
-    sizeT: function() {
-      let ts = this.selectedImagesAtRowCol.map(img => img.extParams.timeline);
-      ts = [...new Set(ts)];
-      return ts.length;
-    }
-  },
-  methods: {
-    handlePageChange(idx) {
-      this.$store.dispatch('image/changeCurrentPage', idx);
-    }
+    // Channel,
+    // ImageAdjust,
+    // // ImageSeries,
+    // ZPosition,
+    // Timeline
   }
-};
+})
+export default class ViewTab extends Vue {
+  totalPageCount = 0;
+  curPageIndex = 0;
+
+  get currentPageIndex(): number {
+    return this.$store.state.image.currentPageIndex;
+  }
+
+  set currentPageIndex(index: number) {
+    this.$store.state.image.currentPageIndex = index;
+  }
+
+  get allData(): any {
+    return this.$store.state.image.allData;
+  }
+
+  get sizeZ(): number {
+    return this.$store.state.image.allData;
+  }
+
+  onPageChange(index: number) {
+    this.$store.dispatch('image/changeCurrentPage', index);
+  }
+
+
+}
 </script>
 
 <style scoped>

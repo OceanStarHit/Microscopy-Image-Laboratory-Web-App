@@ -12,10 +12,23 @@ class AlignMethodEnum(str, Enum):
     byColumn = "byColumn"
 
 
-class TileModelDB(BaseModel):
+class BaseTileModel(BaseModel):
+    '''
+    Minimum required information of a tile to delete it and the image data
+    '''
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     user_id: PyObjectId = Field(default_factory=PyObjectId)  # reference to the user who uploaded the tile
-    absolute_path: str
+    absolute_backend_path: str  # this is the path where the file is stored on the backend volume
+
+    class Config:
+        # this is crucial for the id to work when given a set id from a dict, also needed when using alias_generator
+        allow_population_by_field_name = True
+        json_encoders = {ObjectId: str}
+        alias_generator = to_camel
+
+
+class TileModelDB(BaseTileModel):
+    absolute_client_path: str  # this is the path where the file 'was' stored when the file was uploaded by the client, on the client computer.
     file_name: str
     content_type: str  # MIME type
     width_px: int
@@ -26,6 +39,10 @@ class TileModelDB(BaseModel):
 
     row_index: Optional[int] = 0  # created by regex of name
     column_index: Optional[int] = 0  # created by regex of name
+    z_index: Optional[int] = 0  # created by regex of name
+    time_index: Optional[int] = 0  # created by regex of name
+    field_index: Optional[int] = 0  # created by regex of name
+    lens_objective: Optional[int] = 0  # created by regex of name
     channel: Optional[str] = "not specified"
 
     class Config:

@@ -38,7 +38,7 @@
 import Component from 'vue-class-component';
 import Vue from 'vue';
 
-import {VESSELS, getVesselById, VesselBaseModel} from '@/utils/vessel-types';
+import {VESSELS, getVesselById, VesselBaseModel} from '@/utils/vessel_types';
 
 import SimpleDialog from '../custom/SimpleDialog.vue';
 import Slide from './Slides.vue';

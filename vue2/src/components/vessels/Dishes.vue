@@ -33,8 +33,6 @@ import Vue from 'vue';
 import {VESSEL_DISH_GAP, VESSEL_DISH_MAX_HEIGHT, VESSEL_DISH_MAX_SIZE, VESSEL_DISH_RATIO} from '@/utils/constants';
 import {Watch} from 'vue-property-decorator';
 
-
-
 const DishProps = Vue.extend({
   props: {
     size: {

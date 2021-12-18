@@ -132,7 +132,7 @@ async def tiles(db, created_user) -> List[TileModelDB]:
 
     yield tiles
 
-    folder_path = Path(tiles[0].absolute_path).parent.parent
+    folder_path = Path(tiles[0].absolute_backend_path).parent.parent
     shutil.rmtree(str(folder_path)) # delete the folder
 
 

@@ -1,4 +1,7 @@
 // components/vessels/slides
+import {ImageChannelModel} from '@/services/imageService.api';
+import {LensObjectiveModel} from '@/store/tiles.module';
+
 export const VESSEL_SLIDE_H_RATIO = 0.6;
 export const VESSEL_SLIDE_V_RATIO = 0.5;
 export const VESSEL_SLIDE_MAX_HEIGHT = 1000;
@@ -29,3 +32,22 @@ export const POSITION_DIALOG_STROKE_WIDTH = 8;
 // Tiling
 export const TILING_CANVAS_SIZE = 450;
 export const TILING_SCALE_OPTIONS = [0.5, 2, 5, 10, 20, 50, 100];
+
+
+export const lensObjectives: LensObjectiveModel[] = [
+    { id: 0, m: 4, isActive: true },
+    { id: 1, m: 10, isActive: false },
+    { id: 2, m: 20, isActive: false },
+    { id: 3, m: 40, isActive: false },
+    { id: 4, m: 100, isActive: false }
+]
+
+export const imageChannels: ImageChannelModel[] = [
+    { id: 0, label: 'S', color: 'black', isActive: false },
+    { id: 1, label: 'B', color: 'blue', isActive: false },
+    { id: 2, label: 'G', color: 'green', isActive: false },
+    { id: 3, label: 'R', color: 'red', isActive: false },
+    { id: 4, label: 'C', color: 'cyan', isActive: false },
+    { id: 5, label: 'Y', color: 'amber', isActive: false },
+    { id: 6, label: 'M', color: 'pink', isActive: false }
+]

@@ -1,4 +1,4 @@
-import {getVesselById, VESSELS, VesselWellPlateModel} from '@/utils/vessel-types';
+import {getVesselById, VESSELS, VesselWellPlateModel} from '@/utils/vessel_types';
 
 export interface VesselBaseModel {
   id: number;

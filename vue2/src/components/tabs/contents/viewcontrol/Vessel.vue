@@ -10,23 +10,23 @@
     </v-row>
     <slide
       v-if="currentVessel.type === 'Slide'"
-      :width="width"
+      :width="widthProp"
       :count="currentVessel.count"
     />
     <well-plate
       v-if="currentVessel.type === 'WellPlate'"
-      :width="width"
+      :width="widthProp"
       :rows="currentVessel.rows"
       :cols="currentVessel.cols"
     />
     <dish
       v-if="currentVessel.type === 'Dish'"
-      :width="width"
+      :width="widthProp"
       :size="currentVessel.size"
     />
     <wafer
       v-if="currentVessel.type === 'Wafer'"
-      :width="width"
+      :width="widthProp"
       :size="currentVessel.size"
     />
     <v-card-actions>
@@ -48,7 +48,7 @@
 import Component from 'vue-class-component';
 import Vue from 'vue';
 
-import { VESSELS, getVesselById } from '@/utils/vessel-types';
+import { VESSELS } from '@/utils/vessel_types';
 
 import CustomButton from '../../../custom/CustomButton.vue';
 import Dish from '../../../vessels/Dishes.vue';
@@ -105,20 +105,10 @@ const VesselProps = Vue.extend({
 })
 export default class Vessel extends VesselProps {
 
-  width= 0;
   selectDialog= false;
   expansionDialog= false;
   vessels= VESSELS
 
-
-
-  // currentPageDataWatch = this.$store.watch(
-  //   (state, getters) => getters['files/position/getFiles'],
-  //     files => {
-  //     if (files && files.length > 0) {
-  //     this.$store.dispatch('vessel/setVesselId', files);
-  //   }
-  // }
 
   get currentVessel(): VesselBaseModel | null {
     return this.$store.getters['vessel/currentVessel'];
@@ -136,7 +126,7 @@ export default class Vessel extends VesselProps {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const that = this;
     const hd = setInterval(function(){
-      that.width = that.getWidth();
+      that.width = that.widthProp;
       if (that.width != 0) {
         clearInterval(hd);
       }
@@ -146,22 +136,19 @@ export default class Vessel extends VesselProps {
     // });
   }
 
-  getWidth() {
-    if (this.$refs) {
-      if (this.$refs && this.$refs.frame) {
-        const frame: Vue = this.$refs.frame as Vue;
-        const frameSize = frame.$el.getBoundingClientRect();
-        const width = Math.trunc(frameSize.width);
-        return width;
-      }
-
+  get widthProp(): number {
+    if (this.$refs && this.$refs.frame) {
+      const frame: Vue = this.$refs.frame as Vue;
+      const frameSize = frame.$el.getBoundingClientRect();
+      const width = Math.trunc(frameSize.width);
+      return width;
     }
-
     return 0;
   }
 
+
   onResize() {
-    this.width = this.getWidth();
+    this.width = this.widthProp;
   }
 
   select2() {

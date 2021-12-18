@@ -1,82 +1,71 @@
 <template>
   <small-card title="Channels">
     <v-row class="mx-3 my-0" justify="space-around">
-      <div v-for="c in channels" :key="c.id" class="channel-box text-center">
-        <v-checkbox
-          v-model="selected"
-          style="margin-top: -12px"
-          dense
-          hide-details
-          :class="c.color + '--text'"
-          :value="c.label"
-          :color="c.color"
-          :disabled="!channelOptions.includes(c.label)"
-          @change="onChange"
-        ></v-checkbox>
-        <div
-          class="caption font-weight-medium"
-          :class="c.color + '--text'"
-          style="margin-top: -5px"
-        >
-          {{ c.label }}
-        </div>
-      </div>
+      <!--      <div-->
+      <!--        v-for="channel in channels"-->
+      <!--        :key="channel.id"-->
+      <!--        class="channel-box text-center"-->
+      <!--      >-->
+      <!--        <v-checkbox-->
+      <!--          v-model="selected"-->
+      <!--          style="margin-top: -12px"-->
+      <!--          dense-->
+      <!--          hide-details-->
+      <!--          :class="channel.color + '&#45;&#45;text'"-->
+      <!--          :value="channel.label"-->
+      <!--          :color="channel.color"-->
+      <!--          :disabled="!allChannelLabels.includes(channel.label)"-->
+      <!--          @change="onChange(channel)"-->
+      <!--        />-->
+      <!--        <div-->
+      <!--          class="caption font-weight-medium"-->
+      <!--          :class="channel.color + '&#45;&#45;text'"-->
+      <!--          style="margin-top: -5px"-->
+      <!--        >-->
+      <!--          {{ c.label }}-->
+      <!--        </div>-->
+      <!--      </div>-->
     </v-row>
   </small-card>
 </template>
 
-<script>
-import { mapGetters, mapState } from "vuex";
+<script lang="ts">
+import Component from 'vue-class-component';
+import Vue from 'vue';
 
-import SmallCard from "../../../custom/SmallCard";
-import { createNamespacedHelpers } from "vuex";
-const positionModule = createNamespacedHelpers("files/position");
+import SmallCard from '../../../custom/SmallCard.vue';
 
-export default {
-  name: "Channel",
-
-  components: { SmallCard },
-
-  created: function() {
-    this.unwatchFiles = this.$store.watch(
-      (state, getters) => getters["files/position/getFiles"],
-      files => {
-        this.selected = this.channelOptions;
-      }
-    );
+@Component({
+  components: {
+    SmallCard,
   },
-  beforeDestroy: function() {
-    this.unwatchFiles();
-  },
-  data: () => ({
-    selected: [],
-    channels: [
-      { id: 0, label: "S", color: "black", disabled: false },
-      { id: 1, label: "B", color: "blue", disabled: false },
-      { id: 2, label: "G", color: "green", disabled: false },
-      { id: 3, label: "R", color: "red", disabled: false },
-      { id: 4, label: "C", color: "cyan", disabled: false },
-      { id: 5, label: "Y", color: "amber", disabled: false },
-      { id: 6, label: "M", color: "pink", disabled: false }
-    ]
-  }),
-
-  computed: {
-    ...positionModule.mapGetters({
-      files: "getFiles",
-      channelOptions: "getChannelOptions"
-    })
-  },
-
-  methods: {
-    ...positionModule.mapActions({
-      changeSelectsByChannels: "changeSelectsByChannels"
-    }),
-    onChange: function() {
-      this.changeSelectsByChannels(this.selected);
-    }
-  }
-};
+})
+export default class Channel extends Vue {
+  //
+  // channels = imageChannels;
+  //
+  // private _selected: boolean[] = [];
+  //
+  // get selected(): boolean[] {
+  //   return this._selected; // todo, legacy was faking it..this should be updated from the store as well
+  // }
+  //
+  // get tilesAtSelection(): TileModel[] {
+  //   return this.$store.getters['tiles/getTilesAtSelection'];
+  // }
+  //
+  // get allChannelLabels(): number[] {
+  //   return this.$store.getters['tiles/getAllChannels']
+  //       .map((channel: ImageChannelModel) => channel.label)
+  // }
+  //
+  // onChange(channel: ImageChannelModel) {
+  //   const selectedChannels: ImageChannelModel[] = this.$store.state.tiles.selection.channels;
+  //   selectedChannels.push(channel);
+  //   const selection: Partial<TileSelection> = { channels: selectedChannels };
+  //   this.$store.commit('tiles/addSelection', selection)
+  // }
+}
 </script>
 
 <style scoped>
