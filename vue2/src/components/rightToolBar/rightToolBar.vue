@@ -57,7 +57,7 @@ import SettingsTab from '@/components/rightToolBar/tabs/SettingsTab.vue';
     SettingsTab
   }
 })
-export default class LeftToolBarComponent extends Vue {
+export default class RightToolBarComponent extends Vue {
   get height(): number {
     return this.$store.state.view.windowSize.heightPx;
   }

@@ -1,6 +1,10 @@
 <template>
   <div style="display: none">
-    <input id="uploadFile" type="file" @change="requestUploadFile" />
+    <input
+      id="uploadFile"
+      type="file"
+      @change="requestUploadFile"
+    >
     <v-dialog v-model="visibleDialog" max-width="980">
       <simple-dialog
         title="File"
@@ -17,8 +21,14 @@
           @dragleave.prevent="dragLeave"
           @drop.prevent="drop($event)"
         >
-          <v-btn class="d-block text-none" color="primary" text>
-            <v-icon class="mr-3"> mdi-folder </v-icon>
+          <v-btn
+            class="d-block text-none"
+            color="primary"
+            text
+          >
+            <v-icon class="mr-3">
+              mdi-folder
+            </v-icon>
             Use f for closed files
           </v-btn>
           <v-btn
@@ -27,7 +37,9 @@
             text
             @click="openFile"
           >
-            <v-icon class="mr-3"> mdi-folder-open </v-icon>
+            <v-icon class="mr-3">
+              mdi-folder-open
+            </v-icon>
             Use F for opened files
           </v-btn>
           <div class="d-flex align-center justify-center" style="height: 250px">
@@ -41,8 +53,8 @@
                   imageURL.startsWith('data:')
                     ? {}
                     : {
-                        border: '1px solid grey'
-                      }
+                      border: '1px solid grey'
+                    }
                 "
                 max-width="150"
                 width="150"
@@ -62,13 +74,13 @@
 
 <script>
 // import { mapGetters } from "vuex";
-import tiff from "tiff.js";
-import atob from "atob";
+import tiff from 'tiff.js';
+import atob from 'atob';
 
-import SimpleDialog from "../../../custom/SimpleDialog";
+import SimpleDialog from '../custom/SimpleDialog';
 
 export default {
-  name: "OpenFileDialog",
+  name: 'OpenFileDialog',
 
   components: { SimpleDialog },
 
@@ -91,7 +103,7 @@ export default {
         return this.value;
       },
       set(val) {
-        this.$emit("input", val);
+        this.$emit('input', val);
       }
     },
     getClasses() {
@@ -100,17 +112,17 @@ export default {
     imageURL() {
       return this.imageData
         ? this.imageData
-        : require("../../../../assets/images/no-preview.png");
+        : require('../../assets/images/no-preview.png');
     }
   },
 
   created() {
     this.newResWatch = this.$store.watch(
-      (state, getters) => getters["image/newRes"],
+      (state, getters) => getters['image/newRes'],
       res => {
         const filteredData = [];
-        for (var key in res) {
-          if (key == "file_0" && res[key]) {
+        for (const key in res) {
+          if (key == 'file_0' && res[key]) {
             filteredData.push({
               filename: this.newFile.name,
               metadata: res[key]
@@ -120,7 +132,7 @@ export default {
         }
 
         if (filteredData.length > 0) {
-          this.$store.dispatch("image/addData", filteredData);
+          this.$store.dispatch('image/addData', filteredData);
         }
 
         this.newFile = null;
@@ -135,16 +147,16 @@ export default {
 
   methods: {
     base64ToArrayBuffer(base64) {
-      var binary_string = atob(base64);
-      var len = binary_string.length;
-      var bytes = new Uint8Array(len);
-      for (var i = 0; i < len; i++) {
+      const binary_string = atob(base64);
+      const len = binary_string.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
         bytes[i] = binary_string.charCodeAt(i);
       }
       return bytes.buffer;
     },
     openFile() {
-      this.$el.querySelector("#uploadFile").click();
+      this.$el.querySelector('#uploadFile').click();
     },
     dragOver() {
       this.isDragging = true;
@@ -158,7 +170,7 @@ export default {
       // const entry = e.dataTransfer.items[0].webkitGetAsEntry();
       // alert(entry.fullPath);
 
-      const fileInput = this.$el.querySelector("#uploadFile");
+      const fileInput = this.$el.querySelector('#uploadFile');
       fileInput.files = e.dataTransfer.files;
 
       this.requestUploadFile();
@@ -166,7 +178,7 @@ export default {
       e.preventDefault();
     },
     requestUploadFile() {
-      const fileInput = this.$el.querySelector("#uploadFile");
+      const fileInput = this.$el.querySelector('#uploadFile');
 
       if (fileInput.files && fileInput.files.length > 0) {
         this.newFile = fileInput.files[0];
@@ -174,13 +186,13 @@ export default {
 
         if (
           this.newFile &&
-          this.newFile.type.startsWith("image/") &&
+          this.newFile.type.startsWith('image/') &&
           this.newFile.size < 2 * 1024 * 1024
         ) {
-          var self = this;
+          const self = this;
           const reader = new FileReader();
           reader.onload = function() {
-            if (self.newFile.type.startsWith("image/tif")) {
+            if (self.newFile.type.startsWith('image/tif')) {
               const buffer = self.base64ToArrayBuffer(
                 reader.result.substring(23)
               );
@@ -199,9 +211,9 @@ export default {
       this.visibleDialog = false;
 
       if (this.newFile) {
-        var formData = new FormData();
-        formData.append("file_0", this.newFile);
-        this.$store.dispatch("image/setNewFiles", formData);
+        const formData = new FormData();
+        formData.append('file_0', this.newFile);
+        this.$store.dispatch('image/setNewFiles', formData);
       }
     },
 

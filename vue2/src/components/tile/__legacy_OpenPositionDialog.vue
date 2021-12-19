@@ -307,7 +307,7 @@ import Tiling from './Tiling.vue';
 let createNewPage = true;
 
 export default {
-  name: 'OpenPositionDialog',
+  name: 'LegacyOpenPositionDialog',
 
   components: {
     Tiling,
@@ -781,7 +781,7 @@ export default {
             });
           }
         });
-        self.isLoading = false;
+        self.loading = false;
       } else if (item.isDirectory) {
         //   enumerateDirectory(item).then(entries => {
         //     entries = entries.sort(function(a, b) {

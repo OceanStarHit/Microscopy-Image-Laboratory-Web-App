@@ -12,6 +12,16 @@ export interface ImageParameters {
   objective: number;
 }
 
+export interface ImageObjectiveModel {
+  calibratedMagnification: number;
+  nominalMagnification: number;
+}
+
+export interface ImageInfo {
+
+}
+
+
 export interface ImageState {
 
   isLoading: boolean;

@@ -28,12 +28,12 @@
       <!--      />-->
       <!--      <open-folder-dialog v-model="folderDialog" />-->
 
-      <!--      <custom-button-->
-      <!--        icon="dots-grid"-->
-      <!--        label="Position"-->
-      <!--        @click="positionDialog = true"-->
-      <!--      />-->
-      <!--      <open-position-dialog v-model="positionDialog" />-->
+      <custom-button
+        icon="dots-grid"
+        label="Position"
+        @click="positionDialog = true"
+      />
+      <tile-position-dialog v-model="positionDialog" />
     </small-card>
     <v-divider class="my-2" />
 
@@ -125,10 +125,10 @@ import TabItem from '../../custom/TabItem.vue';
 import SmallCard from '../../custom/SmallCard';
 import CustomButton from '../../custom/CustomButton';
 
-import OpenCloudDialog from '../../tabs/contents/file/OpenCloudDialog';
+import OpenCloudDialog from '../../tile/OpenCloudDialog';
+import TilePositionDialog from '@/components/tile/tilePositionDialog/TilePositionDialog';
 // import OpenFileDialog from '../../tabs/contents/file/OpenFileDialog';
 // import OpenFolderDialog from '../../tabs/contents/file/OpenFolderDialog';
-// import OpenPositionDialog from '../../tabs/contents/file/OpenPositionDialog';
 
 export default {
   name: 'FileTab',
@@ -140,7 +140,7 @@ export default {
     OpenCloudDialog,
     // OpenFileDialog,
     // OpenFolderDialog,
-    // OpenPositionDialog
+    TilePositionDialog
   },
 
   data: () => ({

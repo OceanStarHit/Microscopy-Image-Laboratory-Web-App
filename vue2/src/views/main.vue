@@ -86,6 +86,9 @@ import windowSizeService from '@/services/windowSizeService';
   },
 })
 export default class MainComponent extends Vue {
+  /** importing windowService would be enough but making it a variable here just to clearly show that is being used.
+   * It needs to be started and kept running throughout the lifetime of the app to allow it to update the window size state.*/
+  __keep_me_running = windowSizeService;
 
 }
 </script>

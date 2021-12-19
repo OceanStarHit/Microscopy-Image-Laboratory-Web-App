@@ -1,34 +1,34 @@
 <template>
   <tab-item title="View">
     <Vessel />
-    <v-divider></v-divider>
+    <v-divider />
     <Objective />
-    <v-divider></v-divider>
+    <v-divider />
     <Channel />
     <div>
-      <v-divider></v-divider>
+      <v-divider />
       <ZPosition />
     </div>
     <div>
-      <v-divider></v-divider>
+      <v-divider />
       <Timeline />
     </div>
   </tab-item>
 </template>
 
 <script>
-import { mapGetters, mapState } from "vuex";
+import { mapGetters, mapState } from 'vuex';
 
-import TabItem from "../../../custom/TabItem";
-import Vessel from "../../contents/viewcontrol/Vessel";
-import Objective from "../../contents/viewcontrol/Objective";
-import Channel from "../../contents/viewcontrol/Channel";
+import TabItem from '../custom/TabItem';
+import Vessel from '../tabs/contents/viewcontrol/Vessel';
+import Objective from '../tabs/contents/viewcontrol/Objective';
+import Channel from '../tabs/contents/viewcontrol/Channel';
 // import ImageSeries from "./contents/viewcontrol/ImageSeries";
-import ZPosition from "../../contents/viewcontrol/ZPosition";
-import Timeline from "../../contents/viewcontrol/Timeline";
+import ZPosition from '../tabs/contents/viewcontrol/ZPosition';
+import Timeline from '../tabs/contents/viewcontrol/Timeline';
 
 export default {
-  name: "OpenPositionViewTab",
+  name: 'OpenPositionViewTab',
 
   components: {
     TabItem,
@@ -46,7 +46,7 @@ export default {
 
   created() {
     this.curPageIdxWatch = this.$store.watch(
-      (state, getters) => getters["image/currentPageIndex"],
+      (state, getters) => getters['image/currentPageIndex'],
       res => {
         this.curPageIdx = res;
       }
@@ -58,9 +58,9 @@ export default {
   },
 
   computed: {
-    ...mapGetters("image", {
-      seriesCount: "seriesCount",
-      selectedImagesAtRowCol: "selectedImagesAtRowCol"
+    ...mapGetters('image', {
+      seriesCount: 'seriesCount',
+      selectedImagesAtRowCol: 'selectedImagesAtRowCol'
     }),
     ...mapState({
       allData: state => state.image.allData

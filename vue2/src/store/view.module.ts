@@ -1,14 +1,7 @@
 import { ActionContext } from 'vuex';
-import authService, {
-  LoggedInModel,
-  LoginModel,
-  RegisteredModel,
-  RegisterModel
-} from '@/services/authService.api';
-import { AxiosResponse } from 'axios';
+
 import { State } from '@/store/index';
 import {WindowSize} from '@/services/windowSizeService';
-// import { State } from '@/store/index'
 
 
 export interface ViewState {

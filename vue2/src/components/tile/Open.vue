@@ -1,27 +1,39 @@
 <template>
   <small-card title="Open">
-    <input id="uploadFile" type="file" @change="requestUploadFile" />
+    <input
+      id="uploadFile"
+      type="file"
+      @change="requestUploadFile"
+    >
     <custom-button
       icon="cloud-download-outline"
       label="Cloud"
       @click="onCloud"
     />
-    <custom-button icon="email-newsletter" label="File" @click="onFile" />
+    <custom-button
+      icon="email-newsletter"
+      label="File"
+      @click="onFile"
+    />
     <custom-button
       icon="folder-open-outline"
       label="Folder"
       @click="onFolder"
     />
-    <custom-button icon="dots-grid" label="Position" @click="onPosition" />
+    <custom-button
+      icon="dots-grid"
+      label="Position"
+      @click="onPosition"
+    />
   </small-card>
 </template>
 
 <script>
-import SmallCard from "../../../custom/SmallCard";
-import CustomButton from "../../../custom/CustomButton";
+import SmallCard from '../custom/SmallCard';
+import CustomButton from '../custom/CustomButton';
 
 export default {
-  name: "Open",
+  name: 'Open',
 
   components: {
     SmallCard,
@@ -36,16 +48,16 @@ export default {
 
   methods: {
     onCloud: function() {
-      console.log("Cloud");
+      console.log('Cloud');
     },
     onFile: function() {
-      this.$el.querySelector("#uploadFile").click();
+      this.$el.querySelector('#uploadFile').click();
     },
     onFolder: function() {
-      console.log("Folder");
+      console.log('Folder');
     },
     onPosition: function() {
-      console.log("Position");
+      console.log('Position');
     }
   }
 };

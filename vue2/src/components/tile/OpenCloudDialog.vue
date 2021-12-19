@@ -8,13 +8,17 @@
       @close="visibleDialog = false"
     >
       <div class="d-flex my-2 mx-10">
-        <h2 class="mr-2 mt-4">Experiment name</h2>
+        <h2 class="mr-2 mt-4">
+          Experiment name
+        </h2>
         <v-text-field
           v-model="experimentName"
-        ></v-text-field>
+        />
       </div>
-      <div class ="my-2 mx-10">
-        <h3 class="mr-2 mt-4">select date</h3>
+      <div class="my-2 mx-10">
+        <h3 class="mr-2 mt-4">
+          select date
+        </h3>
         <v-treeview
           v-model="tree"
           :open="initiallyOpen"
@@ -52,8 +56,7 @@
         height="300"
         class="mx-auto my-4"
         src="https://picsum.photos/id/11/500/300"
-      >
-      </v-img>
+      />
     </simple-dialog>
   </v-dialog>
 </template>
@@ -61,10 +64,10 @@
 <script>
 // import { mapGetters } from "vuex";
 
-import SimpleDialog from "../../../custom/SimpleDialog";
+import SimpleDialog from '../custom/SimpleDialog';
 
 export default {
-  name: "OpenCloudDialog",
+  name: 'OpenCloudDialog',
 
   components: { SimpleDialog },
 
@@ -76,60 +79,60 @@ export default {
 
     newSelect: {
       type: String,
-      default: "Select date"
+      default: 'Select date'
     },
 
     newUpload: {
       type: String,
-      default: "Upload"
+      default: 'Upload'
     }
   },
 
   data: () => ({
-    initiallyOpen: ["public"],
+    initiallyOpen: ['public'],
     files: {
-      image: "mdi-file-image",
-      other: "mdi-file-document-outline"
+      image: 'mdi-file-image',
+      other: 'mdi-file-document-outline'
     },
     tree: [],
     items: [
       {
-        name: "name holder 2020-01-22",
+        name: 'name holder 2020-01-22',
         children: [
           {
-            name: "gradient-512x512x10.tif",
-            file: "image"
+            name: 'gradient-512x512x10.tif',
+            file: 'image'
           },
           {
-            name: "MR-MONO2-8-16x-heart.dcm",
-            file: "other"
+            name: 'MR-MONO2-8-16x-heart.dcm',
+            file: 'other'
           }
         ]
       },
       {
-        name: "name holder 2019-05-17",
+        name: 'name holder 2019-05-17',
         children: [
           {
-            name: "20041103 1049_01_REF-1049-03 - EvoTec_0_H5_0.png",
-            file: "image"
+            name: '20041103 1049_01_REF-1049-03 - EvoTec_0_H5_0.png',
+            file: 'image'
           },
           {
-            name: "SmallMontage0008.tif",
-            file: "image"
+            name: 'SmallMontage0008.tif',
+            file: 'image'
           }
         ]
       },
       {
-        name: "name holder 2018-04-11",
+        name: 'name holder 2018-04-11',
         children: [
           {
-            name: "Convallaria_3C_1T_confocal.ims",
-            file: "other"
+            name: 'Convallaria_3C_1T_confocal.ims',
+            file: 'other'
           },
           {
             name:
-              "170912-FISH-Hela cell FISH-DAPI-GFP-TxRed-4735-40X FL OIL.tif",
-            file: "image"
+              '170912-FISH-Hela cell FISH-DAPI-GFP-TxRed-4735-40X FL OIL.tif',
+            file: 'image'
           }
         ]
       }
@@ -143,7 +146,7 @@ export default {
         return this.value;
       },
       set(val) {
-        this.$emit("input", val);
+        this.$emit('input', val);
       }
     },
   },

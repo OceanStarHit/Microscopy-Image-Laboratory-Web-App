@@ -9,6 +9,7 @@ import {ToolBarViewState, ToolBarViewStore} from '@/store/toolBar.view.module';
 import {ImageState, ImageStore} from '@/store/image/image.module';
 import {VesselState, VesselStore} from '@/store/vessel.module';
 import {TileState, TileStore} from '@/store/tiles.module';
+import {TilePositionDialogViewState, TilePositionDialogViewStore} from '@/store/tilePositionDialog.view.module';
 
 Vue.use(Vuex);
 
@@ -19,6 +20,7 @@ export interface State {
   image: ImageState;
   vessel: VesselState;
   tiles: TileState;
+  tilePositionDialogView: TilePositionDialogViewState;
 }
 
 export default new Vuex.Store<State>({
@@ -29,6 +31,7 @@ export default new Vuex.Store<State>({
     image: ImageStore,
     vessel: VesselStore,
     tiles: TileStore,
+    tilePositionDialogView: TilePositionDialogViewStore,
   }
 });
 

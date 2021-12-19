@@ -1,4 +1,3 @@
-import store from '@/store'
 import {Route} from 'vue-router';
 import authService from '@/services/authService.api';
 
