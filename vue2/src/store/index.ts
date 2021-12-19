@@ -20,7 +20,7 @@ export interface State {
   image: ImageState;
   vessel: VesselState;
   tiles: TileState;
-  tilePositionDialogView: TilePositionDialogViewState;
+  // tilePositionDialogView: TilePositionDialogViewState;
 }
 
 export default new Vuex.Store<State>({
@@ -31,7 +31,7 @@ export default new Vuex.Store<State>({
     image: ImageStore,
     vessel: VesselStore,
     tiles: TileStore,
-    tilePositionDialogView: TilePositionDialogViewStore,
+    // tilePositionDialogView: TilePositionDialogViewStore,
   }
 });
 

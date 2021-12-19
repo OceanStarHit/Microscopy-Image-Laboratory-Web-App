@@ -2,6 +2,7 @@ import {ActionContext} from 'vuex';
 import {State} from '@/store/index';
 import imageServiceApi, {ImageChannelModel, TileApiModel} from '@/services/imageService.api';
 import {AxiosResponse} from 'axios';
+import {TilePositionDialogViewStore} from '@/store/tilePositionDialog.view.module';
 /**
  * Tile Store
  *
@@ -69,6 +70,10 @@ export const TileStore = {
   namespaced: true,
   state: {
     ...initialState
+  },
+
+  modules: {
+    view: TilePositionDialogViewStore,
   },
 
   actions: {

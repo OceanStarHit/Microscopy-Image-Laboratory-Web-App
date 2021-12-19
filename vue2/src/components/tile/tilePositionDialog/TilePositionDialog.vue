@@ -310,7 +310,7 @@ export default class TilePositionDialog extends TilePositionDialogProps {
   }
 
   get selectedDefaultTile(): TileModel {
-    return this.$store.state.tilePositionDialogView.selectedDefaultTile;
+    return this.$store.state.tile.view.selectedDefaultTile;
   }
 
   get calculatedClass() {
@@ -318,15 +318,15 @@ export default class TilePositionDialog extends TilePositionDialogProps {
   }
 
   get backgroundText(): string {
-    return this.$store.state.tilePositionDialogView.backgroundText;
+    return this.$store.state.tile.view.backgroundText;
   }
 
   get progressBarPercentage(): number {
-    return this.$store.state.tilePositionDialogView.progressBarPercentage;
+    return this.$store.state.tile.view.progressBarPercentage;
   }
 
   set progressBarPercentage(value: number) {
-    this.$store.state.tilePositionDialogView.progressBarPercentage = value;
+    this.$store.state.tile.view.progressBarPercentage = value;
   }
 
   get filePatternHTMLString(): string {

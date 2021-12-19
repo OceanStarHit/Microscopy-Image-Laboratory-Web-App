@@ -78,15 +78,15 @@ export default class TilePositionFileDragArea extends Vue {
   }
 
   get backgroundText(): string {
-    return this.$store.state.tilePositionDialogView.backgroundText;
+    return this.$store.state.tile.view.backgroundText;
   }
 
   get progressBarPercentage(): number {
-    return this.$store.state.tilePositionDialogView.progressBarPercentage;
+    return this.$store.state.tile.view.progressBarPercentage;
   }
 
   set progressBarPercentage(value: number) {
-    this.$store.state.tilePositionDialogView.progressBarPercentage = value;
+    this.$store.state.tile.view.progressBarPercentage = value;
   }
 
   /* METHODS */
@@ -105,14 +105,18 @@ export default class TilePositionFileDragArea extends Vue {
      *
      * Add files to store, which in turn will upload them to the api and add them to the local store.
      */
-    console.log(event);
-    //
-    // this.isDragging = false;
-    // event.preventDefault();
+
+    this.isDragging = false;
+    this.$store.commit('tiles/view/setIsLoading', true);
+    event.preventDefault();
     //
     // this.allFiles = [];
     // this.clearFiles();
-    // const items = e.dataTransfer.items;
+    const files: FileList = event.dataTransfer.files;
+    const foo = event.dataTransfer.items;
+
+    console.log(event);
+
     //
     // this.progressBarValue = 0;
     // this.progressBarMaxValue = 0;

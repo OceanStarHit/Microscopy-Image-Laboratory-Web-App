@@ -33,6 +33,7 @@ export const TilePositionDialogViewStore = {
 
   mutations: {
 
+
     setIsLoading(state: TilePositionDialogViewState, isLoading: boolean) {
       state.isLoading = isLoading;
       state.backgroundText = state.isLoading ? 'Loading...' : 'Drag and drop files or a folder'
