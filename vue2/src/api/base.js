@@ -1,5 +1,5 @@
 import axios from 'axios';
-import store from '../__legacy_vuex';
+import store from '../legacy_vuex';
 
 export const BASE_API_URL = 'http://127.0.0.1:8000/';
 // export const BASE_API_URL = "api:8000/apis/";
