@@ -1,6 +1,7 @@
 import { api } from "./base";
 
 export const login = params => {
+  console.log(params);
   const formData = new FormData();
   formData.append("username", params.email); // email is username
   formData.append("password", params.password);

@@ -18,7 +18,6 @@ async def save_upload_file(upload_file: UploadFile, destination: Path, chunk_siz
 
 
 async def add_image_tiles(files: List[UploadFile],
-                          absolute_client_path: str,
                           clear_previous: bool,
                           current_user: UserModelDB or ShowUserModel,
                           db: AsyncIOMotorDatabase) -> List[TileModelDB]:
@@ -31,7 +30,6 @@ async def add_image_tiles(files: List[UploadFile],
     cache_path = get_user_cache_path(user_id=str(current_user.id), directory="tiles")  # get and create tile cache
 
     if clear_previous:
-        # TODO add deletion of files from cache here as well
         clear_path(cache_path)  # clear any previous tiles
         await db['tile-image-cache'].delete_many({'user_id': current_user.id})  # deletes the database entries
 

@@ -19,7 +19,7 @@
           <v-tab href="#tabs-tiling" class="primary--text">Tiling</v-tab>
           <v-tab href="#tabs-metadata" class="primary--text">Metadata</v-tab>
           <v-tab href="#tabs-name-type" class="primary--text"
-            >Names &amp; Files</v-tab
+            >Names &amp; Types</v-tab
           >
         </v-tabs>
 
@@ -72,8 +72,7 @@
               </v-row>
             </v-sheet>
           </v-tab-item>
-          <!--          <v-tab-item value="tabs-tiling" class="v-tab-item" eager>-->
-          <v-tab-item value="tabs-tiling" class="v-tab-item">
+          <v-tab-item value="tabs-tiling" class="v-tab-item" eager>
             <Tiling
               @set-progress-max="setProgressMax"
               @set-progress-current="setProgressCurrent"
@@ -236,7 +235,7 @@
         <v-card-actions>
           <v-progress-linear
             :style="{
-              visibility: progressBarPercent < 100 ? 'visible' : 'hidden'
+              visibility: progressBarPercent < 100 ? 'visible' : 'hidden',
             }"
             color="light-blue"
             height="10"
@@ -273,7 +272,7 @@ import {
   checkFileType,
   enumerateDirectory,
   isOverlapped,
-  loadImage
+  loadImage,
 } from "../../../../utils/utils-func";
 
 import * as api from "../../../../api/tiles";
@@ -284,9 +283,10 @@ import OpenCloudDialog from "./OpenCloudDialog";
 
 const positionModule = createNamespacedHelpers("files/position");
 import { mapGetters, mapState } from "vuex";
-import { getPosition, getSeries } from "@/vuex/modules/files";
+import { getPosition, getSeries } from "../../../../vuex/modules/files";
 // import OpenPositionViewTab from "./OpenPositionViewTab";
 import Tiling from "./Tiling.vue";
+import { setAuthToken } from "../../../../api/auth";
 
 var createNewPage = true;
 
@@ -295,14 +295,13 @@ export default {
 
   components: {
     Tiling,
-    OpenCloudDialog
   },
 
   props: {
     value: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data: () => ({
     // ctxHeight,
@@ -323,7 +322,7 @@ export default {
       "Shading",
       "Display",
       "Result",
-      "Option"
+      "Option",
     ],
     tilingAlignButtons: [
       "Cascade",
@@ -331,7 +330,7 @@ export default {
       "Height Increasing",
       "By XYZ",
       "By Columns",
-      "By Rows"
+      "By Rows",
     ],
     tilingAlignDirections: ["Clockwise", "Counter-Clockwise"],
 
@@ -340,11 +339,11 @@ export default {
       preview: null,
       activeMenuItem: 0,
       bonding: {
-        activeadsorption: -1
+        activeadsorption: -1,
       },
       edit: {
         activeFileItem: -1,
-        oldFileItem: -1
+        oldFileItem: -1,
       },
       alignment: {
         activeMode: 5,
@@ -365,7 +364,7 @@ export default {
             txtCols: true,
             txtBorder: false,
             txtGapX: true,
-            txtGapY: true
+            txtGapY: true,
           },
           {
             chkLR: true,
@@ -375,7 +374,7 @@ export default {
             txtCols: true,
             txtBorder: false,
             txtGapX: false,
-            txtGapY: false
+            txtGapY: false,
           },
           {
             chkLR: true,
@@ -385,7 +384,7 @@ export default {
             txtCols: true,
             txtBorder: false,
             txtGapX: false,
-            txtGapY: false
+            txtGapY: false,
           },
           {
             chkLR: false,
@@ -395,7 +394,7 @@ export default {
             txtCols: false,
             txtBorder: false,
             txtGapX: false,
-            txtGapY: false
+            txtGapY: false,
           },
           {
             chkLR: false,
@@ -405,7 +404,7 @@ export default {
             txtCols: true,
             txtBorder: false,
             txtGapX: false,
-            txtGapY: false
+            txtGapY: false,
           },
           {
             chkLR: false,
@@ -415,10 +414,10 @@ export default {
             txtCols: false,
             txtBorder: false,
             txtGapX: false,
-            txtGapY: false
-          }
-        ]
-      }
+            txtGapY: false,
+          },
+        ],
+      },
     },
     // all data
     allFiles: [],
@@ -448,10 +447,10 @@ export default {
       { text: "SizeT", value: "size_t", sortable: false },
       { text: "SizeX", value: "size_x", sortable: false },
       { text: "SizeY", value: "size_y", sortable: false },
-      { text: "SizeZ", value: "size_z", sortable: false }
+      { text: "SizeZ", value: "size_z", sortable: false },
     ],
 
-    // Names & Files Tab
+    // Names & Types Tab
     curNameIdx: -1,
     searchNameType: "",
     selectedNameContents: [],
@@ -459,7 +458,7 @@ export default {
     selectionRange: {
       text: "",
       startOffset: -1,
-      endOffset: -1
+      endOffset: -1,
     },
     namePatterns: [
       { label: "Series", text: "", start: 0, end: 17, color: "success" },
@@ -468,7 +467,7 @@ export default {
       { label: "Field", text: "", start: 27, end: 30, color: "warning" },
       { label: "Channel", text: "", start: 30, end: 32, color: "purple" },
       { label: "Z Position", text: "", start: 22, end: 23, color: "blue-grey" },
-      { label: "Time Point", text: "", start: 18, end: 21, color: "error" }
+      { label: "Time Point", text: "", start: 18, end: 21, color: "error" },
     ],
     nameTypeTableHeaders: [
       { text: "No", value: "no" },
@@ -479,23 +478,23 @@ export default {
       { text: "Field", value: "field" },
       { text: "Channel", value: "channel" },
       { text: "Z Position", value: "z" },
-      { text: "Time Point", value: "timeline" }
+      { text: "Time Point", value: "timeline" },
     ],
     progressBarValue: 0,
     progressBarMaxValue: 0,
-    luminance: 0.0
+    luminance: 0.0,
   }),
 
   mutations: {
     setProgressBarValue(state, v) {
       state.progressBarValue = v;
-    }
+    },
   },
 
   created() {
     this.filesWatch = this.$store.watch(
       (state, getters) => getters["files/position/getFiles"],
-      async files => {
+      async (files) => {
         if (files.length) {
           this.selectedFileName = files[0].name;
         }
@@ -504,11 +503,11 @@ export default {
 
     this.newResWatch = this.$store.watch(
       (state, getters) => getters["image/newRes"],
-      res => {
+      (res) => {
         let filteredData = new Map();
         const payload = {
           files: filteredData,
-          appendToCurrentPage: false
+          appendToCurrentPage: false,
         };
 
         payload.appendToCurrentPage = !createNewPage;
@@ -527,7 +526,7 @@ export default {
               col: p.col,
               z: p.z,
               timeline: p.timeline,
-              objective: 4
+              objective: 4,
             };
 
             let metadata = res[key];
@@ -549,7 +548,7 @@ export default {
             filteredData.set(idx, {
               filename: fileName,
               metadata: res[key],
-              extParams: extParams
+              extParams: extParams,
             });
           }
         }
@@ -572,10 +571,10 @@ export default {
     ...positionModule.mapGetters({
       files: "getFiles",
       filesSortByField: "getFilesSortByField",
-      channelOptions: "getChannelOptions"
+      channelOptions: "getChannelOptions",
     }),
     ...mapState({
-      authToken: state => state.auth.token
+      authToken: (state) => state.auth.token,
     }),
     visibleDialog: {
       get() {
@@ -583,7 +582,7 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      }
+      },
     },
 
     getClasses() {
@@ -596,7 +595,7 @@ export default {
 
     fileNames() {
       let filename_array = [];
-      this.files.forEach(file => {
+      this.files.forEach((file) => {
         filename_array.push(file.name);
       });
 
@@ -610,8 +609,8 @@ export default {
         str = "";
 
       const patterns = this.namePatterns
-        .filter(n => n.start > -1)
-        .map(n => Object.assign({}, n));
+        .filter((n) => n.start > -1)
+        .map((n) => Object.assign({}, n));
       for (var i = 0; i < patterns.length; i++) {
         for (var j = i + 1; j < patterns.length; j++) {
           if (patterns[i].start > patterns[j].start) {
@@ -638,11 +637,11 @@ export default {
     },
 
     canUpdate() {
-      return this.namePatterns.filter(n => n.start > -1).length > 0;
+      return this.namePatterns.filter((n) => n.start > -1).length > 0;
     },
 
     canClear() {
-      return this.namePatterns.filter(n => n.start > -1).length > 0;
+      return this.namePatterns.filter((n) => n.start > -1).length > 0;
     },
 
     nameTypeTableContents() {
@@ -656,12 +655,12 @@ export default {
             contents.push({
               no: contents.length + 1,
               filename: file.name,
-              ...p
+              ...p,
             });
           } else {
             contents.push({
               no: contents.length + 1,
-              filename: file.name
+              filename: file.name,
             });
           }
         }
@@ -682,7 +681,7 @@ export default {
           size_t: "",
           size_x: "",
           size_y: "",
-          size_z: ""
+          size_z: "",
         });
       });
       return contents;
@@ -693,7 +692,7 @@ export default {
         return (100 * this.progressBarValue) / this.progressBarMaxValue;
       }
       return 100;
-    }
+    },
   },
 
   methods: {
@@ -708,7 +707,7 @@ export default {
       "changeSelectsByObjectLense",
       "changeSelectsByZ",
       "changeSelectsByTimeline",
-      "changeSelectsByChannels"
+      "changeSelectsByChannels",
     ]),
 
     // Drag&Drop files or folder
@@ -741,7 +740,7 @@ export default {
               //   thiz.progressBarValue + " / " + thiz.progressBarMaxValue
               // );
               // console.log(thiz.allFiles);
-              api.uploadImageTiles(thiz.allFiles);
+              api.batchCreateTiles(thiz.allFiles);
             }
           });
         }
@@ -761,7 +760,7 @@ export default {
             self.allFiles.push(file);
             self.addFile({
               file: file,
-              doneCB: doneCB
+              doneCB: doneCB,
             });
           }
         });
@@ -871,12 +870,7 @@ export default {
           if (startOffset > -1 && endOffset > -1) {
             const patterns = this.namePatterns.filter(n => n.start > -1);
             for (var i = 0; i < patterns.length; i++) {
-              if (
-                isOverlapped(
-                  [patterns[i].start, patterns[i].end],
-                  [startOffset, endOffset]
-                )
-              ) {
+              if (isOverlapped([patterns[i].start, patterns[i].end], [startOffset, endOffset])) {
                 break;
               }
               if (i === patterns.length) {
@@ -1001,14 +995,14 @@ export default {
         if (key) {
           this.setNamePattern({
             key: key,
-            pos: [this.namePatterns[i].start, this.namePatterns[i].end]
+            pos: [this.namePatterns[i].start, this.namePatterns[i].end],
           });
         }
       }
       if (fileName) {
         this.setNamePattern({
           key: "totalLen",
-          pos: fileName.length
+          pos: fileName.length,
         });
       }
     },
@@ -1036,21 +1030,21 @@ export default {
             z: p.z,
             timeline: p.timeline,
             channel: p.channel,
-            objectLense: 4 // The default object lense for name & type
+            objectLense: 4, // The default object lense for name & type
           },
           doneCB: function() {
             thiz.progressBarValue++;
             console.log(
               thiz.progressBarValue + " / " + thiz.progressBarMaxValue
             );
-          }
+          },
         });
       }
       if (this.allFiles.length > 0) {
         let defaultSelected = this.files[0];
         this.changeSelectsByRowCol({
           row: defaultSelected.metaData.row,
-          col: defaultSelected.metaData.col
+          col: defaultSelected.metaData.col,
         });
         this.changeSelectsByObjectLense(defaultSelected.metaData.objectLense);
         this.changeSelectsByZ(defaultSelected.metaData.z);
@@ -1092,7 +1086,7 @@ export default {
 
     // clear
     clearNameType() {
-      this.namePatterns.forEach(pattern => {
+      this.namePatterns.forEach((pattern) => {
         pattern.start = -1;
         pattern.end = -1;
         pattern.text = "";
@@ -1107,7 +1101,7 @@ export default {
         field: this.getPatternValue(3, filename),
         viewMethod: this.getPatternValue(4, filename),
         zPosition: this.getPatternValue(5, filename),
-        timepoint: this.getPatternValue(6, filename)
+        timepoint: this.getPatternValue(6, filename),
       };
     },
 
@@ -1124,8 +1118,8 @@ export default {
     },
     setProgressCurrent(currValue) {
       this.progressBarValue = currValue;
-    }
-  }
+    },
+  },
 };
 </script>
 
