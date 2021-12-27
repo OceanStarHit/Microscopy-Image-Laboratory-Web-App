@@ -43,7 +43,10 @@ router = APIRouter(
              response_description="Add new user",
              response_model=CreateUserReplyModel,
              status_code=status.HTTP_201_CREATED)
+
+
 async def register(user: CreateUserModel, db: AsyncIOMotorDatabase = Depends(get_database)) -> CreateUserReplyModel:
+    print("Here is token cheking process!")
     return await create_user(user, db)
 
 

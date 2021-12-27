@@ -3,14 +3,24 @@ from fastapi import (
 )
 from starlette.middleware.cors import CORSMiddleware
 
+import os
 from mainApi.app.auth.routers import router as auth_router
 from mainApi.app.db.mongodb_utils import connect_to_mongo, close_mongo_connection
 from mainApi.app.images.routers import router as image_router
 from mainApi.config import ALLOWED_HOSTS
-
+from fastapi.staticfiles import StaticFiles
 # from mainApi.config import connect_db, close_db
+# from mainApi.app.images.utils import file
 
 app = FastAPI(title='IAS Project')
+
+script_dir = os.path.dirname(__file__)
+st_abs_file_path = os.path.join(script_dir, "static/")
+def get_value():
+    global st_abs_file_path
+    return st_abs_file_path
+print(st_abs_file_path)
+app.mount("/static", StaticFiles(directory=st_abs_file_path), name="static")
 
 if not ALLOWED_HOSTS:
     ALLOWED_HOSTS = ["*"]
@@ -44,6 +54,10 @@ async def _test(request: str = None):
     else:
         return "Pass any string as 'request' query parameter and it will return it. ex. /test/?request=foo"
 
+@app.get("/")
+def read_root():
+    return {"Ping": "Pong"}
+
 app.include_router(test_router)
 #
 # # ================ Authentication Middleware =======================
@@ -64,7 +78,7 @@ app.include_router(test_router)
 #                 request.state.user = await authenticate_user(username, password)
 #         except (ValueError, UnicodeDecodeError, binascii.Error):
 #             raise HTTPException(
-#                 status_code=status.HTTP_401_UNAUTHORIZED,
+#                 status_code=status.HTTP_401_UND,
 #                 detail="Invalid basic auth credentials"
 #             )
 #

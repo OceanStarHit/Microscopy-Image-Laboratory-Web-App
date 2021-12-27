@@ -1,8 +1,0 @@
-# vue
-dist
-node_modules
-templates
-static
-.env.production
-package-lock.json
-yarn.lock
