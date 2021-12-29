@@ -83,10 +83,10 @@ export default {
 </script>
 
 <style scoped>
-.pagenation {
+.pagination {
   padding: 0px !important;
 }
-.pagenation >>> button {
+.pagination >>> button {
   width: 24px;
   height: 24px;
   min-width: 24px;

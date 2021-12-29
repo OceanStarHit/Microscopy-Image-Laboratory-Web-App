@@ -1,10 +1,10 @@
 <template>
   <tab-item title="View">
     <v-row justify="center">
-      <v-container class="max-width pagenation">
+      <v-container class="max-width pagination">
         <v-pagination
           v-model="curPageIdx"
-          class="my-4 pagenation"
+          class="my-4 pagination"
           total-visible="5"
           :length="allData.length"
           @input="handlePageChange"
@@ -106,10 +106,10 @@ export default {
 </script>
 
 <style scoped>
-.pagenation {
+.pagination {
   padding: 0px !important;
 }
-.pagenation >>> button {
+.pagination >>> button {
   width: 24px;
   height: 24px;
   min-width: 24px;

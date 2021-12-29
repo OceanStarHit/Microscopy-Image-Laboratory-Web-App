@@ -1,14 +1,11 @@
 import { api } from "./base";
 
 export const login = params => {
-  console.log(params);
   const formData = new FormData();
   formData.append("username", params.email); // email is username
   formData.append("password", params.password);
   formData.append("otp", params.otp);
-  return api.post("auth/login", formData, {
-    headers: { "Content-Type": "application/x-www-form-urlencoded" }
-  });
+  return api.post("auth/login", formData);
 };
 
 // export const logout = params => {

@@ -1,12 +1,12 @@
 <template>
   <div>
-    <v-app v-if="!isShowAuthPage">
+    <v-app v-if="isShowAuthPage">
       <v-main>
         <AuthPage />
       </v-main>
     </v-app>
 
-    <v-app v-else-if="isShowAuthPage">
+    <v-app v-else-if="!isShowAuthPage">
       <v-app-bar app dark>
         <v-toolbar dark flat>
           <v-app-bar-nav-icon></v-app-bar-nav-icon>
