@@ -5,10 +5,12 @@
       <v-col cols="2">
         <v-container
           class="px-3 py-0 auto-scroll d-flex flex-column justify-space-between"
-          :style="{ height: windowHeight + 'px' }"
+          :style="{
+            height: windowHeight + 'px'
+          }"
         >
           <div>
-            <v-tabs v-model="selectedTabLeft" class="margin: 0;" grow>
+            <v-tabs v-model="selectedTab1" class="margin: 0;" grow>
               <v-tab href="#tabs-1-1" class="primary--text">
                 <v-icon>mdi-school</v-icon>
               </v-tab>
@@ -26,7 +28,7 @@
               </v-tab>
             </v-tabs>
 
-            <v-tabs-items v-model="selectedTabLeft">
+            <v-tabs-items v-model="selectedTab1">
               <v-tab-item value="tabs-1-1">
                 <DLMLTab />
               </v-tab-item>
@@ -72,7 +74,7 @@
             height: windowHeight + 'px'
           }"
         >
-          <v-tabs v-model="selectedTabRight" grow>
+          <v-tabs v-model="selectedTab2" grow>
             <v-tab href="#tabs-2-1" class="primary--text">
               <v-icon>mdi-microscope</v-icon>
             </v-tab>
@@ -82,7 +84,7 @@
             </v-tab>
 
             <v-tab href="#tabs-2-3" class="primary--text">
-              <v-icon>mdi-poll</v-icon>
+              <v-icon>mdi-poll-box</v-icon>
             </v-tab>
 
             <v-tab href="#tabs-2-4" class="primary--text">
@@ -90,7 +92,7 @@
             </v-tab>
           </v-tabs>
 
-          <v-tabs-items v-model="selectedTabRight">
+          <v-tabs-items v-model="selectedTab2">
             <v-tab-item value="tabs-2-1">
               <ViewTab />
             </v-tab-item>
@@ -108,7 +110,7 @@
       </v-col>
     </v-row>
 
-    <!-- <loading
+    <loading
       :active.sync="loading_count_gt_zero"
       :can-cancel="false"
       :is-full-page="true"
@@ -139,7 +141,7 @@
         ></v-progress-circular>
         <div class="title mt-4 teal--text">Loading...</div>
       </v-container>
-    </loading> -->
+    </loading>
   </v-container>
 </template>
 
@@ -162,7 +164,7 @@ export default {
   name: "MainFrame",
 
   components: {
-    // Loading,
+    Loading,
 
     ImageViewer,
     DLMLTab,
@@ -178,8 +180,8 @@ export default {
   data() {
     var self = this;
     return {
-      selectedTabLeft: "tabs-left-4",
-      selectedTabRight: null,
+      selectedTab1: "tabs-1-4",
+      selectedTab2: null,
       windowHeight: self.getWindowHeight()
     };
   },
@@ -214,20 +216,14 @@ export default {
 
   methods: {
     getWindowHeight: function() {
-      return window.innerHeight - 64;
-      // try {
-      //   return (
-      // if (document.getElementsByTagName("header")[0]) {
-      //   window.innerHeight -
-      //   parseInt(document.getElementsByTagName("header")[0].style.height);
-      // } else {
-      //   return window.innerHeight;
-      // }
-
-      //   );
-      // } catch (err) {
-      //   return window.innerHeight - 64;
-      // }
+      try {
+        return (
+          window.innerHeight -
+          parseInt(document.getElementsByTagName("header")[0].style.height)
+        );
+      } catch (err) {
+        return window.innerHeight - 64;
+      }
     }
   }
 };

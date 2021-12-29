@@ -1,8 +1,11 @@
 import { api, BASE_API_URL } from "./base";
 import axios from "axios";
 
+
+
 export const listTiles = (success, failed) => {
-  api.get("image/tile/list")
+  let c = client();
+  c.get("tiles/")
     .then(function(response) {
       success(response);
     })
@@ -11,9 +14,14 @@ export const listTiles = (success, failed) => {
     });
 };
 
-export const alignTiles = (rows, method, success, fail) => {
+export const alignTiles = (row, method, success, fail) => {
+  let c = client();
 
-  api.post("image/tile/align_tiles_naive", {method: method, rows: rows})
+  const formData = new FormData();
+  formData.append("method", method);
+  formData.append("row", row);
+
+  c.post("tiles/align/", formData)
     .then(function(response) {
       console.log("align success callback");
       if (success) {
@@ -22,13 +30,13 @@ export const alignTiles = (rows, method, success, fail) => {
     })
     .catch(function(error) {
       console.log("align failed callback");
-      if (fail) {
-        fail(error);
-      }
+      fail(error);
     });
 };
 
-export const uploadImageTiles = files => {
+export const batchCreateTiles = files => {
+  let c = client();
+  c.defaults.headers["Content-Type"] = "multipart/form-data";
 
   const formData = new FormData();
   for (let i in files) {
@@ -36,29 +44,30 @@ export const uploadImageTiles = files => {
     let f = files[i];
     formData.append("files", f);
   }
-
-  return api.post("image/tile/upload_image_tiles", formData, {
-    headers: { "Content-Type": "multipart/form-data" }
+  return c.post("tiles/batch_create/", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
   });
 };
 
 export const exportTiles = (success, fail) => {
-  // axios({
-  //   url: BASE_API_URL + "tiles/export/",
-  //   method: "GET",
-  //   responseType: "blob",
-  //   headers: {
-  //     Authorization: "Token " + sessionStorage.getItem("authToken")
-  //   }
-  // })
-  //   .then(response => {
-  //     success(response);
-  //   })
-  //   .catch(function(error) {
-  //     console.log("export failed callback");
-  //     console.log(error);
-  //     if (fail) {
-  //       fail(error);
-  //     }
-  //   });
+  axios({
+    url: BASE_API_URL + "tiles/export/",
+    method: "GET",
+    responseType: "blob",
+    headers: {
+      Authorization: "Token " + sessionStorage.getItem("authToken")
+    }
+  })
+    .then(response => {
+      success(response);
+    })
+    .catch(function(error) {
+      console.log("export failed callback");
+      console.log(error);
+      if (fail) {
+        fail(error);
+      }
+    });
 };

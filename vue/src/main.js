@@ -1,11 +1,6 @@
 import Vue from "vue";
 import App from "./App.vue";
-
-
-// const vuetify = require("@/plugins/vuetify");
-// const store = require("@/vuex");
-
-import vuetify from "@/plugins/vuetify";
+import vuetify from "./plugins/vuetify";
 import store from "./vuex";
 import message from "./plugins/message";
 

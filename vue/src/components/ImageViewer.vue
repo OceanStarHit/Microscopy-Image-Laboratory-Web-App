@@ -1,14 +1,18 @@
 <template>
   <v-container class="pa-0" style="width: 100%; height: 100%" fluid>
     <div
+      id="openseadragon"
+      class="drop"
+      :class="getClasses"
       style="width: 100%; height: 100%"
-    >
-    <!-- <img v-bind:src="'data:image/png;base64,'+imageUri" style="width:100%;height:100%;"> -->
-    <img src="http://localhost:8000/static/scan_Top%20Slide_D_p00_0_A01f322d4.JPG/static/scan_Top Slide_D_p00_0_A01f322d4.JPG" style="width:100%;height:100%;">
-    </div>
+      @dragover.prevent="dragOver"
+      @dragleave.prevent="dragLeave"
+      @drop.prevent="drop($event)"
+    ></div>
     <p>{{ demoPic ? demoPic.name : "No pic" }}</p>
   </v-container>
 </template>
+
 <script>
 /* eslint-disable no-unused-vars */
 import OpenSeadragon from "openseadragon";
@@ -46,12 +50,6 @@ export default {
     },
     getClasses() {
       return { isDragging: this.isDragging };
-    },
-    imageUri() {
-      console.log("Here is imageUri function");
-      var image_src = btoa(unescape(encodeURIComponent(this.$store.state.image.imageUri)));
-      console.log(image_src);
-      return image_src;
     }
   },
 
@@ -73,7 +71,6 @@ export default {
         }
       }
     );
-
   },
   beforeDestroy() {
     this.imageDataWatch();
