@@ -155,9 +155,6 @@ export default {
     drop(e) {
       this.isDragging = false;
 
-      // const entry = e.dataTransfer.items[0].webkitGetAsEntry();
-      // alert(entry.fullPath);
-
       const fileInput = this.$el.querySelector("#uploadFile");
       fileInput.files = e.dataTransfer.files;
 
