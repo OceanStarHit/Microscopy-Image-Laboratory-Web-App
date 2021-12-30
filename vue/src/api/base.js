@@ -8,7 +8,7 @@ export const BASE_API_URL = "http://127.0.0.1:8000/";
 export const api = axios.create({
   baseURL: BASE_API_URL,
   headers: {
-    // "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": "*",
     "X-Requested-With": "XMLHttpRequest",
     Accept: "application/json",
     "Content-Type": "application/json"

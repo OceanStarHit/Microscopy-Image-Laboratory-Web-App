@@ -108,7 +108,7 @@
       </v-col>
     </v-row>
 
-    <loading
+    <!-- <loading
       :active.sync="loading_count_gt_zero"
       :can-cancel="false"
       :is-full-page="true"
@@ -139,7 +139,7 @@
         ></v-progress-circular>
         <div class="title mt-4 teal--text">Loading...</div>
       </v-container>
-    </loading>
+    </loading> -->
   </v-container>
 </template>
 
@@ -162,7 +162,7 @@ export default {
   name: "MainFrame",
 
   components: {
-    Loading,
+    // Loading,
 
     ImageViewer,
     DLMLTab,

@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 from starlette.datastructures import CommaSeparatedStrings
-
+STATIC_PATH = Path(os.path.join(os.path.dirname(__file__), "app/static/"))
 IMAGE_PATH = Path('/image-storage')
 CACHE_PATH = Path('/cache-storage')
 

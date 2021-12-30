@@ -64,7 +64,7 @@
 // import { mapGetters } from "vuex";
 import tiff from "tiff.js";
 import atob from "atob";
-
+import axios from 'axios';
 import SimpleDialog from "../../../custom/SimpleDialog";
 
 export default {
@@ -155,9 +155,6 @@ export default {
     drop(e) {
       this.isDragging = false;
 
-      // const entry = e.dataTransfer.items[0].webkitGetAsEntry();
-      // alert(entry.fullPath);
-
       const fileInput = this.$el.querySelector("#uploadFile");
       fileInput.files = e.dataTransfer.files;
 
@@ -200,8 +197,9 @@ export default {
 
       if (this.newFile) {
         var formData = new FormData();
-        formData.append("file_0", this.newFile);
-        this.$store.dispatch("image/setNewFiles", formData);
+        var baseURL="http://127.0.0.1:8000"
+        formData.append("files", this.newFile);
+        this.$store.dispatch("image/setNewFiles", formData); 
       }
     },
 

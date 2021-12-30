@@ -1,24 +1,24 @@
 from pathlib import Path
 from typing import List
-
+import os
 import PIL
 from fastapi import UploadFile
 import aiofiles
 from motor.motor_asyncio import AsyncIOMotorDatabase
-
 from mainApi.app.auth.models.user import UserModelDB, PyObjectId, ShowUserModel
 from mainApi.app.images.sub_routers.tile.models import TileModelDB
 from mainApi.app.images.utils.folder import get_user_cache_path, clear_path
-
-
+from mainApi.app import main
+from mainApi.config import STATIC_PATH
 async def save_upload_file(upload_file: UploadFile, destination: Path, chunk_size: int = 1024) -> None:
     async with aiofiles.open(destination, 'wb') as out_file:
         while content := await upload_file.read(chunk_size):  # async read chunk
             await out_file.write(content)  # async write chunk
 
 
+
+
 async def add_image_tiles(files: List[UploadFile],
-                          absolute_client_path: str,
                           clear_previous: bool,
                           current_user: UserModelDB or ShowUserModel,
                           db: AsyncIOMotorDatabase) -> List[TileModelDB]:
@@ -28,18 +28,21 @@ async def add_image_tiles(files: List[UploadFile],
     Front end should include a validator that checks if the file has already been uploaded and then reject it.
     No validation is done in the backend
     """
-    cache_path = get_user_cache_path(user_id=str(current_user.id), directory="tiles")  # get and create tile cache
-
+    # cache_path = get_user_cache_path(user_id=str(current_user.id), directory="tiles")  # get and create tile cache
+    # script_dir = os.path.dirname(__file__)
+    # cache_path = Path(os.path.join(script_dir, "static/"))
+    cache_path = STATIC_PATH
+    if not os.path.exists(cache_path):
+        os.makedirs(cache_path)
     if clear_previous:
-        # TODO add deletion of files from cache here as well
         clear_path(cache_path)  # clear any previous tiles
         await db['tile-image-cache'].delete_many({'user_id': current_user.id})  # deletes the database entries
 
     tiles: List[TileModelDB] = []
-
     for file in files:
         file_path = cache_path.joinpath(file.filename)
-
+        # file_path = "/app/mainApi/app/static/"
+        print(file_path)
         await save_upload_file(upload_file=file, destination=file_path)  # saves file to cache
 
         width_px, height_px = PIL.Image.open(file.file).size
@@ -56,5 +59,5 @@ async def add_image_tiles(files: List[UploadFile],
         tiles.append(tile)
 
     await db['tile-image-cache'].insert_many([t.dict(exclude={'id'}) for t in tiles])
-
-    return tiles
+    path = tiles[0].absolute_path
+    return path

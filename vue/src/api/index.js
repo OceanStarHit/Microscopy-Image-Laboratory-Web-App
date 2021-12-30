@@ -12,7 +12,8 @@ export const setImage = params => {
 };
 
 export const setMetadata = params => {
-  return api.post("set-metadata", params);
+  console.log(params)
+  return api.post("/image/tile/upload_image_tiles", params);
 };
 
 export const changeImage = params => {

@@ -59,7 +59,6 @@
 </template>
 
 <script>
-// import { mapGetters } from "vuex";
 
 import SimpleDialog from "../../../custom/SimpleDialog";
 
@@ -106,19 +105,7 @@ export default {
           }
         ]
       },
-      {
-        name: "name holder 2019-05-17",
-        children: [
-          {
-            name: "20041103 1049_01_REF-1049-03 - EvoTec_0_H5_0.png",
-            file: "image"
-          },
-          {
-            name: "SmallMontage0008.tif",
-            file: "image"
-          }
-        ]
-      },
+      
       {
         name: "name holder 2018-04-11",
         children: [

@@ -2,6 +2,7 @@
 // import { of } from "core-js/core/array";
 import * as API from "../../api";
 import "./files";
+// const OPEN_DIALOG_IMAGE_SRC;
 
 const DEFAULT_PARAMS = {
   Z: 1,
@@ -18,7 +19,7 @@ const state = () => ({
   loading: false,
   loading_count: 0,
   loading_count_max: 0,
-
+  imageUri: null,
 
   coreMetadata: null,
   originMetadata: null,
@@ -53,6 +54,9 @@ const getters = {
       url: state.imageData,
       isNew: state.isNew
     };
+  },
+  getImageUri: (state) => {
+    return state.imageUri;
   },
   currentPageData: (state, getters) => state.allData[state.curPageIdx - 1],
   newRes: (state, getters) => state.newRes,
@@ -248,13 +252,10 @@ const actions = {
   setNewFiles({ commit, state }, formData) {
     // if (state.loading) return;
     commit("incLoadingCount");
-
     API.setMetadata(formData)
       .then(response => {
-        commit("setNewResponse", response);
-
-        commit("decLoadingCount");
-        console.log("loading count:" + state.loading_count);
+        console.log(response)
+        state.imageUri = response.data;
       })
       .catch(error => {
         commit("decLoadingCount");
@@ -373,6 +374,10 @@ const mutations = {
   incLoadingCount(state, data) {
     state.loading_count++;
     state.loading_count_max = state.loading_count;
+  },
+
+  setImageUrl(state, data) {
+    state.imageUri = data.uri;
   },
 
   decLoadingCount(state, data) {
