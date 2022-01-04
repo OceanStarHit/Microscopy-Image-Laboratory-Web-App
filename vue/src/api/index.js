@@ -12,7 +12,7 @@ export const setImage = params => {
 };
 
 export const setMetadata = params => {
-  console.log(params)
+  console.log(params);
   return api.post("/image/tile/upload_image_tiles", params);
 };
 

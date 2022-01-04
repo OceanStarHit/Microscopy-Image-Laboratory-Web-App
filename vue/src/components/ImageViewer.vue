@@ -1,10 +1,15 @@
 <template>
   <v-container class="pa-0" style="width: 100%; height: 100%" fluid>
-    <div
-      style="width: 100%; height: 100%"
-    >
-    <!-- <img v-bind:src="'data:image/png;base64,'+imageUri" style="width:100%;height:100%;"> -->
-    <img src="http://localhost:8000/static/scan_Top%20Slide_D_p00_0_A01f322d4.JPG/static/scan_Top Slide_D_p00_0_A01f322d4.JPG" style="width:100%;height:100%;">
+    <div style="width: 100%; height: 100%">
+      <!-- <img v-bind:src="'data:image/png;base64,'+imageUri" style="width:100%;height:100%;"> -->
+      <!-- <img
+        src="scan_Top Slide_D_p00_0_A01f322d4.JPG"
+        style="width:100%;height:100%;"
+      /> -->
+      <img
+        src="http://localhost:8000/static/scan_Top Slide_D_p00_0_A01f322d4.JPG"
+        style="width:100%; height:100%;"
+      />
     </div>
     <p>{{ demoPic ? demoPic.name : "No pic" }}</p>
   </v-container>
@@ -12,11 +17,11 @@
 <script>
 /* eslint-disable no-unused-vars */
 import OpenSeadragon from "openseadragon";
-import config from "../../vue.config";
+// import config from "../../vue.config";
 import { mapState, mapGetters, mapActions } from "vuex";
 import { createNamespacedHelpers } from "vuex";
 const positionModule = createNamespacedHelpers("files/position");
-var path = require("path");
+// var path = require("path");
 
 export default {
   name: "ImageViewer",
@@ -49,7 +54,9 @@ export default {
     },
     imageUri() {
       console.log("Here is imageUri function");
-      var image_src = btoa(unescape(encodeURIComponent(this.$store.state.image.imageUri)));
+      var image_src = btoa(
+        unescape(encodeURIComponent(this.$store.state.image.imageUri))
+      );
       console.log(image_src);
       return image_src;
     }
@@ -73,7 +80,6 @@ export default {
         }
       }
     );
-
   },
   beforeDestroy() {
     this.imageDataWatch();

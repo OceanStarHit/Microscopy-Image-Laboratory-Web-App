@@ -35,7 +35,7 @@
 
 <script>
 // import { mapGetters, mapActions } from 'vuex'
-import * as API from "../../api/auth";
+// import * as API from "../../api/auth";
 import { mapState } from "vuex";
 
 export default {

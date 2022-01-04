@@ -9,7 +9,6 @@
       label-position="left"
       :validate-on-rule-change="false"
     >
-
       <div class="title-container">
         <h3 class="title">{{ "Login" }}</h3>
       </div>
@@ -65,7 +64,6 @@
 </template>
 
 <script>
-
 export default {
   name: "LoginPage",
   components: {},
@@ -93,7 +91,7 @@ export default {
             trigger: "blur",
             message: "otp"
           }
-        ],
+        ]
       },
       loading: false
     };
