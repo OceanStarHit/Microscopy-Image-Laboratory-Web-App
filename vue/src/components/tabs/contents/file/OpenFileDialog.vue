@@ -155,6 +155,9 @@ export default {
     drop(e) {
       this.isDragging = false;
 
+      // const entry = e.dataTransfer.items[0].webkitGetAsEntry();
+      // alert(entry.fullPath);
+
       const fileInput = this.$el.querySelector("#uploadFile");
       fileInput.files = e.dataTransfer.files;
 
@@ -197,9 +200,9 @@ export default {
 
       if (this.newFile) {
         var formData = new FormData();
-        var baseURL="http://127.0.0.1:8000"
         formData.append("files", this.newFile);
-        this.$store.dispatch("image/setNewFiles", formData); 
+        var image_obj = this.$store.dispatch("image/setNewFiles", formData);
+        console.log(image_obj);
       }
     },
 

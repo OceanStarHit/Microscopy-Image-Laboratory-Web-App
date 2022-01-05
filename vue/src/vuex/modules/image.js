@@ -19,7 +19,7 @@ const state = () => ({
   loading: false,
   loading_count: 0,
   loading_count_max: 0,
-  imageUri: null,
+  imageUri: [],
 
   coreMetadata: null,
   originMetadata: null,
@@ -254,8 +254,9 @@ const actions = {
     commit("incLoadingCount");
     API.setMetadata(formData)
       .then(response => {
-        console.log(response)
-        state.imageUri = response.data;
+        // var list_name = response.data.path_images;
+        state.imageUri = response.data.path_images;
+        return response;
       })
       .catch(error => {
         commit("decLoadingCount");
@@ -263,6 +264,18 @@ const actions = {
 
         console.log(error);
       });
+  },
+
+  convol2D({ commit, state }, formData) {
+      commit("incLoadingCount");
+      API.sendImageFile(formData)
+      .then(response => {
+        console.log(response)
+        state.imageUri = response.data.path;
+      })
+      .catch(error => {
+        console.log("Occure error when 2D convolution");
+      })
   },
 
   changeImage({ commit, state }, imageId) {

@@ -19,7 +19,6 @@ st_abs_file_path = os.path.join(script_dir, "static/")
 def get_value():
     global st_abs_file_path
     return st_abs_file_path
-print(st_abs_file_path)
 app.mount("/static", StaticFiles(directory=st_abs_file_path), name="static")
 
 if not ALLOWED_HOSTS:

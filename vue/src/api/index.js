@@ -12,9 +12,14 @@ export const setImage = params => {
 };
 
 export const setMetadata = params => {
-  console.log(params);
+  console.log(params)
   return api.post("/image/tile/upload_image_tiles", params);
 };
+
+export const sendImageFile = params => {
+  console.log(params);
+  return api.post("/image/tile/convol2D", params);
+}
 
 export const changeImage = params => {
   return api.post("change-image", params);
