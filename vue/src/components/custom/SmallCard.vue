@@ -19,7 +19,16 @@
 export default {
   name: "SmallCard",
 
-  props: ["title", "child"],
+  props: {
+    title: {
+      type: String,
+      default: ""
+    },
+    child: {
+      type: Object,
+      default() {}
+    }
+  },
 
   data: () => ({})
 };

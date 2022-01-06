@@ -2,9 +2,9 @@
   <v-container class="px-0 py-1">
     <v-card outlined>
       <div class="px-3 py-2 blue lighten-5">
-        <span class="subtitle-1 font-weight-medium primary--text">{{
-          title
-        }}</span>
+        <span class="subtitle-1 font-weight-medium primary--text">
+          {{ title }}
+        </span>
         <div class="button-group">
           <v-btn
             v-if="buttons"
@@ -30,7 +30,16 @@
 export default {
   name: "TabItem",
 
-  props: ["title", "buttons"],
+  props: {
+    title: {
+      type: String,
+      default: ""
+    },
+    buttons: {
+      type: Object,
+      default() {}
+    }
+  },
 
   data: () => ({}),
 

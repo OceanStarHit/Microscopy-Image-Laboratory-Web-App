@@ -25,8 +25,6 @@ api.interceptors.request.use(request => {
       store.state.auth.tokenType + " " + store.state.auth.token;
     request.headers["Content-Type"] = "application/json";
   }
-  
-  //
   // if (sessionStorage.getItem("authToken")) {
   //   request.headers["Authorization"] =
   //     sessionStorage.getItem("authTokenType") +

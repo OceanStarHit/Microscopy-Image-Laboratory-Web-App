@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions, mapState } from "vuex";
+import { mapState } from "vuex";
 import LoginPage from "@/components/auth/login";
 import RegistrationPage from "@/components/auth/register";
 import RegisterOTP_QR_Page from "@/components/auth/register_otp_qr";

@@ -9,11 +9,9 @@
     >
       <div class="d-flex my-2 mx-10">
         <h2 class="mr-2 mt-4">Experiment name</h2>
-        <v-text-field
-          v-model="experimentName"
-        ></v-text-field>
+        <v-text-field v-model="experimentName" />
       </div>
-      <div class ="my-2 mx-10">
+      <div class="my-2 mx-10">
         <h3 class="mr-2 mt-4">select date</h3>
         <v-treeview
           v-model="tree"
@@ -34,16 +32,10 @@
         </v-treeview>
       </div>
       <div class="d-flex justify-end mx-5 my-2">
-        <v-btn
-          class="mr-2 text-capitalize"
-          color="info lighten-1"
-        >
+        <v-btn class="mr-2 text-capitalize" color="info lighten-1">
           {{ newSelect }}
         </v-btn>
-        <v-btn
-          class="mr-2 text-capitalize"
-          color="info darken-2"
-        >
+        <v-btn class="mr-2 text-capitalize" color="info darken-2">
           {{ newUpload }}
         </v-btn>
       </div>
@@ -59,7 +51,6 @@
 </template>
 
 <script>
-
 import SimpleDialog from "../../../custom/SimpleDialog";
 
 export default {
@@ -105,7 +96,7 @@ export default {
           }
         ]
       },
-      
+
       {
         name: "name holder 2018-04-11",
         children: [
@@ -121,7 +112,7 @@ export default {
         ]
       }
     ],
-    experimentName: ''
+    experimentName: ""
   }),
 
   computed: {
@@ -132,7 +123,7 @@ export default {
       set(val) {
         this.$emit("input", val);
       }
-    },
+    }
   },
 
   methods: {

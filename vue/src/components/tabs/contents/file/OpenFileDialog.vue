@@ -64,7 +64,7 @@
 // import { mapGetters } from "vuex";
 import tiff from "tiff.js";
 import atob from "atob";
-import axios from 'axios';
+// import axios from 'axios';
 import SimpleDialog from "../../../custom/SimpleDialog";
 
 export default {
@@ -197,9 +197,9 @@ export default {
 
       if (this.newFile) {
         var formData = new FormData();
-        var baseURL="http://127.0.0.1:8000"
+        var baseURL = "http://127.0.0.1:8000";
         formData.append("files", this.newFile);
-        this.$store.dispatch("image/setNewFiles", formData); 
+        this.$store.dispatch("image/setNewFiles", formData);
       }
     },
 
