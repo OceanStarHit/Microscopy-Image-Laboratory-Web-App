@@ -4,18 +4,18 @@ import { GPU, input } from "gpu.js";
 import { rfft2d, irfft2d } from "./kissfft";
 // require("log-timestamp");
 
-// function getStandardDeviation(array) {
-//   const n = array.length;
-//   const mean = array.reduce((a, b) => a + b) / n;
-//   return Math.sqrt(
-//     array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n
-//   );
-// }
-// function getMean(array) {
-//   const n = array.length;
-//   const mean = array.reduce((a, b) => a + b) / n;
-//   return mean;
-// }
+function getStandardDeviation(array) {
+  const n = array.length;
+  const mean = array.reduce((a, b) => a + b) / n;
+  return Math.sqrt(
+    array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n
+  );
+}
+function getMean(array) {
+  const n = array.length;
+  const mean = array.reduce((a, b) => a + b) / n;
+  return mean;
+}
 
 function rgb2hsv_diffc(c, v, diff) {
   return (v - c) / 6 / diff + 1 / 2;

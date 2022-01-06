@@ -11,10 +11,6 @@
 <script>
 import SmallCard from "../../../custom/SmallCard";
 import CustomButton from "../../../custom/CustomButton";
-// import Open2DSettingDialog from "../../../custom/Open2DSettingDialog";
-import Open2DSettingDialog from "../file/Open2DSettingDialog";
-// import OpenFileDialog from "../file/OpenFileDialog";
-// import SimpleDialog from "../../../custom/SimpleDialog";
 
 export default {
   name: "Dec3D",
@@ -22,22 +18,20 @@ export default {
   components: {
     SmallCard,
     CustomButton,
-    Open2DSettingDialog
+    Open3DSettingDialog
     // OpenFileDialog
     // SimpleDialog
   },
 
-  data: () => ({
-    settingDialog: false
-  }),
+  data: () => ({}),
 
   methods: {
     select1: function() {
       console.log("Select-1");
+    },
+    select2: function() {
+      console.log("Select-2");
     }
-    // select2: function() {
-    //   console.log("Select-2");
-    // }
   }
 };
 </script>

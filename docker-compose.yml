@@ -22,9 +22,9 @@ services:
       - cache-storage:/cache-storage
 
       ## for faster debug, remove for production
-      - ./mainApi:/app/mainApi:ro
-      - ./shared_utils:/app/shared_utils:ro
-      - ./celery_tasks:/app/celery_tasks:ro
+      - ./mainApi:/app/mainApi:rm
+      - ./shared_utils:/app/shared_utils:rm
+      - ./celery_tasks:/app/celery_tasks:rm
 
 #    labels:
 #      - "traefik.enable=true"

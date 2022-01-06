@@ -1,6 +1,6 @@
 import Vue from "vue";
 import { tiffImage } from "../../utils/utils-func";
-// import image from "@/vuex/modules/image";
+import image from "@/vuex/modules/image";
 const noPreviewImage = require("../../assets/images/no-preview.png");
 
 const namePatterns = {
