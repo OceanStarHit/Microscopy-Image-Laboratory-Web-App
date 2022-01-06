@@ -1,7 +1,10 @@
 <template>
   <small-card title="3D Deconvolution">
     <custom-button icon="play-circle" label="3D-Go" @click="select1" />
-    <custom-button icon="cog" label="Set" @click="select2" />
+    <custom-button icon="cog" label="Setting" @click="settingDialog = true" />
+    <!-- <open-setting-dialog v-model="settingDialog" /> -->
+    <open-2D-setting-dialog v-model="settingDialog" />
+    <!-- <simple-dialog v-model="settingDialog" /> -->
   </small-card>
 </template>
 
@@ -14,7 +17,10 @@ export default {
 
   components: {
     SmallCard,
-    CustomButton
+    CustomButton,
+    Open3DSettingDialog
+    // OpenFileDialog
+    // SimpleDialog
   },
 
   data: () => ({}),

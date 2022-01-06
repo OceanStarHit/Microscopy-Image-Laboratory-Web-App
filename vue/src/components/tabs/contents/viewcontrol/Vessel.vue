@@ -104,12 +104,12 @@ export default {
 
   mounted() {
     let that = this;
-    let hd = setInterval(function(){
+    let hd = setInterval(function() {
       that.width = that.getWidth();
       if (that.width != 0) {
         clearInterval(hd);
       }
-    },100);
+    }, 100);
     // this.$nextTick(function() {
     //   this.width = this.getWidth();
     // });

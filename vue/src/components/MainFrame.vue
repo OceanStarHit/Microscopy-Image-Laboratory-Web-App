@@ -234,6 +234,9 @@ export default {
 </script>
 
 <style scoped>
+v-tab {
+  padding: 0px !important;
+}
 .auto-scroll {
   overflow: auto;
 }

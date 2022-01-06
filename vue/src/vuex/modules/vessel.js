@@ -5,7 +5,6 @@ var vessel = require("../../utils/vessel-types");
 /* eslint-disable no-unused-vars */
 const DEFAULT_PARAMS = {
   loading: false,
-
   currentVesselId: 1,
   activeHole: false,
   activeHoles: []

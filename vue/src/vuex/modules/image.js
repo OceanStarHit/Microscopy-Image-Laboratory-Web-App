@@ -55,7 +55,7 @@ const getters = {
       isNew: state.isNew
     };
   },
-  getImageUri: (state) => {
+  getImageUri: state => {
     return state.imageUri;
   },
   currentPageData: (state, getters) => state.allData[state.curPageIdx - 1],
@@ -325,7 +325,7 @@ const actions = {
 
   changeParameterByT({ commit, state }, t) {
     changeParameter(commit, state, {
-      T: t,
+      T: t
     });
   },
 
@@ -641,9 +641,7 @@ function filtteredByParameters(parameters, images) {
   );
 
   // filter by timeline
-  filtered = images.filter(
-    img => img.extParams.timeline == parameters.T
-  );
+  filtered = images.filter(img => img.extParams.timeline == parameters.T);
 
   return filtered;
 }
