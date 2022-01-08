@@ -3,7 +3,7 @@
     <!-- <input id="uploadFile" type="file" @change="requestUploadFile" /> -->
     <v-dialog v-model="visibleDialog" max-width="560">
       <simple-dialog
-        title="2D Setting"
+        title="3D Setting"
         :single-button="false"
         ok-title="Set"
         @select="onSet"

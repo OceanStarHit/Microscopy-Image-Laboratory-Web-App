@@ -2,7 +2,7 @@
   <div style="display: none">
     <v-dialog v-model="visibleDialog" max-width="560">
       <simple-dialog
-        title="Setting"
+        title="2D Setting"
         :single-button="false"
         ok-title="Set"
         @select="onSet"
