@@ -178,7 +178,7 @@ export default {
   data() {
     var self = this;
     return {
-      selectedTabLeft: "tabs-left-4",
+      selectedTabLeft: null,
       selectedTabRight: null,
       windowHeight: self.getWindowHeight()
     };
@@ -242,5 +242,13 @@ v-tab {
 }
 .loading-progress-bar {
   width: 300pt;
+}
+.v-tab{
+  min-width: 50px;
+}
+.v-slide-group__content{
+  height: 2px;
+  left: 0px;
+  width: 50px;
 }
 </style>
