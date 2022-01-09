@@ -4,7 +4,7 @@
       <!-- Left Sidebar -->
       <v-col cols="2">
         <v-container
-          class="px-3 py-0 auto-scroll d-flex flex-column justify-space-between"
+          class="px-3 py-0 d-flex flex-column justify-space-between"
           :style="{ height: windowHeight + 'px' }"
         >
           <div>
