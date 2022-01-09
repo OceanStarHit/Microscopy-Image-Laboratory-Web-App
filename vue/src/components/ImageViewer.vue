@@ -1,7 +1,5 @@
 <template>
   <v-container class="pa-0" style="width: 100%; height: 100%" fluid>
-    
-
     <!-- <div id="slideno" style="display:none; position:absolute;"> </div>
     <div style="position:absolute;margin-top:30px;"><img src="" id="image_loading" /></div>
     <div id="scroll" style="height:500px; overflow:auto; display:block;" @scroll="viewImage()">
@@ -9,10 +7,8 @@
             <img src="" id="image_div" style="position:fixed; width:600px; height:485px; z-index:-1;display:block;border:black solid 1px;" ref="song" />
         </div>
     </div> -->
-
-
     <div style="width: 100%; height: 100%">
-      <img v-bind:src="imageUri" style="width:100%;height:100%;">
+      <img :src="imageUri" style="width:100%;height:100%;" />
     </div>
     <p>{{ demoPic ? demoPic.name : "No pic" }}</p>
   </v-container>
@@ -103,32 +99,32 @@ export default {
   methods: {
     // a function to view images
     viewImage() {
-        var scrollDiv =  document.getElementById('scroll');
-        var scrollinterDiv =  document.getElementById('scrollinterDiv');
-        var scrollinterdivheight = parseInt(scrollinterDiv.style.height.replace('px',''));
-        var scrollpercent = scrollDiv.scrollTop / scrollinterdivheight;
-        slice_no = scrollpercent * response_var.data.N_images;
-        slice_no = Math.round(slice_no);
-        document.getElementById('slideno').style.display = 'block';
-        document.getElementById('slideno').innerHTML =  'Slice ' + (slice_no+1).toString() + ' / ' + response_var.data.N_images.toString();
-        document.getElementById('image_div').src = 'http://localhost:8000/static/' + response_var.data.path_images[slice_no]; 
+      var scrollDiv =  document.getElementById("scroll");
+      var scrollinterDiv =  document.getElementById('scrollinterDiv');
+      var scrollinterdivheight = parseInt(
+        scrollinterDiv.style.height.replace('px',''));
+      var scrollpercent = scrollDiv.scrollTop / scrollinterdivheight;
+      slice_no = scrollpercent * response_var.data.N_images;
+      slice_no = Math.round(slice_no);
+      document.getElementById('slideno').style.display = 'block';
+      document.getElementById('slideno').innerHTML =  'Slice ' + (slice_no+1).toString() + ' / ' + response_var.data.N_images.toString();
+      document.getElementById('image_div').src = 'http://localhost:8000/static/' + response_var.data.path_images[slice_no]; 
     },
     process_response()
     {
       response_var = this.$store.state.image.imageUri;
-      var response = response_var
-      document.getElementById('image_loading').src = '';
+      var response = response_var;
+      document.getElementById("image_loading").src = '';
       // document.getElementById('image_div').style.display = 'block';
-      if (response.data.path_images.length==1) {
-          document.getElementById('scroll').style.overflow = 'hidden';
-          document.getElementById('image_div').src = 'http://localhost:8000/static/'+response.data.path_images[0]; /////////////////////////////
-          document.getElementById('scrollinterDiv').style.height = (response.data.N_images * 500)+'px';
-          
+      if (response.data.path_images.length == 1) {
+          document.getElementById("scroll").style.overflow = 'hidden';
+          document.getElementById("image_div").src = 'http://localhost:8000/static/'+response.data.path_images[0];
+          document.getElementById("scrollinterDiv").style.height = (response.data.N_images * 500)+'px';        
       }
       else {
-          document.getElementById('scroll').style.overflow = 'auto';
-          document.getElementById('image_div').src = 'http://localhost:8000/static/' + response.data.path_images[slice_no]; /////////////////////////////
-          document.getElementById('scrollinterDiv').style.height = (response.data.N_images * 500)+'px';
+        document.getElementById('scroll').style.overflow = 'auto';
+        document.getElementById('image_div').src = 'http://localhost:8000/static/' + response.data.path_images[slice_no]; /////////////////////////////
+        document.getElementById('scrollinterDiv').style.height = (response.data.N_images * 500)+'px';
       }
     },
     dragOver() {
@@ -140,7 +136,6 @@ export default {
     drop(e) {
       let files = e.dataTransfer.files;
       this.imageSource = files[0];
-
       this.isDragging = false;
     }
   }
@@ -155,11 +150,10 @@ export default {
 //     if (response.data.path_images.length==1) {
 //         document.getElementById('scroll').style.overflow = 'hidden';
 //         document.getElementById('image_div').src = 'http://localhost:8000/static/'+response.data.path_images[0]; /////////////////////////////
-//         document.getElementById('scrollinterDiv').style.height = (response.data.N_images * 500)+'px';
-        
+//         document.getElementById('scrollinterDiv').style.height = (response.data.N_images * 500)+'px';        
 //     }
 //     else {
-//         console.log(response); 
+//         console.log(response);
 //         document.getElementById('scroll').style.overflow = 'auto';
 //         document.getElementById('image_div').src = 'http://localhost:8000/static/' + response.data.path_images[slice_no]; /////////////////////////////
 //         document.getElementById('scrollinterDiv').style.height = (response.data.N_images * 500)+'px';
@@ -168,7 +162,6 @@ export default {
 //     }
 // }
 </script>
-
 <style scoped>
 .isDragging {
   background-color: #999;

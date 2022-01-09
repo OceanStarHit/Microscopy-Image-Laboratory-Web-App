@@ -4,7 +4,7 @@
       <!-- Left Sidebar -->
       <v-col cols="2">
         <v-container
-          class="px-3 py-0 d-flex flex-column justify-space-between"
+          class="px-3 py-0 auto-scroll d-flex flex-column justify-space-between"
           :style="{ height: windowHeight + 'px' }"
         >
           <div>
@@ -82,7 +82,7 @@
             </v-tab>
 
             <v-tab href="#tabs-2-3" class="primary--text">
-              <v-icon>mdi-poll</v-icon>
+              <v-icon>mdi-poll</v-icon> 
             </v-tab>
 
             <v-tab href="#tabs-2-4" class="primary--text">
