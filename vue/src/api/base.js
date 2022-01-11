@@ -17,7 +17,7 @@ export const api = axios.create({
 
 api.interceptors.request.use(request => {
   console.log("[API Request]", request);
-  console.log(store.state);
+  console.log("111", store.state);
 
   /* add auth headers */
   if (store.state.auth.token) {
@@ -38,7 +38,7 @@ api.interceptors.request.use(request => {
 
 api.interceptors.response.use(
   response => {
-    // console.log("[API Response]", response);
+    console.log("[API Response]", response);
     // return response.data;
     return response;
   },

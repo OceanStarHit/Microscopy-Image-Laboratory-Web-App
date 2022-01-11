@@ -8,11 +8,11 @@ import datetime
 from fastapi import UploadFile
 import aiofiles
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from mainApi.app.auth.models.user import UserModelDB, PyObjectId, ShowUserModel
-from mainApi.app.images.sub_routers.tile.models import TileModelDB
-from mainApi.app.images.utils.folder import get_user_cache_path, clear_path
-from mainApi.app import main
-from mainApi.config import STATIC_PATH
+from app.auth.models.user import UserModelDB, PyObjectId, ShowUserModel
+from app.images.sub_routers.tile.models import TileModelDB
+from app.images.utils.folder import get_user_cache_path, clear_path
+from app import main
+from config import STATIC_PATH
 
 async def save_upload_file(upload_file: UploadFile, destination: Path, chunk_size: int = 1024) -> None:
     async with aiofiles.open(destination, 'wb') as out_file:

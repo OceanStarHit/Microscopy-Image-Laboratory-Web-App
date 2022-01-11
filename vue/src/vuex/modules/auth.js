@@ -53,7 +53,6 @@ const actions = {
     authApi
       .register_user(registerForm)
       .then(response => {
-        console.log("register works well")
         if (response.status === 201) {
           /* After successful registration user is logged in */
           context.dispatch("loggedIn", {

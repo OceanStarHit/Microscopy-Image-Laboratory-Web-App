@@ -4,13 +4,13 @@ from fastapi import (
 from starlette.middleware.cors import CORSMiddleware
 
 import os
-from mainApi.app.auth.routers import router as auth_router
-from mainApi.app.db.mongodb_utils import connect_to_mongo, close_mongo_connection
-from mainApi.app.images.routers import router as image_router
-from mainApi.config import ALLOWED_HOSTS
+from app.auth.routers import router as auth_router
+from app.db.mongodb_utils import connect_to_mongo, close_mongo_connection
+from app.images.routers import router as image_router
+from config import ALLOWED_HOSTS
 from fastapi.staticfiles import StaticFiles
-# from mainApi.config import connect_db, close_db
-# from mainApi.app.images.utils import file
+# from config import connect_db, close_db
+# from app.images.utils import file
 
 app = FastAPI(title='IAS Project')
 

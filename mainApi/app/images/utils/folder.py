@@ -1,7 +1,7 @@
 import os
 import shutil
 from pathlib import Path
-from mainApi.config import IMAGE_PATH, CACHE_PATH
+from config import IMAGE_PATH, CACHE_PATH
 
 
 def get_user_image_path(user_id: str, directory: str) -> Path:

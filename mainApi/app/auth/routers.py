@@ -28,9 +28,9 @@ from .settings import ACCESS_TOKEN_EXPIRE_MINUTES
 from typing import List
 from datetime import datetime, timedelta
 
-from mainApi.app.auth.models.user import UserModelDB, ShowUserModel, UpdateUserModel, CreateUserModel, \
+from app.auth.models.user import UserModelDB, ShowUserModel, UpdateUserModel, CreateUserModel, \
     CreateUserReplyModel, LoginUserReplyModel, ChangeUserPasswordModel, UpdateUserAdminModel, to_camel
-from mainApi.app.db.mongodb import get_database
+from app.db.mongodb import get_database
 
 router = APIRouter(
     prefix="/auth",

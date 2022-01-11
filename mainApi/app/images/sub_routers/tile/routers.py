@@ -15,17 +15,17 @@ from fastapi import (
 )
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from mainApi.app.auth.auth import get_current_user
+from app.auth.auth import get_current_user
 
 from typing import List
 
-from mainApi.app.db.mongodb import get_database
-from mainApi.app.images.sub_routers.tile.models import AlignNaiveRequest, TileModelDB, AlignedTiledModel
-from mainApi.app.images.utils.align_tiles import align_tiles_naive, align_ashlar
-from mainApi.app.images.utils.file import save_upload_file, add_image_tiles, convol2D_processing
-from mainApi.app.images.utils.folder import get_user_cache_path, clear_path
-from mainApi.app.auth.models.user import UserModelDB, PyObjectId
-from mainApi.config import STATIC_PATH
+from app.db.mongodb import get_database
+from app.images.sub_routers.tile.models import AlignNaiveRequest, TileModelDB, AlignedTiledModel
+from app.images.utils.align_tiles import align_tiles_naive, align_ashlar
+from app.images.utils.file import save_upload_file, add_image_tiles, convol2D_processing
+from app.images.utils.folder import get_user_cache_path, clear_path
+from app.auth.models.user import UserModelDB, PyObjectId
+from config import STATIC_PATH
 import aiofiles
 
 router = APIRouter(

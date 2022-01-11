@@ -14,15 +14,15 @@ from httpx import AsyncClient
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from starlette import status
 
-from mainApi.app.auth.auth import create_user
-from mainApi.app.auth.models.user import CreateUserModel, CreateUserReplyModel
-from mainApi.app.db.mongodb import get_database, get_database_client
-from mainApi.app.db.mongodb_utils import connect_to_mongo, close_mongo_connection
-from mainApi.app.images.sub_routers.tile.models import TileModelDB
-from mainApi.app.images.sub_routers.tile.routers import upload_image_tiles
-from mainApi.app.images.utils.file import add_image_tiles
-from mainApi.app.main import app
-from mainApi.config import MONGO_DB_NAME, CACHE_PATH
+from app.auth.auth import create_user
+from app.auth.models.user import CreateUserModel, CreateUserReplyModel
+from app.db.mongodb import get_database, get_database_client
+from app.db.mongodb_utils import connect_to_mongo, close_mongo_connection
+from app.images.sub_routers.tile.models import TileModelDB
+from app.images.sub_routers.tile.routers import upload_image_tiles
+from app.images.utils.file import add_image_tiles
+from app.main import app
+from config import MONGO_DB_NAME, CACHE_PATH
 
 
 class BearerAuth(httpx.Auth):

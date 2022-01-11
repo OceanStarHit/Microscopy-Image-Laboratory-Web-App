@@ -3,7 +3,7 @@ from typing import List
 
 from celery_tasks.tasks import StitchingCeleryTask
 from celery_tasks.utils import create_worker_from
-from mainApi.app.images.sub_routers.tile.models import AlignNaiveRequest, AlignedTiledModel, TileModelDB
+from app.images.sub_routers.tile.models import AlignNaiveRequest, AlignedTiledModel, TileModelDB
 
 
 def align_tiles_naive(request: AlignNaiveRequest,
