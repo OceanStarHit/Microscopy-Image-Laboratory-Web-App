@@ -13,10 +13,10 @@ import pyotp
 from datetime import datetime, timedelta
 from typing import Optional
 
-from app.auth.models.user import UserModelDB, CreateUserModel, CreateUserReplyModel, ShowUserModel, \
+from mainApi.app.auth.models.user import UserModelDB, CreateUserModel, CreateUserReplyModel, ShowUserModel, \
     LoginUserReplyModel, UpdateUserModel, UpdateUserAdminModel, to_camel
 
-from app.db.mongodb import get_database
+from mainApi.app.db.mongodb import get_database
 import qrcode
 import qrcode.image.svg
 # CRUD

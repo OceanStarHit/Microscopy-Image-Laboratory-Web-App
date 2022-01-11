@@ -9,12 +9,12 @@ import shutil
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from starlette import status
 
-from app.auth.models.user import CreateUserModel, CreateUserReplyModel
+from mainApi.app.auth.models.user import CreateUserModel, CreateUserReplyModel
 
 from httpx import AsyncClient
 
-from app.images.sub_routers.tile.models import TileModelDB
-from config import CACHE_PATH
+from mainApi.app.images.sub_routers.tile.models import TileModelDB
+from mainApi.config import CACHE_PATH
 
 
 class TestImagesTiles:
