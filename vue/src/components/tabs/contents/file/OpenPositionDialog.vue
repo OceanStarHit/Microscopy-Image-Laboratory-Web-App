@@ -462,13 +462,13 @@ export default {
       endOffset: -1
     },
     namePatterns: [
-      { label: "Series", text: "", start: 0, end: 17, color: "success" },
-      { label: "Row", text: "", start: 24, end: 25, color: "primary" },
-      { label: "Column", text: "", start: 25, end: 27, color: "deep-orange" },
-      { label: "Field", text: "", start: 27, end: 30, color: "warning" },
-      { label: "Channel", text: "", start: 30, end: 32, color: "purple" },
-      { label: "Z Position", text: "", start: 22, end: 23, color: "blue-grey" },
-      { label: "Time Point", text: "", start: 18, end: 21, color: "error" }
+      { label: "Series", text: "LiveDead2_Plate_R", start: 0, end: 17, color: "success" },
+      { label: "Row", text: "A", start: 24, end: 25, color: "primary" },
+      { label: "Column", text: "10", start: 25, end: 27, color: "deep-orange" },
+      { label: "Field", text: "f02", start: 27, end: 30, color: "warning" },
+      { label: "Channel", text: "d1", start: 30, end: 32, color: "purple" },
+      { label: "Z Position", text: "0", start: 22, end: 23, color: "blue-grey" },
+      { label: "Time Point", text: "p00", start: 18, end: 21, color: "error" }
     ],
     nameTypeTableHeaders: [
       { text: "No", value: "no" },
