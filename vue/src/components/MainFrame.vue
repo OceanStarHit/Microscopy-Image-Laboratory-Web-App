@@ -4,42 +4,40 @@
       <!-- Left Sidebar -->
       <v-col cols="2">
         <v-container
-          class="px-3 py-0 auto-scroll d-flex flex-column justify-space-between"
+          class="px-1 py-0 auto-scroll"
           :style="{ height: windowHeight + 'px' }"
         >
           <div>
             <v-tabs v-model="selectedTabLeft" class="margin: 0;" grow>
-              <v-tab href="#tabs-1-2" class="primary--text">
+              <v-tab href="#tabs-1-1" class="primary--text">
                 <v-icon>mdi-school</v-icon>
               </v-tab>
 
-              <v-tab href="#tabs-1-3" class="primary--text">
+              <v-tab href="#tabs-1-2" class="primary--text">
                 <v-icon>mdi-tune</v-icon>
               </v-tab>
 
-              <v-tab href="#tabs-1-4" class="primary--text">
+              <v-tab href="#tabs-1-3" class="primary--text">
                 <v-icon>mdi-filter</v-icon>
               </v-tab>
 
-              <v-tab href="#tabs-1-1" class="primary--text">
+              <v-tab href="#tabs-1-4" class="primary--text">
                 <v-icon>mdi-file</v-icon>
               </v-tab>
-
-              
             </v-tabs>
 
             <v-tabs-items v-model="selectedTabLeft">
               <v-tab-item value="tabs-1-1">
-                <FileTab />
-              </v-tab-item>
-              <v-tab-item value="tabs-1-2">
                 <DLMLTab />
               </v-tab-item>
-              <v-tab-item value="tabs-1-3">
+              <v-tab-item value="tabs-1-2">
                 <AdjustTab />
               </v-tab-item>
-              <v-tab-item value="tabs-1-4">
+              <v-tab-item value="tabs-1-3">
                 <FilterTab />
+              </v-tab-item>
+              <v-tab-item value="tabs-1-4">
+                <FileTab />
               </v-tab-item>
             </v-tabs-items>
           </div>
@@ -180,7 +178,7 @@ export default {
   data() {
     var self = this;
     return {
-      selectedTabLeft: null,
+      selectedTabLeft: 'tabs-1-4',
       selectedTabRight: null,
       windowHeight: self.getWindowHeight()
     };
