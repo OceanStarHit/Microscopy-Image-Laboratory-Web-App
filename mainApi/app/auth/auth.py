@@ -13,10 +13,10 @@ import pyotp
 from datetime import datetime, timedelta
 from typing import Optional
 
-from app.auth.models.user import UserModelDB, CreateUserModel, CreateUserReplyModel, ShowUserModel, \
+from mainApi.app.auth.models.user import UserModelDB, CreateUserModel, CreateUserReplyModel, ShowUserModel, \
     LoginUserReplyModel, UpdateUserModel, UpdateUserAdminModel, to_camel
 
-from app.db.mongodb import get_database
+from mainApi.app.db.mongodb import get_database
 import qrcode
 import qrcode.image.svg
 # CRUD
@@ -179,10 +179,9 @@ async def login_swagger(form_data: OAuth2PasswordRequestForm, db: AsyncIOMotorCl
 
         TODO find way to modify swagger to let me add otp separately, no login2 needed
     """
-    # print("**********Login***********")
-    password = form_data.password[:-33]  # exclude the last 6 digits
-    otp = form_data.password[-33:]  # include only the last 6 digits
-
+    password = form_data.password[:-6]  # exclude the last 6 digits
+    otp = form_data.password[-6:]  # include only the last 6 digits
+    
     user: UserModelDB = await get_user_by_email(form_data.username, db)  # username is email
     is_user_auth = authenticate_user(user, password=password, otp=otp)    
     if not is_user_auth:
@@ -217,9 +216,8 @@ async def login(form_data: OAuth2PasswordRequestForm, otp: str, db: AsyncIOMotor
         Separate otp and OAuth2PasswordRequestForm.
         Prettier than the /token function since the requirement of otp is made clear
         """
-
     form_data.password += otp  # adds the otp to the end of the password to fit the login method
-
+    print(form_data.password)
     return await login_swagger(form_data=form_data, db=db)
 
 

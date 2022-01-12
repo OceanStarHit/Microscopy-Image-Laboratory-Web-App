@@ -1,9 +1,9 @@
 import logging
 
 from motor.motor_asyncio import AsyncIOMotorClient
-from app.db.mongodb import db
-from config import MONGODB_URL
-from config import MONGO_DB_NAME
+from mainApi.app.db.mongodb import db
+from mainApi.config import MONGODB_URL
+from mainApi.config import MONGO_DB_NAME
 
 
 async def connect_to_mongo():

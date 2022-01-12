@@ -3,7 +3,7 @@ import pytest
 from fastapi.encoders import jsonable_encoder
 from starlette import status
 
-from app.auth.models.user import ShowUserModel, LoginUserReplyModel, CreateUserModel, CreateUserReplyModel, \
+from mainApi.app.auth.models.user import ShowUserModel, LoginUserReplyModel, CreateUserModel, CreateUserReplyModel, \
     ChangeUserPasswordModel, UpdateUserModel
 
 from httpx import AsyncClient

@@ -2,8 +2,8 @@ from fastapi import (
     APIRouter, Depends,
 )
 
-from app.auth.auth import get_current_user
-from app.images.sub_routers.tile.routers import router as tile_router
+from mainApi.app.auth.auth import get_current_user
+from mainApi.app.images.sub_routers.tile.routers import router as tile_router
 
 router = APIRouter(
     prefix="/image",
