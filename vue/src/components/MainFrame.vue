@@ -9,10 +9,6 @@
         >
           <div>
             <v-tabs v-model="selectedTabLeft" class="margin: 0;" grow>
-              <v-tab href="#tabs-1-1" class="primary--text">
-                <v-icon>mdi-file</v-icon>
-              </v-tab>
-
               <v-tab href="#tabs-1-2" class="primary--text">
                 <v-icon>mdi-school</v-icon>
               </v-tab>
@@ -23,6 +19,10 @@
 
               <v-tab href="#tabs-1-4" class="primary--text">
                 <v-icon>mdi-filter</v-icon>
+              </v-tab>
+
+              <v-tab href="#tabs-1-1" class="primary--text">
+                <v-icon>mdi-file</v-icon>
               </v-tab>
 
               
