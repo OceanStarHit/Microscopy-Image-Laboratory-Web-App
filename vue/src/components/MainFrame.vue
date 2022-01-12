@@ -10,34 +10,36 @@
           <div>
             <v-tabs v-model="selectedTabLeft" class="margin: 0;" grow>
               <v-tab href="#tabs-1-1" class="primary--text">
-                <v-icon>mdi-school</v-icon>
+                <v-icon>mdi-file</v-icon>
               </v-tab>
 
               <v-tab href="#tabs-1-2" class="primary--text">
-                <v-icon>mdi-tune</v-icon>
+                <v-icon>mdi-school</v-icon>
               </v-tab>
 
               <v-tab href="#tabs-1-3" class="primary--text">
-                <v-icon>mdi-filter</v-icon>
+                <v-icon>mdi-tune</v-icon>
               </v-tab>
 
               <v-tab href="#tabs-1-4" class="primary--text">
-                <v-icon>mdi-file</v-icon>
+                <v-icon>mdi-filter</v-icon>
               </v-tab>
+
+              
             </v-tabs>
 
             <v-tabs-items v-model="selectedTabLeft">
               <v-tab-item value="tabs-1-1">
-                <DLMLTab />
+                <FileTab />
               </v-tab-item>
               <v-tab-item value="tabs-1-2">
-                <AdjustTab />
+                <DLMLTab />
               </v-tab-item>
               <v-tab-item value="tabs-1-3">
-                <FilterTab />
+                <AdjustTab />
               </v-tab-item>
               <v-tab-item value="tabs-1-4">
-                <FileTab />
+                <FilterTab />
               </v-tab-item>
             </v-tabs-items>
           </div>
