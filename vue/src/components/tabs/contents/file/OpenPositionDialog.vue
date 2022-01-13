@@ -627,7 +627,7 @@ export default {
         }
         str = fileNameOnly.substring(patterns[i].start, patterns[i].end);
         // html += `<pre id='color${i}' class="${patterns[i].color}--text">${str}</pre>`;
-        html += `<pre id='color${i}'>${str}</pre>`;
+        html += `<pre id='${str}'>${str}</pre>`;
 
         start = patterns[i].end;
       }
@@ -870,7 +870,7 @@ export default {
       if (text !== "" && selectedText !== "") {
         if (text === selectedText) {
           if (startOffset > -1 && endOffset > -1) {
-            document.getElementById('color'+index).classList.add(this.namePatterns[index].color+'--text');
+            document.getElementById(text).classList.add(this.namePatterns[index].color+'--text');
             // const patterns = this.namePatterns.filter(n => n.start > -1);
             // for (var i = 0; i < patterns.length; i++) {
             //   // if (
