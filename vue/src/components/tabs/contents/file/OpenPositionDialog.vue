@@ -634,7 +634,7 @@ export default {
 
       str = fileNameOnly.substring(start, fileNameOnly.length);
       html += `<pre>${str}</pre>`;
-      console.log(html)
+      console.log(html);
       return html;
     },
 
@@ -865,12 +865,13 @@ export default {
 
     clickNamePattern(index) {
       const { text, startOffset, endOffset } = this.selectionRange;
-      let selectedText = this.getSelectionText(); 
-
+      let selectedText = this.getSelectionText();
       if (text !== "" && selectedText !== "") {
         if (text === selectedText) {
           if (startOffset > -1 && endOffset > -1) {
-            document.getElementById(text).classList.add(this.namePatterns[index].color+'--text');
+            document
+              .getElementById(text)
+              .classList.add(this.namePatterns[index].color + "--text");
             // const patterns = this.namePatterns.filter(n => n.start > -1);
             // for (var i = 0; i < patterns.length; i++) {
             //   // if (
@@ -883,10 +884,10 @@ export default {
             //   // }
             //   console.log(patterns.length);
             //   if (i === patterns.length) {
-                this.namePatterns[index].text = text;
-                // this.namePatterns[index].start = startOffset;
-                // this.namePatterns[index].end = endOffset;
-              // }
+            this.namePatterns[index].text = text;
+            // this.namePatterns[index].start = startOffset;
+            // this.namePatterns[index].end = endOffset;
+            // }
             // }
           }
         }

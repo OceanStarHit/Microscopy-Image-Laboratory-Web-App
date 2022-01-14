@@ -66,11 +66,8 @@
     </simple-dialog>
   </v-dialog>
 </template>
-
 <script>
-
 import SimpleDialog from "../../../custom/SimpleDialog";
-
 export default {
   name: "OpenCloudDialog",
 
@@ -142,7 +139,7 @@ export default {
         ]
       }
     ],
-    experimentName: "experiment1"
+    experimentName: ""
   }),
 
   computed: {
@@ -166,8 +163,7 @@ export default {
   },
 
   methods: {
-    onClick: function() {
-    },
+    onClick: function() {},
     visibleCloud() {
       console.log("show cloud window");
     },
