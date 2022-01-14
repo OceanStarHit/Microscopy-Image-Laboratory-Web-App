@@ -17,10 +17,10 @@
           @dragleave.prevent="dragLeave"
           @drop.prevent="drop($event)"
         >
-          <v-btn class="d-block text-none" color="primary" text>
+          <!-- <v-btn class="d-block text-none" color="primary" text>
             <v-icon class="mr-3"> mdi-folder </v-icon>
             Use f for closed files
-          </v-btn>
+          </v-btn> -->
           <v-btn
             class="d-block text-none"
             color="primary"
