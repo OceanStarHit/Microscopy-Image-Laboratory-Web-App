@@ -865,7 +865,7 @@ export default {
 
     clickNamePattern(index) {
       const { text, startOffset, endOffset } = this.selectionRange;
-      let selectedText = this.getSelectionText();
+      let selectedText = this.getSelectionText(); 
 
       if (text !== "" && selectedText !== "") {
         if (text === selectedText) {
