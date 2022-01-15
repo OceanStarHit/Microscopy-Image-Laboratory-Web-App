@@ -11,6 +11,8 @@
     <FocusStack />
     <!-- <v-divider class="my-2"></v-divider>
     <DPC /> -->
+    <SR />
+    <v-divider class="my-2"></v-divider>
   </tab-item>
 </template>
 
@@ -22,6 +24,7 @@ import Dec2D from "./contents/filter/Dec2D";
 import Dec3D from "./contents/filter/Dec3D";
 import FocusStack from "./contents/filter/FocusStack";
 // import DPC from "./contents/filter/DPC";
+import SR from "./contents/filter/SR";
 
 export default {
   name: "FilterTab",
@@ -32,7 +35,8 @@ export default {
     AddSub,
     Dec2D,
     Dec3D,
-    FocusStack
+    FocusStack,
+    SR
     // DPC
   },
 
