@@ -1,7 +1,7 @@
 <template>
-  <small-card title="Binarization">
-    <custom-button icon="creation" label="Auto" @click="select1" />
-    <custom-button icon="tune-vertical" label="Adjust" @click="select2" />
+  <small-card title="Division">
+    <custom-button icon="eye-outline" label="view method" @click="select1" />
+    <custom-button icon="undo" label="undo" @click="select2" />
   </small-card>
 </template>
 
@@ -10,7 +10,7 @@ import SmallCard from "../../../custom/SmallCard";
 import CustomButton from "../../../custom/CustomButton";
 
 export default {
-  name: "Binarization",
+  name: "Division",
 
   components: {
     SmallCard,

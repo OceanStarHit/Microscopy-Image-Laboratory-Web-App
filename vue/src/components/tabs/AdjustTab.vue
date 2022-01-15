@@ -11,6 +11,8 @@
     <Scale />
     <v-divider class="my-1"></v-divider>
     <FVO />
+    <v-divider class="my-1"></v-divider>
+    <Division />
   </tab-item>
 </template>
 
@@ -19,9 +21,10 @@ import TabItem from "../custom/TabItem.vue";
 import BitConversion from "./contents/adjust/BitConversion";
 import MergeSplit from "./contents/adjust/MergeSplit";
 import LightSet from "./contents/adjust/LightSet";
-// import Binarization from "./contents/adjust/Binarization";
+import Division from "./contents/adjust/Division";
 import Scale from "./contents/adjust/Scale";
 import FVO from "./contents/adjust/FVO";
+// import Division from "./contents/adjust/Division";
 
 export default {
   name: "AdjustTab",
@@ -33,7 +36,8 @@ export default {
     LightSet,
     // Binarization,
     Scale,
-    FVO
+    FVO,
+    Division
   },
 
   data: () => ({}),
