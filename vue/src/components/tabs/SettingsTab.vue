@@ -23,7 +23,7 @@ export default {
 
   components: { 
     TabItem,
-    Objective 
+    // Objective 
   },
 
   data: () => ({})
