@@ -4,12 +4,19 @@
       <v-divider></v-divider>
     <Objective />
     </small-card>
+  <v-divider class="my-2"></v-divider>
+    <small-card title="Channnels">
+      <v-divider></v-divider>
+    <Channnels />
+    </small-card>
   </tab-item>
+
 </template>
 
 <script>
 import TabItem from "../custom/TabItem";
-import Objective from "./contents/viewcontrol/Objective";
+import ObjectiveSettings from "./contents/Settings/ObjectiveSettings.vue";
+import ChannelSettings from "./contents/Settings/ChannelSettings.vue"
 
 export default {
   name: "SettingsTab",
