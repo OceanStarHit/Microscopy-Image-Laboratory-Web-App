@@ -220,6 +220,8 @@
                   class="name-type-table"
                   :headers="nameTypeTableHeaders"
                   :items="nameTypeTableContents"
+                  :sort-by.sync="sortBy"
+                  :sort-desc.sync="sortDesc"
                   :search="searchNameType"
                   :single-select="false"
                   item-key="no"
@@ -305,6 +307,8 @@ export default {
     }
   },
   data: () => ({
+    sortBy: 'field',
+    sortDesc: true,
     // ctxHeight,
     // ctxWidth,
     // canvasWidth,
@@ -647,6 +651,14 @@ export default {
     },
 
     nameTypeTableContents() {
+
+      for(let file of this.files){
+        let text = file.name;
+        let result = text.substr(28,29);
+        let hasil = result.substr(0,2);
+        console.log(hasil);
+      }
+
       const contents = [];
       for (let file of this.files) {
         if (file.name) {
@@ -732,6 +744,7 @@ export default {
 
       for (let i = 0; i < items.length; i++) {
         let item = items[i].webkitGetAsEntry();
+        console.log(item.name);
         if (item) {
           let thiz = this;
           this.traverseFileTree(item, "", function() {
