@@ -15,15 +15,16 @@
 
 <script>
 import TabItem from "../custom/TabItem";
-import ObjectiveSettings from "./contents/Settings/ObjectiveSettings.vue";
-import ChannelSettings from "./contents/Settings/ChannelSettings.vue"
+import Objective from "./contents/Settings/ObjectiveSettings.vue";
+import Channnels from "./contents/Settings/ChannelSettings.vue"
 
 export default {
   name: "SettingsTab",
 
   components: { 
     TabItem,
-    // Objective 
+    Objective,
+    Channnels
   },
 
   data: () => ({})
