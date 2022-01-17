@@ -20,19 +20,7 @@ RUN pip3 install -q -U \
     numpy \
     pip
 
-ENV OMP_NUM_THREADS 4
-
-## start of 2D-Deconvolution worker build
 WORKDIR /app
-
-COPY ./Deconvolution_2D/requirements.txt /tmp/requirements.txt
 RUN pip3 install -r /tmp/requirements.txt
 
-## Copy shared utils
-COPY ./shared_utils /app/shared_utils/
-
-COPY ./celery_tasks/ /app/celery_tasks/
 COPY ./Deconvolution_2D /app
-
-#ENTRYPOINT celery -A Deconvolution_2D.main worker --concurrency=4 --loglevel=info -n stitching_worker.%h
-#ENTRYPOINT python3 ./Deconvolution_2D/main.py

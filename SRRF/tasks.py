@@ -6,8 +6,8 @@ import celery
 # implementations are found in each respective task main.py file
 
 
-class StitchingCeleryTask(celery.Task):
-    name = 'stitching_celery_task'
+class SrrfCeleryTask(celery.Task):
+    name = 'srrf_celery_task'
 
     def run(self, tiles, pattern):
         """
