@@ -21,6 +21,7 @@ RUN pip3 install -q -U \
     pip
 
 WORKDIR /app
+COPY ./SRRF/requirements.txt /tmp/requirements.txt
 RUN pip3 install -r /tmp/requirements.txt
 
 COPY ./SRRF /app
