@@ -1,6 +1,18 @@
 <template>
-  <small-card title="Channels">
-    <v-row class="mx-3 my-0" justify="space-around">
+  <v-card class="pa-1" flat>
+    <div
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <h5>Channels</h5>
+      <div>
+        <v-spacer></v-spacer>
+        <v-btn class="pa-1" height="20" color="primary" small >
+          Color/Mono
+        </v-btn>
+      </div>
+    </div>
+    <v-container class="px-3 py-0 mt-5" fluid>
+      <v-row class="mx-3 my-0" justify="space-around">
       <div v-for="c in channels" :key="c.id" class="channel-box text-center">
         <v-checkbox
           v-model="selected"
@@ -22,20 +34,21 @@
         </div>
       </div>
     </v-row>
-  </small-card>
+    </v-container>
+  </v-card>
 </template>
 
 <script>
 import { mapGetters, mapState } from "vuex";
 
-import SmallCard from "../../../custom/SmallCard";
+// import SmallCard from "../../../custom/SmallCard";
 import { createNamespacedHelpers } from "vuex";
 const positionModule = createNamespacedHelpers("files/position");
 
 export default {
   name: "Channel",
 
-  components: { SmallCard },
+  // components: { SmallCard },
 
   created: function() {
     this.unwatchFiles = this.$store.watch(
