@@ -1,24 +1,18 @@
 import { api } from "./base";
-
-// API_URL,
-// SET_IMAGE: `${API_URL}set-image`,
-// CHANGE_IMAGE: `${API_URL}change-image`,
-// COLOR_CHANNEL: `${API_URL}color-channel`,
-// CHANGE_PARAMETER: `${API_URL}change-parameter`,
-// GRAY: `${API_URL}gray`,
-
 export const setImage = params => {
   return api.post("set-image", params);
 };
 
 export const setMetadata = params => {
-  console.log(params)
   return api.post("/image/tile/upload_image_tiles", params);
 };
 
 export const sendImageFile = params => {
-  console.log(params);
   return api.post("/image/tile/convol2D", params);
+}
+
+export const send3DFile = params => {
+  return api.post("/image/tile/convol3D", params);
 }
 
 export const changeImage = params => {

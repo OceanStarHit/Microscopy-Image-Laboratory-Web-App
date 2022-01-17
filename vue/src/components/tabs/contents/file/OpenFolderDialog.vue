@@ -16,10 +16,10 @@
         @close="onCancel"
       >
         <v-sheet class="drop pa-5" height="400">
-          <!-- <v-btn class="d-block text-none" color="primary" text>
+          <v-btn class="d-block text-none" color="primary" text>
             <v-icon class="mr-3"> mdi-folder </v-icon>
             Use f for closed folders
-          </v-btn> -->
+          </v-btn>
           <v-btn
             class="d-block text-none"
             color="primary"

@@ -98,7 +98,7 @@ export default {
   data: () => ({
     brightness: 0,
     contrast: 0,
-    gamma: 0
+    gamma: 50
   }),
 
   computed: {

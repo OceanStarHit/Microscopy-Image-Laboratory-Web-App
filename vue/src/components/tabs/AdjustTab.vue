@@ -24,7 +24,6 @@ import LightSet from "./contents/adjust/LightSet";
 import Division from "./contents/adjust/Division";
 import Scale from "./contents/adjust/Scale";
 import FVO from "./contents/adjust/FVO";
-// import Division from "./contents/adjust/Division";
 
 export default {
   name: "AdjustTab",

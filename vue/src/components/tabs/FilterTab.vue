@@ -9,8 +9,8 @@
     <Dec3D />
     <v-divider class="my-2"></v-divider>
     <FocusStack />
-    <!-- <v-divider class="my-2"></v-divider>
-    <DPC /> -->
+    <v-divider class="my-2"></v-divider>
+    <!-- <DPC /> -->
     <SR />
     <v-divider class="my-2"></v-divider>
   </tab-item>

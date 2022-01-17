@@ -107,39 +107,6 @@
         </v-container>
       </v-col>
     </v-row>
-
-    <!-- <loading
-      :active.sync="loading_count_gt_zero"
-      :can-cancel="false"
-      :is-full-page="true"
-      :opacity="0.8"
-    >
-      <v-container class="text-center loading-progress-bar">
-        <v-progress-linear
-          color="light-blue"
-          height="15"
-          :value="loading_bar_value"
-          striped
-        ></v-progress-linear>
-        <div class="title mt-4 teal--text">In update ...</div>
-      </v-container>
-    </loading>
-
-    <loading
-      :active.sync="loading"
-      :can-cancel="false"
-      :is-full-page="true"
-      :opacity="0.6"
-    >
-      <v-container class="text-center">
-        <v-progress-circular
-          :size="50"
-          color="teal"
-          indeterminate
-        ></v-progress-circular>
-        <div class="title mt-4 teal--text">Loading...</div>
-      </v-container>
-    </loading> -->
   </v-container>
 </template>
 
@@ -163,7 +130,6 @@ export default {
 
   components: {
     // Loading,
-
     ImageViewer,
     DLMLTab,
     AdjustTab,
@@ -215,19 +181,6 @@ export default {
   methods: {
     getWindowHeight: function() {
       return window.innerHeight - 64;
-      // try {
-      //   return (
-      // if (document.getElementsByTagName("header")[0]) {
-      //   window.innerHeight -
-      //   parseInt(document.getElementsByTagName("header")[0].style.height);
-      // } else {
-      //   return window.innerHeight;
-      // }
-
-      //   );
-      // } catch (err) {
-      //   return window.innerHeight - 64;
-      // }
     }
   }
 };
@@ -237,12 +190,6 @@ export default {
 v-tab {
   padding: 0px !important;
 }
-.auto-scroll {
-  overflow: auto;
-}
-.loading-progress-bar {
-  width: 300pt;
-}
 .v-tab{
   min-width: 50px;
 }
@@ -250,5 +197,11 @@ v-tab {
   height: 2px;
   left: 0px;
   width: 50px;
+}
+.auto-scroll {
+  overflow: auto;
+}
+.loading-progress-bar {
+  width: 300pt;
 }
 </style>

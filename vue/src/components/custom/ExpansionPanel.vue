@@ -14,9 +14,8 @@
 export default {
   name: "ExpansionPanel",
 
-  props: {
-    title: Text
-  },
+  props: ["title"],
+
   data: () => ({})
 };
 </script>

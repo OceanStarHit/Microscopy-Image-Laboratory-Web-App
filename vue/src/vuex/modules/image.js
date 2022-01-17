@@ -20,7 +20,7 @@ const state = () => ({
   loading_count: 0,
   loading_count_max: 0,
   imageUri: [],
-
+  image_num: 0,
   coreMetadata: null,
   originMetadata: null,
   imageId: -1,
@@ -44,6 +44,7 @@ const state = () => ({
 
   originData: null,
   parameters: DEFAULT_PARAMS,
+  zindex_param: 0,
   isNew: false
 });
 
@@ -55,7 +56,7 @@ const getters = {
       isNew: state.isNew
     };
   },
-  getImageUri: state => {
+  getImageUri: (state) => {
     return state.imageUri;
   },
   currentPageData: (state, getters) => state.allData[state.curPageIdx - 1],
@@ -63,6 +64,7 @@ const getters = {
   // newData: (state, getters) => state.newData,
   imageId: (state, getters) => state.imageId,
   imageParams: (state, getters) => state.parameters,
+  zindex: (state, getters) => state.zindex_param,
   curPageIdx: (state, getters) => state.curPageIdx,
   allData: (state, getters) => state.allData,
   currentPageInfo: (state, getters) => {
@@ -250,12 +252,12 @@ const actions = {
   },
 
   setNewFiles({ commit, state }, formData) {
-    // if (state.loading) return;
-    commit("incLoadingCount");
     API.setMetadata(formData)
       .then(response => {
-        // var list_name = response.data.path_images;
-        state.imageUri = response.data.path_images;
+        var image_num_res = response.data.N_images;
+        state.image_num = image_num_res;
+        state.imageUri = response;
+
         return response;
       })
       .catch(error => {
@@ -267,15 +269,23 @@ const actions = {
   },
 
   convol2D({ commit, state }, formData) {
-      commit("incLoadingCount");
       API.sendImageFile(formData)
       .then(response => {
-        console.log(response)
-        state.imageUri = response.data.path;
+        state.imageUri = response;
       })
       .catch(error => {
         console.log("Occure error when 2D convolution");
       })
+  },
+  
+  convol3D({ commit, state }, formData) {
+    API.send3DFile(formData)
+    .then(response => {
+      state.imageUri = response;
+    })
+    .catch(error => {
+      console.log("Occure error when 3D convolution");
+    })
   },
 
   changeImage({ commit, state }, imageId) {
@@ -325,7 +335,7 @@ const actions = {
 
   changeParameterByT({ commit, state }, t) {
     changeParameter(commit, state, {
-      T: t
+      T: t,
     });
   },
 
@@ -349,6 +359,16 @@ const actions = {
         gamma: state.parameters.gamma
       }
     );
+  },
+
+  AdjustImageNumber({ commit, state }, slice_no) {
+    commit("changezindex", slice_no);
+  },
+
+  changeCurrentPage({ commit, state }, idx) {
+    if (state.loading) return;
+
+    commit("changeCurrentPage", idx);
   },
 
   adjustImageByContrast({ commit, state }, c) {
@@ -426,6 +446,10 @@ const mutations = {
 
   changeCurrentPage(state, payload) {
     state.curPageIdx = payload;
+  },
+
+  changezindex(state, payload) {
+    state.zindex_param = payload;
   },
 
   changeCurrentData(state, payload) {
@@ -641,7 +665,9 @@ function filtteredByParameters(parameters, images) {
   );
 
   // filter by timeline
-  filtered = images.filter(img => img.extParams.timeline == parameters.T);
+  filtered = images.filter(
+    img => img.extParams.timeline == parameters.T
+  );
 
   return filtered;
 }

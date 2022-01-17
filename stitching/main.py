@@ -58,7 +58,7 @@ def ashlar_stitch(tiles, pattern):
 
 class StitchingCeleryTaskImpl(StitchingCeleryTask):
 
-    def run(self, tiles, pattern):
+    def run(self, tiles, pattern): 
         return ashlar_stitch(tiles, pattern)
 
 

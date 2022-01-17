@@ -21,20 +21,7 @@
 export default {
   name: "CustomButton",
 
-  props: {
-    icon: {
-      type: String,
-      default: ""
-    },
-    image: {
-      type: String,
-      default: ""
-    },
-    label: {
-      type: String,
-      default: ""
-    }
-  },
+  props: ["icon", "image", "label"],
 
   data: () => ({}),
 

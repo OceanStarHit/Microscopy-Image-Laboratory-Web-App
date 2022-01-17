@@ -42,9 +42,9 @@
       >
         {{ okTitle }}
       </v-btn>
-      <v-btn
-        v-if="!singleButton"
-        color="primary darken-2"
+      <v-btn 
+        v-if="!singleButton" 
+        color="primary darken-2" 
         @click="closed"
         class="mr-2 text-capitalize"
       >

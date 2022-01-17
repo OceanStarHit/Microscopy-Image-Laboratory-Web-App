@@ -15,3 +15,4 @@ export const login = params => {
 export const register_user = params => {
   return api.post("auth/register", params);
 };
+

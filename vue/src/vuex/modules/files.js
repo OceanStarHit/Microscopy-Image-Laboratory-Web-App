@@ -57,6 +57,7 @@ const position = {
           file.metaData.col == targetCol
       );
     },
+    getchangedz: (state, getters) => state.selects.z,
     getFilesAtSelection: (state, getters) => {
       let rs = state.files.filter(file => {
         if (file.metaData) {

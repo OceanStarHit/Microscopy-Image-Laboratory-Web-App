@@ -1,6 +1,6 @@
 import * as authApi from "@/api/auth";
 const LOGIN_PAGE = "loginPage";
-// const REGISTRATION_PAGE = "registrationPage";
+const REGISTRATION_PAGE = "registrationPage";
 const OTP_QR_PAGE = "otpQRPage";
 
 const DEFAULT_PARAMS = {

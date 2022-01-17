@@ -21,3 +21,12 @@ pytest-asyncio
 httpx  # http client for testing http endpoints
 qrcode[pil]  # for generating QR codes
 scikit-image
+
+tensorflow
+opencv-python
+glob2
+scipy
+requests
+ordereddict
+collections-extended
+mo-collections

@@ -17,7 +17,7 @@ export const api = axios.create({
 
 api.interceptors.request.use(request => {
   console.log("[API Request]", request);
-  console.log("111", store.state);
+  console.log(store.state);
 
   /* add auth headers */
   if (store.state.auth.token) {
@@ -25,6 +25,8 @@ api.interceptors.request.use(request => {
       store.state.auth.tokenType + " " + store.state.auth.token;
     request.headers["Content-Type"] = "application/json";
   }
+  
+  //
   // if (sessionStorage.getItem("authToken")) {
   //   request.headers["Authorization"] =
   //     sessionStorage.getItem("authTokenType") +
@@ -38,7 +40,7 @@ api.interceptors.request.use(request => {
 
 api.interceptors.response.use(
   response => {
-    console.log("[API Response]", response);
+    // console.log("[API Response]", response);
     // return response.data;
     return response;
   },

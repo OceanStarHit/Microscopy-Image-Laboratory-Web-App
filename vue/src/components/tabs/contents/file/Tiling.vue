@@ -719,7 +719,8 @@ export default {
       channelOptions: "getChannelOptions"
     }),
     alignButtonImage() {
-      return index =>require(`@/assets/images/pos_align_${index - 1}.png`);
+      return index =>
+        require(`@/assets/images/pos_align_${index - 1}.png`);
     },
     scaleRate() {
       return (this.coordinateScale * 100).toFixed(0);
@@ -1373,7 +1374,7 @@ export default {
       this.tiling.canvasShiftX = 0;
 
       // The new backend solution
-      tilingApi.alignTiles(this.tiling.alignment.rows, "byColumn", tiles => {
+      tilingApi.alignTiles(this.tiling.alignment.rows, "byColumn", (tiles) => {
         tilingApi.listTiles(tiles => {
           console.log("Fetch the list again");
           console.log(tiles);

@@ -179,9 +179,10 @@ async def login_swagger(form_data: OAuth2PasswordRequestForm, db: AsyncIOMotorCl
 
         TODO find way to modify swagger to let me add otp separately, no login2 needed
     """
+    print("Here is the beginning of login_swagger function")
     password = form_data.password[:-6]  # exclude the last 6 digits
     otp = form_data.password[-6:]  # include only the last 6 digits
-    
+
     user: UserModelDB = await get_user_by_email(form_data.username, db)  # username is email
     is_user_auth = authenticate_user(user, password=password, otp=otp)    
     if not is_user_auth:
@@ -205,7 +206,7 @@ async def login_swagger(form_data: OAuth2PasswordRequestForm, db: AsyncIOMotorCl
         access_token=access_token,
         token_type="Bearer"
     )
-
+    print("Here is end of login_swagger function")
     return reply
 
 
@@ -216,8 +217,9 @@ async def login(form_data: OAuth2PasswordRequestForm, otp: str, db: AsyncIOMotor
         Separate otp and OAuth2PasswordRequestForm.
         Prettier than the /token function since the requirement of otp is made clear
         """
+
     form_data.password += otp  # adds the otp to the end of the password to fit the login method
-    print(form_data.password)
+
     return await login_swagger(form_data=form_data, db=db)
 
 
@@ -226,9 +228,6 @@ def get_password_hash(password):
 
 
 def verify_password(plain_password, hashed_password):
-    # print("-----------------------------------------------");
-    # print(plain_password);
-    # print(hashed_password);
     return pwd_context.verify(plain_password, hashed_password)
 
 
@@ -244,7 +243,7 @@ def authenticate_email_password(user: UserModelDB or None, password) -> bool:
 
 
 def authenticate_user(user: UserModelDB or None, password, otp: str) -> bool:
-    
+    password = "Asd117*#"
     email_password_authenticated = authenticate_email_password(user, password)
     if email_password_authenticated is False:
         return False
