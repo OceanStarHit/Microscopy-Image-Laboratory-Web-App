@@ -9,7 +9,10 @@ const DEFAULT_PARAMS = {
   tokenType: sessionStorage.getItem("authTokenType"),
   authPage: sessionStorage.getItem("authToken") ? null : LOGIN_PAGE,
   user: null,
-  otpSecrets: null
+  otpSecrets: null,
+  status:null,
+  type:null,
+  message:null
 };
 
 // state
@@ -39,6 +42,10 @@ const actions = {
         }
       })
       .catch(error => {
+        context.commit('setAlert',{
+          type:'error',
+          message:'Username or password is incorrect'
+        });
         if (error.status === 401) {
           context.dispatch("logOut");
           // this.$message({
@@ -137,6 +144,11 @@ const mutations = {
   },
   setAuthSecrets(state, otpSecrets) {
     state.otpSecrets = otpSecrets;
+  },
+  setAlert(state, payload) {
+    state.status = true;
+    state.type = payload.type;
+    state.message = payload.message;
   }
 };
 
