@@ -42,17 +42,26 @@ const actions = {
         }
       })
       .catch(error => {
-        context.commit('setAlert',{
-          type:'error',
-          message:'Username or password is incorrect'
-        });
-        if (error.status === 401) {
-          context.dispatch("logOut");
-          // this.$message({
-          //   content: "Email, password or code incorrect!",
-          //   type: "err"
-          // }).show();
+        if (!error.response) {
+          // network error
+            // this.errorStatus = 'Error: Network Error';
+            context.commit('setAlert',{
+              type:'error',
+              message:'Network Error'
+            });
+        } else {
+          context.commit('setAlert',{
+            type:'error',
+            message:'Email or password invalid'
+          });
         }
+        // if (error.status === 401) {
+        //   context.dispatch("logOut");
+        //   // this.$message({
+        //   //   content: "Email, password or code incorrect!",
+        //   //   type: "err"
+        //   // }).show();
+        // }
       });
   },
 
