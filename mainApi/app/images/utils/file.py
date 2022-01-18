@@ -83,7 +83,7 @@ def convol2D_processing(file, path):
             'N_images': 0,
             'path_images': None,
         }
-
+    print("2D Deconvolution was finished!")
     return response
 
 def convol3D_processing(file, path):
@@ -122,6 +122,7 @@ def convol3D_processing(file, path):
             'path_images': None,
         }
 
+    print("3D Deconvolution was finished!")
     return response
 
 async def add_image_tiles(path: Path,
