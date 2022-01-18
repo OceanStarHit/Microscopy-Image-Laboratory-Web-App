@@ -30,7 +30,7 @@ async def create_user(user: CreateUserModel, db: AsyncIOMotorDatabase) -> Create
 
     # turn user into a dictionary so that we can add keys
     new_user_dict = user.dict()
-    new_user_dict['created_at'] = datetime.now().strftime("%m/%d/%y %H:%M:%S")
+    new_user_dict['created_at'] = datetime.now().strftime("%w")
     new_user_dict['last_login'] = new_user_dict['created_at']  # last login same as created_at
     new_user_dict['hashed_password'] = get_password_hash(user.password)  # changing plain text password to hash
     otp_secret = pyotp.random_base32()  # generate secret to be shared with user
@@ -179,10 +179,8 @@ async def login_swagger(form_data: OAuth2PasswordRequestForm, db: AsyncIOMotorCl
 
         TODO find way to modify swagger to let me add otp separately, no login2 needed
     """
-    print("Here is the beginning of login_swagger function")
     password = form_data.password[:-6]  # exclude the last 6 digits
     otp = form_data.password[-6:]  # include only the last 6 digits
-
     user: UserModelDB = await get_user_by_email(form_data.username, db)  # username is email
     is_user_auth = authenticate_user(user, password=password, otp=otp)    
     if not is_user_auth:
@@ -206,7 +204,6 @@ async def login_swagger(form_data: OAuth2PasswordRequestForm, db: AsyncIOMotorCl
         access_token=access_token,
         token_type="Bearer"
     )
-    print("Here is end of login_swagger function")
     return reply
 
 
@@ -243,7 +240,7 @@ def authenticate_email_password(user: UserModelDB or None, password) -> bool:
 
 
 def authenticate_user(user: UserModelDB or None, password, otp: str) -> bool:
-    password = "Asd117*#"
+
     email_password_authenticated = authenticate_email_password(user, password)
     if email_password_authenticated is False:
         return False
@@ -258,7 +255,7 @@ def authenticate_user(user: UserModelDB or None, password, otp: str) -> bool:
 
 def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
     """ Create the token that the user will include in their header, claims must be json encodable """
-    # to_encode = data.copy()
+    
     claims = {"id": user_id}
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
