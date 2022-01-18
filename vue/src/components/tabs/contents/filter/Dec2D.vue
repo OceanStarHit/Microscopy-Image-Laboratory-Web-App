@@ -21,7 +21,10 @@ export default {
 
   methods: {
     DDConvolve: function() {
-      console.log("Thing to do")
+        var formData = new FormData();
+        var image_name = this.$store.state.image.imageUri
+        formData.append("files_name", image_name.data.path_images[0]);
+        this.$store.dispatch("image/convol2D", formData); 
     },
     select2: function() {
       console.log("Select-2");
