@@ -6,8 +6,7 @@ ENV PYTHONUNBUFFERED 1
 # additional dependencies
 # netcat used for checking for resources on the network before start, see start.sh for use
 RUN apt-get update && \
-    apt-get install -y netcat 
-RUN apt-get install ffmpeg libsm6 libxext6  -y
+    apt-get install -y netcat
 
 WORKDIR /app
 

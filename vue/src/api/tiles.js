@@ -2,7 +2,8 @@ import { api, BASE_API_URL } from "./base";
 import axios from "axios";
 
 export const listTiles = (success, failed) => {
-  api.get("image/tile/list")
+  api
+    .get("image/tile/list")
     .then(function(response) {
       success(response);
     })
@@ -12,8 +13,8 @@ export const listTiles = (success, failed) => {
 };
 
 export const alignTiles = (rows, method, success, fail) => {
-
-  api.post("image/tile/align_tiles_naive", {method: method, rows: rows})
+  api
+    .post("image/tile/align_tiles_naive", { method: method, rows: rows })
     .then(function(response) {
       console.log("align success callback");
       if (success) {
@@ -29,7 +30,6 @@ export const alignTiles = (rows, method, success, fail) => {
 };
 
 export const uploadImageTiles = files => {
-
   const formData = new FormData();
   for (let i in files) {
     console.log(i);

@@ -22,25 +22,6 @@ import qrcode.image.svg
 # CRUD
 
 
-def get_password_hash(password):
-    return pwd_context.hash(password)
-    
-def generate_qr_code_svg(data: str) -> str:
-    svg = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathImage)
-    return svg.to_string()
-
-def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
-    """ Create the token that the user will include in their header, claims must be json encodable """
-    
-    claims = {"id": user_id}
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    claims.update({"exp": expire})
-    encode_jwt = jwt.encode(claims=claims, key=SECRET_KEY, algorithm=ALGORITHM)
-    return encode_jwt
-
 async def create_user(user: CreateUserModel, db: AsyncIOMotorDatabase) -> CreateUserReplyModel:
     # check if another with the same email already exist
     existing_email = await db["users"].find_one({"email": user.email})
@@ -49,7 +30,7 @@ async def create_user(user: CreateUserModel, db: AsyncIOMotorDatabase) -> Create
 
     # turn user into a dictionary so that we can add keys
     new_user_dict = user.dict()
-    new_user_dict['created_at'] = datetime.now().strftime("%w")
+    new_user_dict['created_at'] = datetime.now().strftime("%m/%d/%y %H:%M:%S")
     new_user_dict['last_login'] = new_user_dict['created_at']  # last login same as created_at
     new_user_dict['hashed_password'] = get_password_hash(user.password)  # changing plain text password to hash
     otp_secret = pyotp.random_base32()  # generate secret to be shared with user
@@ -83,6 +64,11 @@ async def create_user(user: CreateUserModel, db: AsyncIOMotorDatabase) -> Create
                                               token_type="Bearer")
 
     return created_user_reply
+
+
+def generate_qr_code_svg(data: str) -> str:
+    svg = qrcode.make(data, image_factory=qrcode.image.svg.SvgPathImage)
+    return svg.to_string()
 
 
 async def get_current_user(db: AsyncIOMotorDatabase = Depends(get_database),
@@ -195,6 +181,7 @@ async def login_swagger(form_data: OAuth2PasswordRequestForm, db: AsyncIOMotorCl
     """
     password = form_data.password[:-6]  # exclude the last 6 digits
     otp = form_data.password[-6:]  # include only the last 6 digits
+    
     user: UserModelDB = await get_user_by_email(form_data.username, db)  # username is email
     is_user_auth = authenticate_user(user, password=password, otp=otp)    
     if not is_user_auth:
@@ -218,6 +205,7 @@ async def login_swagger(form_data: OAuth2PasswordRequestForm, db: AsyncIOMotorCl
         access_token=access_token,
         token_type="Bearer"
     )
+
     return reply
 
 
@@ -228,13 +216,19 @@ async def login(form_data: OAuth2PasswordRequestForm, otp: str, db: AsyncIOMotor
         Separate otp and OAuth2PasswordRequestForm.
         Prettier than the /token function since the requirement of otp is made clear
         """
-
     form_data.password += otp  # adds the otp to the end of the password to fit the login method
-
+    print(form_data.password)
     return await login_swagger(form_data=form_data, db=db)
 
 
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+
 def verify_password(plain_password, hashed_password):
+    # print("-----------------------------------------------");
+    # print(plain_password);
+    # print(hashed_password);
     return pwd_context.verify(plain_password, hashed_password)
 
 
@@ -250,6 +244,7 @@ def authenticate_email_password(user: UserModelDB or None, password) -> bool:
 
 
 def authenticate_user(user: UserModelDB or None, password, otp: str) -> bool:
+    
     email_password_authenticated = authenticate_email_password(user, password)
     if email_password_authenticated is False:
         return False
@@ -260,3 +255,16 @@ def authenticate_user(user: UserModelDB or None, password, otp: str) -> bool:
     #     return False
 
     return True
+
+
+def create_access_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
+    """ Create the token that the user will include in their header, claims must be json encodable """
+    # to_encode = data.copy()
+    claims = {"id": user_id}
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    claims.update({"exp": expire})
+    encode_jwt = jwt.encode(claims=claims, key=SECRET_KEY, algorithm=ALGORITHM)
+    return encode_jwt

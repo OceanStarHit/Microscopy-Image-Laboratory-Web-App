@@ -58,7 +58,6 @@
         >
           {{ "Login" }}
         </button>
-        <v-alert dismissible v-if="isStatus" :type="type" class="mt-3">{{message}}</v-alert>
         <a style="float:right;" @click="showRegistration">Switch to register</a>
       </v-col>
     </v-container>
@@ -66,7 +65,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+
 export default {
   name: "LoginPage",
   components: {},
@@ -96,27 +95,14 @@ export default {
           }
         ],
       },
-      loading: false,
-      showError:false
+      loading: false
     };
   },
-  computed: {
-    ...mapState({
-      isStatus : state => state.auth.status, 
-      type: state => state.auth.type,
-      message: state => state.auth.message,
-    })
-  },
+  computed: {},
   methods: {
-    async handleLogin(e) {
+    async handleLogin() {
       this.loading = true;
-      try{
-        e.preventDefault()
-          await this.$store.dispatch("auth/logIn", this.loginForm);
-      }catch(e){
-        console.log("kadal");
-        this.showError = true
-      }
+      await this.$store.dispatch("auth/logIn", this.loginForm);
     },
     showRegistration: function() {
       this.$store.dispatch("auth/setAuthPage", "registrationPage");
@@ -134,7 +120,7 @@ export default {
   .inner-container {
     box-sizing: border-box;
     width: 500px;
-    min-height: 500px;
+    height: 500px;
     border-radius: 5px;
     padding: 60px;
     position: absolute;
@@ -168,8 +154,5 @@ export default {
       outline: none;
     }
   }
-}
-#error {
-  color: red;
 }
 </style>

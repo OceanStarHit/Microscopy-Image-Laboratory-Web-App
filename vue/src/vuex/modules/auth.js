@@ -1,6 +1,6 @@
 import * as authApi from "@/api/auth";
 const LOGIN_PAGE = "loginPage";
-const REGISTRATION_PAGE = "registrationPage";
+// const REGISTRATION_PAGE = "registrationPage";
 const OTP_QR_PAGE = "otpQRPage";
 
 const DEFAULT_PARAMS = {
@@ -9,10 +9,7 @@ const DEFAULT_PARAMS = {
   tokenType: sessionStorage.getItem("authTokenType"),
   authPage: sessionStorage.getItem("authToken") ? null : LOGIN_PAGE,
   user: null,
-  otpSecrets: null,
-  status:null,
-  type:null,
-  message:null
+  otpSecrets: null
 };
 
 // state
@@ -42,26 +39,13 @@ const actions = {
         }
       })
       .catch(error => {
-        if (!error.response) {
-          // network error
-            // this.errorStatus = 'Error: Network Error';
-            context.commit('setAlert',{
-              type:'error',
-              message:'Network Error'
-            });
-        } else {
-          context.commit('setAlert',{
-            type:'error',
-            message:'Email or password invalid'
-          });
+        if (error.status === 401) {
+          context.dispatch("logOut");
+          // this.$message({
+          //   content: "Email, password or code incorrect!",
+          //   type: "err"
+          // }).show();
         }
-        // if (error.status === 401) {
-        //   context.dispatch("logOut");
-        //   // this.$message({
-        //   //   content: "Email, password or code incorrect!",
-        //   //   type: "err"
-        //   // }).show();
-        // }
       });
   },
 
@@ -153,11 +137,6 @@ const mutations = {
   },
   setAuthSecrets(state, otpSecrets) {
     state.otpSecrets = otpSecrets;
-  },
-  setAlert(state, payload) {
-    state.status = true;
-    state.type = payload.type;
-    state.message = payload.message;
   }
 };
 

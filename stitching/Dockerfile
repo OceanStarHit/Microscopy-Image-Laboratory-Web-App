@@ -25,7 +25,7 @@ RUN pip3 install -q -U \
 COPY ./stitching/libs/ashlar /tmp/ashlar/
 RUN pip3 install /tmp/ashlar
 
-# ENV OMP_NUM_THREADS 4
+ENV OMP_NUM_THREADS 4
 
 ## end of ashlar build
 
@@ -43,8 +43,3 @@ COPY ./stitching /app
 
 #ENTRYPOINT celery -A stitching.main worker --concurrency=4 --loglevel=info -n stitching_worker.%h
 #ENTRYPOINT python3 ./stitching/main.py
-
-FROM ubuntu:18.04
-
-# ashlar dependencies
-

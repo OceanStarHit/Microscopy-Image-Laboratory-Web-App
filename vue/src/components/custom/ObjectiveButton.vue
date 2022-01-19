@@ -28,18 +28,19 @@ export default {
   name: "ObjectiveButton",
 
   props: {
-    "label": {
+    label: {
       type: String,
       default: ""
-    }, 
-    "active": {
+    },
+    active: {
       type: Boolean,
       default: false
-    }, 
-    "pDisabled": {
+    },
+    pDisabled: {
       type: Boolean,
       default: false
-    }},
+    }
+  },
 
   data: () => ({}),
 

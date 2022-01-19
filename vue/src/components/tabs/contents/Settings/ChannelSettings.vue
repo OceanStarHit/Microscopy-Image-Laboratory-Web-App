@@ -33,7 +33,7 @@ import { createNamespacedHelpers } from "vuex";
 const positionModule = createNamespacedHelpers("files/position");
 
 export default {
-  name: "Channnels",
+  name: "Channel",
 
   components: { SmallCard },
 

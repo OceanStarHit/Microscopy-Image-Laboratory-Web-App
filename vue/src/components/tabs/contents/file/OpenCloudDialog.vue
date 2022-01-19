@@ -4,17 +4,27 @@
       title="Cloud"
       :single-button="false"
       ok-title="View the cloud"
-      @select="visibleDialog = false"
+      @select="visibleCloud"
       @close="visibleDialog = false"
     >
       <div class="d-flex my-2 mx-10">
         <h2 class="mr-2 mt-4">Experiment name</h2>
-        <v-text-field
-          v-model="experimentName"
-        ></v-text-field>
+        <v-text-field v-model="experimentName" />
       </div>
-      <div class ="my-2 mx-10">
-        <h3 class="mr-2 mt-4">select date</h3>
+      <div class="my-2 mx-10">
+        <h3 class="mr-2 mt-4">select data</h3>
+        <!-- <input id="uploadFile" type="file" @change="requestUploadFile" /> -->
+        <v-file-input
+          id="uploadFile"
+          small-chips
+          counter
+          multiple
+          show-size
+          truncate-length="15"
+          label="click here"
+          @change="uploadFile"
+        >
+        </v-file-input>
         <v-treeview
           v-model="tree"
           :open="initiallyOpen"
@@ -22,6 +32,7 @@
           activatable
           item-key="name"
           open-on-click
+          selectable
         >
           <template v-slot:prepend="{ item, open }">
             <v-icon v-if="!item.file">
@@ -37,13 +48,11 @@
         <v-btn
           class="mr-2 text-capitalize"
           color="info lighten-1"
+          @click="selectData(item)"
         >
           {{ newSelect }}
         </v-btn>
-        <v-btn
-          class="mr-2 text-capitalize"
-          color="info darken-2"
-        >
+        <v-btn class="mr-2 text-capitalize" color="info darken-2">
           {{ newUpload }}
         </v-btn>
       </div>
@@ -57,12 +66,8 @@
     </simple-dialog>
   </v-dialog>
 </template>
-
 <script>
-// import { mapGetters } from "vuex";
-
 import SimpleDialog from "../../../custom/SimpleDialog";
-
 export default {
   name: "OpenCloudDialog",
 
@@ -76,7 +81,7 @@ export default {
 
     newSelect: {
       type: String,
-      default: "Select date"
+      default: "Select data"
     },
 
     newUpload: {
@@ -134,7 +139,7 @@ export default {
         ]
       }
     ],
-    experimentName: ''
+    experimentName: ""
   }),
 
   computed: {
@@ -144,13 +149,32 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
+        // this.$el.querySelector("#uploadFile").click();
       }
-    },
+    }
+    // visibleCloud: {
+    //   get() {
+    //     return this.value;
+    //   },
+    //   set(val) {
+    //     this.$emit("input", val);
+    //   }
+    // }
   },
 
   methods: {
-    onClick: function() {
-      //
+    onClick: function() {},
+    visibleCloud() {
+      console.log("show cloud window");
+    },
+    selectData(item) {
+      console.log(item);
+    },
+    selectedData(items) {
+      console.login(items);
+    },
+    uploadFile() {
+      console.log("asdfasd");
     }
   }
 };

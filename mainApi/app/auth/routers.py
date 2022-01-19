@@ -46,6 +46,7 @@ router = APIRouter(
 
 
 async def register(user: CreateUserModel, db: AsyncIOMotorDatabase = Depends(get_database)) -> CreateUserReplyModel:
+    print("Here is token cheking process!")
     return await create_user(user, db)
 
 

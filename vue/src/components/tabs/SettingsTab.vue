@@ -21,7 +21,7 @@ import Channnels from "./contents/Settings/ChannelSettings.vue"
 export default {
   name: "SettingsTab",
 
-  components: {
+  components: { 
     TabItem,
     Objective,
     Channnels

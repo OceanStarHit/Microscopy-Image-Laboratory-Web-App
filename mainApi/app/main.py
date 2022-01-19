@@ -16,8 +16,6 @@ app = FastAPI(title='IAS Project')
 
 script_dir = os.path.dirname(__file__)
 st_abs_file_path = os.path.join(script_dir, "static/")
-if not os.path.exists(st_abs_file_path):
-    os.makedirs(st_abs_file_path)
 def get_value():
     global st_abs_file_path
     return st_abs_file_path
