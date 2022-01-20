@@ -422,6 +422,9 @@ export function getPosition(filename) {
     channel = parseInt(channel.replace(/\D/g, ""));
     // d01 is linked to B, d02 is linked to G, and d03 is linked to R
     switch (channel) {
+      case 0:
+        channel = "S";
+        break;
       case 1:
         channel = "B";
         break;
@@ -436,7 +439,8 @@ export function getPosition(filename) {
   var field = "";
   if (fieldStart >= 0 && fieldEnd >= 0 && fieldEnd > fieldStart) {
     field = filename.substring(fieldStart, fieldEnd);
-    field = parseInt(field.replace(/\D/g, ""));
+    field = parseInt(field.replace(/\D/g, ""))+1;
+    console.log(field);
   }
 
   return { row, col, z, timeline, channel, field, series };
