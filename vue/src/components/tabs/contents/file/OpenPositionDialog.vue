@@ -18,9 +18,7 @@
           <v-tab href="#tabs-images" class="primary--text">Images</v-tab>
           <v-tab href="#tabs-tiling" class="primary--text">Tiling</v-tab>
           <v-tab href="#tabs-metadata" class="primary--text">Metadata</v-tab>
-          <v-tab href="#tabs-name-type" class="primary--text"
-            >Names &amp; Files</v-tab
-          >
+          <v-tab href="#tabs-name-type" class="primary--text">Names &amp; Files</v-tab>
         </v-tabs>
 
         <v-tabs-items v-model="selectedTab" class="v-tab-item">
