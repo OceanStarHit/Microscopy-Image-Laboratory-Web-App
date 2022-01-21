@@ -81,20 +81,20 @@
       style="margin-left: 120px"
       justify="space-between"
     >
-      <!-- <input
+      <input
         class="range-field"
         type="number"
-        :value="t_range.min"
+        :value="t_min"
         disabled
         @input="onChangeTmin"
       />
       <input
         class="range-field"
         type="number"
-        :value="t_range.max"
+        :value="t_max"
         disabled
         @input="onChangeTmax"
-      /> -->
+      />
     </v-row>
   </v-card>
 </template>

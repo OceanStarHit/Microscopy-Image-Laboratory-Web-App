@@ -21,7 +21,7 @@
       hide-details
       @end="changeSelectsByZ"
     ></v-slider>
-    <!-- <v-row class="pa-0 ml-10 mr-2 my-0" justify="space-between">
+    <v-row class="pa-0 ml-10 mr-2 my-0" justify="space-between">
       <input
         class="range-field"
         type="number"
@@ -36,7 +36,7 @@
         disabled
         @input="onChangeZmax"
       />
-    </v-row> -->
+    </v-row>
   </v-card>
 </template>
 
