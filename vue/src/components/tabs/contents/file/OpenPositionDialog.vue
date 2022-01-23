@@ -255,7 +255,6 @@
           >
             OK
           </v-btn>
-
           <v-btn color="green darken-1" text @click="onClose">
             CANCEL
           </v-btn>
@@ -305,7 +304,7 @@ export default {
     }
   },
   data: () => ({
-    sortBy: 'field',
+    sortBy: "field",
     sortDesc: true,
     // ctxHeight,
     // ctxWidth,
@@ -649,11 +648,10 @@ export default {
     },
 
     nameTypeTableContents() {
-
-      for(let file of this.files){
+      for (let file of this.files){
         let text = file.name;
-        let result = text.substr(28,29);
-        let hasil = result.substr(0,2);
+        let result = text.substr(28, 29);
+        let hasil = result.substr(0, 2);
         console.log(hasil);
       }
 

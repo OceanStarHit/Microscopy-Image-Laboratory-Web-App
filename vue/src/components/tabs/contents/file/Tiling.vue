@@ -252,6 +252,16 @@
                 <v-row class="mr-4" v-if="tiling.bonding.patternMatch">
                   <v-col cols="4">
                     <v-text-field
+                      v-model="tiling.bonding.border"
+                      class="range-field"
+                      label="Border"
+                      type="number"
+                      outlined
+                      dense
+                    />
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
                       v-model="tiling.bonding.overlapX"
                       class="range-field"
                       label="Overlap X"
@@ -270,9 +280,14 @@
                       dense
                     />
                   </v-col>
+                </v-row>
+                <v-row
+                  class="mr-4 justify-center"
+                  v-if="tiling.bonding.patternMatch"
+                >
                   <v-btn elevation="2" class="mt-5" @click="autoPatternMathing">
-                    Auto</v-btn
-                  >
+                    Auto
+                  </v-btn>
                 </v-row>
               </div>
             </v-card>
@@ -564,7 +579,8 @@ export default {
         offsetX: 0,
         offsetY: 0,
         overlapX: 0,
-        overlapY: 0
+        overlapY: 0,
+        border: 25
       },
       edit: {
         activeFileItem: -1,
