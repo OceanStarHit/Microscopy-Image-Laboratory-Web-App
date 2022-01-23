@@ -1,5 +1,5 @@
 #!/bin/bash -e
-aa
+
 cd "$(dirname "$0")"
 docker compose down
 docker compose rm --force -v  # removes image and volumes
