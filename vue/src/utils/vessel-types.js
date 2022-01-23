@@ -26,17 +26,25 @@ export const VESSELS = [
       cols: 24,
       title: "384",
       showName: true
+    },
+    {
+      id: 10,
+      type: "WellPlate",
+      rows: 48,
+      cols: 32,
+      title: "1536",
+      showName: true
     }
   ],
   [
-    { id: 10, type: "Dish", size: 35, title: "35" },
-    { id: 11, type: "Dish", size: 60, title: "60" },
-    { id: 12, type: "Dish", size: 100, title: "100" }
+    { id: 11, type: "Dish", size: 35, title: "35" },
+    { id: 12, type: "Dish", size: 60, title: "60" },
+    { id: 13, type: "Dish", size: 100, title: "100" }
   ],
   [
-    { id: 13, type: "Wafer", size: 150, title: "150 (6inch)" },
-    { id: 14, type: "Wafer", size: 200, title: "200 (8inch)" },
-    { id: 15, type: "Wafer", size: 300, title: "300 (12inch)" }
+    { id: 14, type: "Wafer", size: 150, title: "150 (6inch)" },
+    { id: 15, type: "Wafer", size: 200, title: "200 (8inch)" },
+    { id: 16, type: "Wafer", size: 300, title: "300 (12inch)" }
   ]
 ];
 
