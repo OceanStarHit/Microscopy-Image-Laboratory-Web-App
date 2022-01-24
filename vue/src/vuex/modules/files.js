@@ -440,7 +440,7 @@ export function getPosition(filename) {
   if (fieldStart >= 0 && fieldEnd >= 0 && fieldEnd > fieldStart) {
     field = filename.substring(fieldStart, fieldEnd);
     field = parseInt(field.replace(/\D/g, ""))+1;
-    console.log(field);
+    
   }
 
   return { row, col, z, timeline, channel, field, series };

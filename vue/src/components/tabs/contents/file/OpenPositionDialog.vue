@@ -656,7 +656,6 @@ export default {
         let text = file.name;
         let result = text.substr(28,29);
         let hasil = result.substr(0,2);
-        console.log(hasil);
       }
 
       const contents = [];
@@ -666,6 +665,7 @@ export default {
           if (p.series.length > 0) {
             // convert 1, 2, 3 to A, B, C
             p.row = String.fromCharCode("A".charCodeAt() + p.row - 1);
+            console.log(p);
             contents.push({
               no: contents.length + 1,
               filename: file.name,

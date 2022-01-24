@@ -146,8 +146,8 @@ export default {
           }
         }
         var length = rs.length-1;
-        console.log('当前t_value:',this.t_value);
-        console.log("滑轮最大值:",String(length));
+        console.log('timeline value:',this.t_value);
+        console.log("timeline lenth:",String(length));
       }
       return length;
     },
@@ -185,7 +185,7 @@ export default {
       });
       timeList.sort(); // 将时间轴排序，从小到大
       this.timeList = timeList;
-      console.log('时间轴列表', timeList);
+      console.log('timeList', timeList);
       return timeList;
     },
 
@@ -204,7 +204,6 @@ export default {
           self.continuePointIdx = nowTimePointIdx; // 记录继续进度
           self.changeSelectsByTimeline(timeList[nowTimePointIdx]);
         }else{
-          console.log("播放结束");
           clearInterval(self.timer); // 播放完成之后停止循环
         }
 

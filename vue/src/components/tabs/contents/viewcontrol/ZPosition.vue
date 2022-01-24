@@ -16,7 +16,6 @@
       prepend-icon="mdi-swap-vertical"
       :min="z_min"
       :max="z_max"
-      :readonly="z_max == 0"
       dense
       hide-details
       @end="changeSelectsByZ"
