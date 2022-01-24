@@ -114,8 +114,8 @@ export default {
       },
       radius: 0,
       fontSize: 5,
-      selectedHole: this.selected
-      // activeHoles: this.actives
+      selectedHole: this.selected,
+      //activeHoles: this.actives
     };
   },
 

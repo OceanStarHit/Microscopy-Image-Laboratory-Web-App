@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="visibleDialog" max-width="980">
+  <v-dialog v-model="visibleDialog" max-width="1000">
     <simple-dialog title="Vessel Select" @select="visibleDialog = false">
       <v-tabs v-model="selectedTab" fixed-tabs>
         <v-tab
@@ -14,13 +14,14 @@
         >
       </v-tabs>
 
-      <v-tabs-items v-model="selectedTab">
+      <v-tabs-items v-model="selectedTab" 
+          class="scroll-auto">
         <v-tab-item
           v-for="v_idx in vessels.length"
           :key="v_idx"
           :value="`tabs-${v_idx}`"
         >
-          <v-row class="d-flex align-center px-5" style="height: 220px">
+          <v-row class="d-flex align-center px-5" style="height: 220px; justify-content: space-between;">
             <v-btn
               v-for="i in vessels[v_idx - 1].length"
               :key="i"
@@ -151,4 +152,10 @@ export default {
 .active {
   border: 2px solid #4db6ac !important;
 }
+.scroll-auto {
+  height: 315px;
+  padding-top: 20px;
+  text-align: center;
+}
 </style>
+

@@ -252,6 +252,16 @@
                 <v-row class="mr-4" v-if="tiling.bonding.patternMatch">
                   <v-col cols="4">
                     <v-text-field
+                      v-model="tiling.bonding.border"
+                      class="range-field"
+                      label="Border"
+                      type="number"
+                      outlined
+                      dense
+                    />
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
                       v-model="tiling.bonding.overlapX"
                       class="range-field"
                       label="Overlap X"
@@ -270,9 +280,14 @@
                       dense
                     />
                   </v-col>
+                </v-row>
+                <v-row
+                  class="mr-4 justify-center"
+                  v-if="tiling.bonding.patternMatch"
+                >
                   <v-btn elevation="2" class="mt-5" @click="autoPatternMathing">
-                    Auto</v-btn
-                  >
+                    Auto
+                  </v-btn>
                 </v-row>
               </div>
             </v-card>
@@ -541,12 +556,12 @@ export default {
     tilingAlignDirections: ["Clockwise", "Counter-Clockwise"],
 
     tiling: {
-      // 平铺图片界面参数设置
+      // Setting for tile picture interface parameter
       canvas: null,
       canvasScales: TILING_SCALE_OPTIONS,
       canvasScale: TILING_SCALE_OPTIONS[1] / 100,
-      canvasShiftX: 0, // X 方向上的位移
-      canvasShiftY: 0, // Y 方向上的位移
+      canvasShiftX: 0, // displacement in the x direction
+      canvasShiftY: 0, // displacement in the y direction
       canvasTop: 0,
       canvasLeft: 0,
       canvasWidth: TILING_CANVAS_SIZE,
@@ -563,8 +578,9 @@ export default {
         lines: [],
         offsetX: 0,
         offsetY: 0,
-        overlapX: 25,
-        overlapY: 25
+        overlapX: 0,
+        overlapY: 0,
+        border: 25
       },
       edit: {
         activeFileItem: -1,
@@ -719,7 +735,7 @@ export default {
       channelOptions: "getChannelOptions"
     }),
     alignButtonImage() {
-      return index =>require(`@/assets/images/pos_align_${index - 1}.png`);
+      return index => require(`@/assets/images/pos_align_${index - 1}.png`);
     },
     scaleRate() {
       return (this.coordinateScale * 100).toFixed(0);
@@ -918,22 +934,22 @@ export default {
         console.log("ALIGNMENT = ", this.tiling.alignment.activeMode);
         switch (this.tiling.alignment.activeMode) {
           case 0:
-            this.drawCascade(); // 瀑布展示
+            this.drawCascade(); // cascade display
             break;
           case 1:
-            this.drawHeightDecreasing(); // 图片高度降序排列
+            this.drawHeightDecreasing(); // Sort images in descending order by height
             break;
           case 2:
-            this.drawHeightIncreasing(); // 图片高度升序排列
+            this.drawHeightIncreasing(); // Sort images in ascending order by height
             break;
           case 3:
             this.drawByXYZ();
             break;
           case 4:
-            this.drawByColumns(); // 固定列数排列
+            this.drawByColumns(); // Fixed column arrangement
             break;
           case 5:
-            this.drawByRows(); // 固定行数排列
+            this.drawByRows(); // Fixed line arrangement
             break;
         }
       } else {
@@ -970,14 +986,14 @@ export default {
       this.tiling.preview.putImageData(imageData, 0, 0);
     },
 
-    // 增加图像亮度
+    // high-up image brightness
     increaseImgLuminance: function() {
       this.luminance += 0.05;
       this.performDrawing();
       // this.updateImageLuminance();
     },
 
-    // 降低图像亮度
+    // Decrease image brightness
     decreaseImgLuminance() {
       this.luminance -= 0.05;
       this.performDrawing();
@@ -989,7 +1005,7 @@ export default {
       this.performDrawing();
     },
     /**
-     * 重置亮度
+     * reset brightness
      */
     resetImgLuminance() {
       this.luminance = 0.0;
@@ -997,7 +1013,7 @@ export default {
       this.performDrawing();
     },
     /**
-     * image对象转ImageData对象
+     * image object to ImageData object
      * @param params
      * @returns {ImageData}
      */
@@ -1104,7 +1120,7 @@ export default {
       this.performDrawing();
     },
     /**
-     * 初始化画布, 清空行和列
+     * Initialize canvas, clear rows and columns
      * @param mode
      * @param setNull
      */
@@ -1116,7 +1132,7 @@ export default {
     },
 
     drawCascade() {
-      // 瀑布展示图片方法
+      // cascade display picture method
       this.drawInit("Cascade");
 
       let imageWidth = this.imageWidth,
@@ -1165,7 +1181,7 @@ export default {
     },
 
     drawHeightDecreasing() {
-      // 图片高度降序排列方法
+      // sort pictures in descending order of height
       this.drawInit("HeightDecreasing");
 
       const cols = Math.floor(Math.sqrt(this.files.length));
@@ -1241,7 +1257,7 @@ export default {
     },
 
     drawHeightIncreasing() {
-      // 图片高度升序排列
+      // Sort images in ascending order by height
       this.drawInit("HeightIncreasing");
 
       const cols = Math.floor(Math.sqrt(this.files.length));
@@ -1322,11 +1338,11 @@ export default {
     },
 
     /**
-     * 固定列数排列
+     * Fixed column arrangement
      * @param patternMatch
      */
     drawByColumns(patternMatch = false) {
-      this.drawInit("ByColumns", false); // 初始化画布，不删除宽高
+      this.drawInit("ByColumns", false); // Initialize the canvas without deleting the width and height
 
       if (this.tiling.alignment.rows == null) {
         this.tiling.alignment.rows = Math.floor(Math.sqrt(this.files.length));
