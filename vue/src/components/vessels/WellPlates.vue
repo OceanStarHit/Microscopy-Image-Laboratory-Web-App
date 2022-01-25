@@ -10,7 +10,7 @@
           v-for="c in showName ? cols + 1 : cols"
           :key="c"
           class="text-center"
-          :style="{ 'font-size': fontSize + 'px', width: radius + 'px' }"
+          :style="{ 'font-size': fontSize + 'px' }"
         >
           {{ showName ? (c > 1 ? c - 1 : "") : c }}
         </div>
@@ -24,9 +24,7 @@
           v-if="showName"
           class="pa-0 ma-0 text-center"
           :style="{
-            'font-size': fontSize + 'px',
-            width: radius + 'px',
-            height: radius + 'px'
+            'font-size': fontSize + 'px'
           }"
         >
           {{ String.fromCharCode(64 + r) }}

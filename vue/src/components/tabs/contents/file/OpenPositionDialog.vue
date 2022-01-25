@@ -214,20 +214,21 @@
                     hide-details
                   ></v-text-field>
                 </v-card-title>
-                <v-data-table
-                  class="name-type-table"
-                  :headers="nameTypeTableHeaders"
-                  :items="nameTypeTableContents"
-                  :sort-by.sync="sortBy"
-                  :sort-desc.sync="sortDesc"
-                  :search="searchNameType"
-                  :single-select="false"
-                  item-key="no"
-                  height="300"
-                  fixed-header
-                  @click:row="selectContent"
-                >
-                </v-data-table>
+                  <v-data-table
+                    class="name-type-table"
+                    :headers="nameTypeTableHeaders"
+                    :items="nameTypeTableContents"
+                    :sort-by.sync="sortBy"
+                    :sort-desc.sync="sortDesc"
+                    :search="searchNameType"
+                    :single-select="false"
+                    item-key="no"
+                    height="300"
+                    fixed-header
+                    @click:row="selectContent"
+                    :loading="myloadingvariable" loading-text="Waiting for data"
+                  >
+                  </v-data-table> 
               </v-card>
             </v-sheet>
           </v-tab-item>
@@ -304,6 +305,7 @@ export default {
     }
   },
   data: () => ({
+    myloadingvariable: false,
     sortBy: "field",
     sortDesc: true,
     // ctxHeight,
@@ -1029,6 +1031,7 @@ export default {
 
     // update
     updateNameType() {
+      this.myloadingvariable = true;
       let MAX_BATCH_SIZE = 10;
 
       this.updateNamePattern(this.selectedFileName);
@@ -1071,6 +1074,7 @@ export default {
         this.changeSelectsByTimeline(defaultSelected.metaData.timeline);
         this.changeSelectsByChannels(this.channelOptions);
       }
+      this.myloadingvariable = false;
 
       return;
 
@@ -1198,5 +1202,24 @@ export default {
 }
 .progress-bar {
   width: 300pt;
+}
+</style>
+<style lang="scss" scoped>
+.loader {
+  border: 16px solid #f3f3f3;
+  border-top: 16px solid #3498db;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
