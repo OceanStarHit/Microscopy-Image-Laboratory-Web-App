@@ -5,7 +5,7 @@ export const VESSEL_SLIDE_MAX_HEIGHT = 1000;
 
 // components/vessels/wellplates
 // export const VESSEL_WELLPLATE_RATIO = 0.6;
-export const VESSEL_WELLPLATE_RATIO = 0.8;
+export const VESSEL_WELLPLATE_RATIO = 0.6;
 export const VESSEL_WELLPLATE_MAX_HEIGHT = 1000;
 export const VESSEL_WELLPLATE_MAX_FONTSIZE = 14;
 
@@ -30,4 +30,3 @@ export const POSITION_DIALOG_STROKE_WIDTH = 8;
 // Tiling
 export const TILING_CANVAS_SIZE = 450;
 export const TILING_SCALE_OPTIONS = [0.5, 2, 5, 10, 20, 50, 100];
-
