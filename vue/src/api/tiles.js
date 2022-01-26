@@ -13,8 +13,16 @@ export const listTiles = (success, failed) => {
 };
 
 export const alignTiles = (rows, method, success, fail) => {
+
+  const formData = new FormData();
+  formData.append("method", method);
+  formData.append("row", rows);
   api
-    .post("image/tile/align_tiles_naive", { method: method, rows: rows })
+    .post("image/tile/align_tiles_naive", formData, {
+      headers: { 
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "multipart/form-data" }
+    })
     .then(function(response) {
       console.log("align success callback");
       if (success) {

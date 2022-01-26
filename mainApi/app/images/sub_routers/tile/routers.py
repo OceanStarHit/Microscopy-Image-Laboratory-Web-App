@@ -123,7 +123,7 @@ async def delete_tiles(tiles: List[TileModelDB],
     return results
 
 
-@router.get("/align_tiles_naive",
+@router.post("/align_tiles_naive",
             response_description="Align Tiles",
             response_model=List[AlignedTiledModel],
             status_code=status.HTTP_200_OK)

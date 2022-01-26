@@ -556,7 +556,7 @@ const test_fit = imgData => {
 };
 
 /**
- * 去掉BGR灰度直方图两侧较大亮度值, 自动适配Gamma
+ * Remove the large brightness values on both sides of the RGB grayscale histogram, and automatically adapt to Gamma
  * @param imgData
  */
 const autoFitLuminance = imgData => {

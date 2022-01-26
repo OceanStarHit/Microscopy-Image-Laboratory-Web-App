@@ -9,6 +9,7 @@ export const api = axios.create({
   baseURL: BASE_API_URL,
   headers: {
     "Access-Control-Allow-Origin": "*",
+    // "Access-Control-Allow-Origin": "http://127.0.0.1:8000/",
     "X-Requested-With": "XMLHttpRequest",
     Accept: "application/json",
     "Content-Type": "application/json"
@@ -17,7 +18,7 @@ export const api = axios.create({
 
 api.interceptors.request.use(request => {
   console.log("[API Request]", request);
-  console.log("111", store.state);
+  console.log("--state-- : ", store.state);
 
   /* add auth headers */
   if (store.state.auth.token) {
