@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center px-3 my-1">
-    <v-sheet class="plate-box" :width="rect.width" :height="rect.height">
+    <v-sheet class="plate-box" :width="rect.width" :height="rect.height" v-if="cols!==24 && cols!==48">
       <v-row
         v-if="showName"
         class="d-inline-flex align-center justify-space-around pa-0 ma-0"
@@ -10,7 +10,7 @@
           v-for="c in showName ? cols + 1 : cols"
           :key="c"
           class="text-center"
-          :style="{ 'font-size': fontSize + 'px' }"
+          :style="{ 'font-size': fontSize + 'px', width: radius + 'px' }"
         >
           {{ showName ? (c > 1 ? c - 1 : "") : c }}
         </div>
@@ -24,29 +24,107 @@
           v-if="showName"
           class="pa-0 ma-0 text-center"
           :style="{
-            'font-size': fontSize + 'px'
+            'font-size': fontSize + 'px',
+            width: radius + 'px',
+            height: radius + 'px'
           }"
         >
           {{ String.fromCharCode(64 + r) }}
         </div>
-        <v-sheet
-          v-for="c in cols"
-          :key="c"
-          class="rounded-circle hole"
-          :class="checkActive(r, c)"
-          :width="radius"
-          :height="radius"
-          :ripple="interaction"
-          @click="clicked(r, c)"
-        >
-          <div
-            v-if="showNumber"
-            class="primary--text"
-            :style="{ 'font-size': fontSize - 1 + 'px' }"
+          <v-sheet
+            v-for="c in cols"
+            :key="c"
+            class="rounded-circle hole"
+            :class="checkActive(r, c)"
+            :width="radius"
+            :height="radius"
+            :ripple="interaction"
+            @click="clicked(r, c)"
           >
-            {{ holeNumber(r, c) }}
-          </div>
-        </v-sheet>
+            <div
+              v-if="showNumber"
+              class="primary--text"
+              :style="{ 'font-size': fontSize - 1 + 'px' }"
+            >
+              {{ holeNumber(r, c) }}
+            </div>
+          </v-sheet>
+      </v-row>
+    </v-sheet>
+    <v-sheet class="plate-box" :width="rect.width" :height="rect.height" v-else-if="cols===24 || cols===48">
+      <v-row
+        v-if="showName && cols===24"
+        class="d-inline-flex align-center justify-space-around pa-0 ma-0"
+        style="overflow: hidden"
+      >
+        <div
+          v-for="c in showName ? cols + 1 : cols"
+          :key="c"
+          class="text-center"
+          :style="{ 'font-size': fontSize + 'px', width: radius + 'px' }"
+        >
+          {{ showName ? (c > 1 ? c - 1 : "") : c }}
+        </div>
+      </v-row>
+      <v-row
+        v-if="showName && cols===48"
+        class="d-inline-flex align-center justify-space-around pa-0 ma-0"
+        style="overflow: hidden"
+      >
+        <div
+          v-for="c in showName ? cols + 1 : cols"
+          :key="c"
+          class="text-center"
+          :style="{ 'font-size': fontSize + 'px', width: radius + 'px' }"
+        >
+          {{ showName ? (c > 1 ? c - 1 : "") : c }}
+        </div>
+      </v-row>
+      <v-row
+        v-for="r in rows"
+        :key="r"
+        class="align-center justify-space-around pa-0 ma-0"
+      >
+        <div
+          v-if="showName && cols===24"
+          class="pa-0 ma-0 text-center"
+          :style="{
+            'font-size': fontSize + 'px',
+            width: radius + 'px',
+            height: radius + 'px'
+          }"
+        >
+          {{ String.fromCharCode(64 + r) }}
+        </div>
+        <div
+          v-if="showName && cols===48"
+          class="pa-0 ma-0 text-center"
+          :style="{
+            'font-size': fontSize + 'px',
+            width: radius + 'px',
+            height: radius + 'px'
+          }"
+        >
+          {{r>26? String.fromCharCode(65)+String.fromCharCode(64 + r%26):String.fromCharCode(64 + r)}}
+        </div>
+          <v-sheet
+            v-for="c in cols"
+            :key="c"
+            class="hole"
+            :class="checkActive(r, c)"
+            :width="radius"
+            :height="radius"
+            :ripple="interaction"
+            @click="clicked(r, c)"
+          >
+            <div
+              v-if="showNumber && cols===24"
+              class="primary--text"
+              :style="{ 'font-size': fontSize - 1 + 'px' }"
+            >
+              {{ holeCoordinate(r, c) }}
+            </div>
+          </v-sheet>
       </v-row>
     </v-sheet>
   </div>
@@ -112,8 +190,8 @@ export default {
       },
       radius: 0,
       fontSize: 5,
-      selectedHole: this.selected,
-      //activeHoles: this.actives
+      selectedHole: this.selected
+      // activeHoles: this.actives
     };
   },
 
@@ -161,6 +239,12 @@ export default {
     holeNumber() {
       return (row, col) => {
         return (row - 1) * this.cols + col;
+      };
+    },
+    holeCoordinate() {
+      return (row, col) => {
+        let rowArray = []
+        return String.fromCharCode(64 + row) + col.toString();
       };
     },
     activeHoles() {
@@ -291,6 +375,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow-y: hidden;
 }
 .hole {
   width: 100%;
