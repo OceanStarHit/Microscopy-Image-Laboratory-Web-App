@@ -77,9 +77,7 @@
       ></v-slider>
     </v-row>
     <v-row
-      class="pa-0 mr-2 my-0"
-      style="margin-left: 120px"
-      justify="space-between"
+      class="pa-0 ml-10 mr-2 my-0" justify="space-between"
     >
       <input
         class="range-field"
@@ -132,13 +130,13 @@ export default {
 
   computed: {
     ...mapGetters("files/position", { // 获取图片状态
-      filesAtRowCol: "getFilesAtRowCol"
+      filesAtRowCol: "getFilesRowCol"
     }),
     ...mapState(['files']), // 获取图片状态
 
     t_max() {
       var rs = [];
-      if (this.timeList.length != 0) { // 如果存在图片
+      // if (this.timeList.length != 0) { // 如果存在图片
         for (let idx in this.filesAtRowCol) {
           let f = this.filesAtRowCol[idx];
           if (f.metaData) {
@@ -148,7 +146,7 @@ export default {
         var length = rs.length-1;
         console.log('timeline value:',this.t_value);
         console.log("timeline lenth:",String(length));
-      }
+      // }
       return length;
     },
     t_min() {

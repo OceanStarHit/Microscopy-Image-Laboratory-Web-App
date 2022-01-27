@@ -49,7 +49,8 @@ export default {
 
   computed: {
     ...mapGetters("files/position", {
-      filesAtRowCol: "getFilesAtRowCol"
+      filesAtRowCol: "getFilesRowCol",
+      filesCount:"getFilesUpdatedCount"
     }),
     z_max() {
       var rs = [0];
@@ -62,6 +63,7 @@ export default {
         }
         rs = Math.max(...rs);
       }
+      console.log("max"+rs);
       return rs;
     },
     z_min() {
@@ -76,6 +78,7 @@ export default {
         if (rs.length == 0) rs.push(0);
         rs = Math.min(...rs);
       }
+      console.log("z_min"+rs);
       return rs;
     }
   },

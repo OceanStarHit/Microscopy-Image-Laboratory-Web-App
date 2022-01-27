@@ -50,12 +50,19 @@ const position = {
       let targetRow = state.selects.row;
       let targetCol = state.selects.col;
 
+      
       return state.files.filter(
         file =>
           file.metaData &&
           file.metaData.row == targetRow &&
           file.metaData.col == targetCol
       );
+    },
+    getFilesRowCol: (state, getters) => {
+      let targetRow = state.selects.row;
+      let targetCol = state.selects.col;
+
+      return state.files;
     },
     getFilesAtSelection: (state, getters) => {
       let rs = state.files.filter(file => {

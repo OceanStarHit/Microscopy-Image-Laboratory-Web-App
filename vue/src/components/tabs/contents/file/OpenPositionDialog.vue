@@ -1074,7 +1074,7 @@ export default {
         this.changeSelectsByTimeline(defaultSelected.metaData.timeline);
         this.changeSelectsByChannels(this.channelOptions);
       }
-      this.myloadingvariable = false;
+      // this.myloadingvariable = false;
 
       return;
 
