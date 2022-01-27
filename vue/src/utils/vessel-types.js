@@ -30,8 +30,8 @@ export const VESSELS = [
     {
       id: 10,
       type: "WellPlate",
-      rows: 48,
-      cols: 32,
+      rows: 32,
+      cols: 48,
       title: "1536",
       showName: true
     }

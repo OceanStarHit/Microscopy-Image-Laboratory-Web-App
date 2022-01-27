@@ -18,7 +18,9 @@ module.exports = {
   //     )
   //     .end();
   // },
-
+  // devServer: {
+  //   proxy: 'http://localhost:8080/',
+  //   },
   transpileDependencies: ["vuetify"],
 
   publicPath: process.env.VUE_APP_STATIC_URL,

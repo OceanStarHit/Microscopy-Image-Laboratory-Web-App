@@ -1032,7 +1032,7 @@ export default {
     imageData2ImgUri(imgData, width, height) {
       var cvs = document.createElement("canvas");
       var ctx = cvs.getContext("2d");
-
+ 
       cvs.width = width;
       cvs.height = height;
 
@@ -1049,7 +1049,7 @@ export default {
       that.$emit("set-progress-max", that.tiling.drawList.length - 1);
 
       // let hd = setInterval(function() {
-      // console.log("idx: " + idx);
+      console.log("idx: " + idx);
 
       function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -1057,7 +1057,7 @@ export default {
       async function go() {
         while (idx < that.tiling.drawList.length) {
           that.$emit("set-progress-current", idx);
-          // console.log("Start correctLighting");
+          console.log("Start correctLighting");
 
           let img = that.tiling.drawList[idx];
           let imgData = that.img2ImageData(img);
@@ -1107,7 +1107,7 @@ export default {
         entireLum += imgLum;
       }
       this.averageLuminance = entireLum / this.tiling.drawList.length;
-      // console.log("entire image average lum ", this.averageLuminance);
+      console.log("entire image average lum ", this.averageLuminance);
       for (let idx in this.tiling.drawList) {
         let item = this.tiling.drawList[idx];
         let ratio =
@@ -1831,7 +1831,7 @@ export default {
         //     item.y + item.height <= movingImg.y + movingImg.height)
         // );
       });
-      // console.log("withinHorizontal: " + withinHorizontal.map(i => i.orgIdx));
+      console.log("withinHorizontal: " + withinHorizontal.map(i => i.orgIdx));
       let withinVertical = this.tiling.drawList.filter(item => {
         return imgXDistance(item, movingImg) < movingImg.width / 3;
         // return (
@@ -1904,12 +1904,12 @@ export default {
       //   console.log("min dis:" + minVerticalDistance);
       // }
 
-      // console.log(
-      //   "horizonItems.len : " +
-      //     horizonItems.length +
-      //     "\n  verticalItems.len: " +
-      //     verticalItems.length
-      // );
+      console.log(
+        "horizonItems.len : " +
+          horizonItems.length +
+          "\n  verticalItems.len: " +
+          verticalItems.length
+      );
 
       if (horizonItem != null) {
         if (horizontalOneside) {
@@ -1995,7 +1995,7 @@ export default {
           this.tiling.bonding.offsetY = partternMatchOffsets.offsetY;
         }
       } else {
-        // console.log("SN: " + this.tiling.bonding.offsetY);
+        console.log("SN: " + this.tiling.bonding.offsetY);
       }
 
       if (
@@ -2016,8 +2016,8 @@ export default {
 
     // Apply pattern matching algorithms
     calculatePatternMatch(movingImg, horizonImgs, verticalImgs) {
-      // console.log("calculatePatternMatch");
-      // console.log("horizonImgs Ys: " + horizonImgs.map(i => i.y));
+      console.log("calculatePatternMatch");
+      console.log("horizonImgs Ys: " + horizonImgs.map(i => i.y));
       if (horizonImgs.length > 1) {
         horizonImgs = [...horizonImgs]
           .sort(function(a, b) {
@@ -2027,9 +2027,9 @@ export default {
       } else {
         console.log("horizonImgs.length is 1");
       }
-      // console.log("hImage picked Y: " + horizonImgs[0].y);
+      console.log("hImage picked Y: " + horizonImgs[0].y);
 
-      // console.log("verticalImgs Xs: " + verticalImgs.map(i => i.x));
+      console.log("verticalImgs Xs: " + verticalImgs.map(i => i.x));
 
       if (verticalImgs.length > 1) {
         verticalImgs = [...verticalImgs]
@@ -2040,7 +2040,7 @@ export default {
       } else {
         console.log("verticalImgs.length is 1");
       }
-      // console.log("vImage picked X: " + verticalImgs[0].x);
+      console.log("vImage picked X: " + verticalImgs[0].x);
 
       // Get row Image data
       if (movingImg.imageDataCache == null) {
@@ -2070,9 +2070,9 @@ export default {
           return a.y - b.y;
         });
 
-        // console.log("org idx: ");
-        // console.log(horizonImgs.map(i => i.orgIdx));
-        // console.log(horizonImgs.map(i => i.y));
+        console.log("org idx: ");
+        console.log(horizonImgs.map(i => i.orgIdx));
+        console.log(horizonImgs.map(i => i.y));
 
         verticalMatchingLineY = horizonImgs[0].y;
 
@@ -2083,9 +2083,9 @@ export default {
             verticalMatchingLine.push(...getImageEdge(img.imageDataCache, 2));
           }
         });
-        // console.log(
-        //   "verticalMatchingLine.length: " + verticalMatchingLine.length
-        // );
+        console.log(
+          "verticalMatchingLine.length: " + verticalMatchingLine.length
+        );
 
         if (horizonImgs[0].x > movingImg.x) {
           verticalLine = getImageEdge(movingImg.imageDataCache, 2);
@@ -2111,9 +2111,9 @@ export default {
             horizontalMatchingLine.push(...getImageEdge(img.imageDataCache, 3));
           }
         });
-        // console.log(
-        //   "horizontalMatchingLine.length: " + horizontalMatchingLine.length
-        // );
+        console.log(
+          "horizontalMatchingLine.length: " + horizontalMatchingLine.length
+        );
 
         if (verticalImgs[0].y > movingImg.y) {
           horizontalLine = getImageEdge(movingImg.imageDataCache, 3);
@@ -2122,22 +2122,22 @@ export default {
         }
       }
 
-      // console.log("verticalMatchingLine: " + verticalMatchingLine.length);
-      // console.log("verticalLine: " + verticalLine.length);
+      console.log("verticalMatchingLine: " + verticalMatchingLine.length);
+      console.log("verticalLine: " + verticalLine.length);
 
-      // console.log("horizontalMatchingLine: " + horizontalMatchingLine.length);
-      // console.log("horizontalLine: " + horizontalLine.length);
+      console.log("horizontalMatchingLine: " + horizontalMatchingLine.length);
+      console.log("horizontalLine: " + horizontalLine.length);
 
       var offsetY = 0;
       if (verticalMatchingLine.length > 0) {
-        // console.log("verticalMatchingLine about to call matchPixcels");
+        console.log("verticalMatchingLine about to call matchPixcels");
         let verticalPMOffset = matchPixels(verticalMatchingLine, verticalLine);
         offsetY = verticalMatchingLineY + verticalPMOffset - movingImg.y;
       }
 
       var offsetX = 0;
       if (horizontalMatchingLine.length > 0) {
-        // console.log("horizontalMatchingLine about to call matchPixcels");
+        console.log("horizontalMatchingLine about to call matchPixcels");
         let horizontalPMOffset = matchPixels(
           horizontalMatchingLine,
           horizontalLine
@@ -2179,7 +2179,7 @@ export default {
         let overlapPt1 = overlapDepth - overlap + overlapPt2;
 
         for (let ofs = -tryOffset; ofs <= tryOffset; ofs++) {
-          // console.log("ofs: " + ofs + " c1:" + c1 + " c2:" + c2);
+          console.log("ofs: " + ofs + " c1:" + c1 + " c2:" + c2);
           for (let loopPt1 = 0; loopPt1 < loopDepth; loopPt1++) {
             let loopPt2 = loopPt1 - ofs;
 
@@ -2192,7 +2192,7 @@ export default {
               continue;
             }
 
-            // console.log("(" + r1 + "," + c1 + ") - (" + r2 + "," + c2 + ")");
+            console.log("(" + r1 + "," + c1 + ") - (" + r2 + "," + c2 + ")");
             let pixel1 = horizontalMatch
               ? img1.ucharPtr(loopPt1, overlapPt1)
               : img1.ucharPtr(overlapPt1, loopPt1);
@@ -2209,7 +2209,7 @@ export default {
         }
       }
 
-      // console.log(matchRes);
+      console.log(matchRes);
       matchRes = matchRes.map(diffs => {
         let total = diffs.reduce((prev, curr) => {
           return prev + curr;
@@ -2223,9 +2223,9 @@ export default {
       });
       bestOff = bestOff - tryOffset;
 
-      // console.log(matchRes);
-      // console.log("minDiff: " + minDiff);
-      // console.log("bestIdx: " + bestOff);
+      console.log(matchRes);
+      console.log("minDiff: " + minDiff);
+      console.log("bestIdx: " + bestOff);
 
       img1.delete();
       img2.delete();
@@ -2413,12 +2413,12 @@ export default {
   },
 
   renderTriggered({ key, target, type }) {
-    // console.log("callback debug renderTriggered !!!!");
-    // console.log({ key, target, type });
+    console.log("callback debug renderTriggered !!!!");
+    console.log({ key, target, type });
   },
 
   updated() {
-    // console.log("callback debug updated !!!!");
+    console.log("callback debug updated !!!!");
     this.$nextTick(function() {});
   },
 
@@ -2472,7 +2472,7 @@ export default {
       this.canvas.removeEventListener("mouseleave", this.mouseLeave);
       this.canvas?.removeEventListener("mousescroll", this.mouseScroll);
 
-      // console.log("drag events removed");
+      console.log("drag events removed");
     }
   }
 };
