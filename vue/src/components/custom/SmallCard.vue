@@ -25,8 +25,8 @@ export default {
       default: ""
     },
     child: {
-      type: Object,
-      default() {}
+      type: Boolean,
+      default:false
     }
   },
 
