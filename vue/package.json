@@ -27,6 +27,7 @@
         "vue-class-component": "^7.2.6",
         "vue-flash-message": "0.7.2",
         "vue-loading-overlay": "^3.4.2",
+        "vue-numeric-input": "^2.0.0",
         "vue-router": "3.0",
         "vue-rx": "^6.2.0",
         "vuetify": "^2.6.2",
