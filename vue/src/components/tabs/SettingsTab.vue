@@ -15,6 +15,7 @@
 
 <script>
 import TabItem from "../custom/TabItem";
+import SmallCard from "../custom/SmallCard";
 import Objective from "./contents/Settings/ObjectiveSettings.vue";
 import Channnels from "./contents/Settings/ChannelSettings.vue"
 
@@ -22,6 +23,7 @@ export default {
   name: "SettingsTab",
 
   components: { 
+    SmallCard,
     TabItem,
     Objective,
     Channnels
