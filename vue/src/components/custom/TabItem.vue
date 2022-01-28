@@ -36,8 +36,8 @@ export default {
       default: ""
     },
     buttons: {
-      type: Object,
-      default() {}
+      type: Boolean,
+      default:false
     }
   },
 
