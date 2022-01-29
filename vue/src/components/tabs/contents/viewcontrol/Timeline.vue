@@ -135,6 +135,7 @@ export default {
     ...mapState(['files']), // 获取图片状态
 
     t_max() {
+      var length = 1;
       var rs = [];
       // if (this.timeList.length != 0) { // 如果存在图片
         for (let idx in this.filesAtRowCol) {
@@ -143,14 +144,14 @@ export default {
             rs.push(f.metaData.timeline);
           }
         }
-        var length = rs.length-1;
-        console.log('timeline value:',this.t_value);
-        console.log("timeline lenth:",String(length));
+        // var length = rs.length-1;
+        // console.log('timeline value:',this.t_value);
+        // console.log("timeline lenth:",String(length));
       // }
       return length;
     },
     t_min() {
-      return 0;
+      return 1;
     }
   },
 

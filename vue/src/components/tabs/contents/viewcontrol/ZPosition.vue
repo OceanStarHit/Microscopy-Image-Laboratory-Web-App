@@ -53,7 +53,7 @@ export default {
       filesCount:"getFilesUpdatedCount"
     }),
     z_max() {
-      var rs = [0];
+      var rs = [1];
       if (this.filesAtRowCol) {
         for (let idx in this.filesAtRowCol) {
           let f = this.filesAtRowCol[idx];
@@ -67,7 +67,7 @@ export default {
       return rs;
     },
     z_min() {
-      var rs = [0];
+      var rs = [1];
       if (this.filesAtRowCol) {
         for (let idx in this.filesAtRowCol) {
           let f = this.filesAtRowCol[idx];
