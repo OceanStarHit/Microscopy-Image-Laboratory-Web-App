@@ -1,5 +1,6 @@
 <template>
   <v-container class="pa-0" style="width: 100%; height: 100%" fluid>
+    <img id="gambar" hidden/>
     <div
       id="openseadragon"
       class="drop"
@@ -62,9 +63,12 @@ export default {
             }
           };
 
-          console.log("Show pic: " + this.demoPic.name);
+          // console.log("Show pic: " + this.demoPic.imageData.src); 
+          var gambar = document.getElementById("gambar");
+          gambar.src = this.demoPic.imageData.src;
           this.imageView.world.removeAll();
           this.imageView.addTiledImage(opt);
+          // console.log(opt);
         }
       }
     );
@@ -74,6 +78,7 @@ export default {
   },
 
   mounted() {
+    
     this.imageView = OpenSeadragon({
       id: "openseadragon",
       prefixUrl: `${this.publicPath}openseadragon/images/`,
@@ -85,6 +90,29 @@ export default {
       minZoomPixelRatio: 0.1,
       maxZoomPixelRatio: 10
     });
+    // this.imageView.addHandler('tile-loaded', function(event) {
+    //     var image = document.getElementById("gambar");
+    //     var canvas = document.createElement('canvas');
+    //     var scale = 8;
+    //     scale *= 0.01;
+
+    //     canvas.width = image.width;
+    //     canvas.height = image.height;
+
+    //     var scaledW = canvas.width * scale;
+    //     var scaledH = canvas.height * scale;
+
+    //     event.tile.context2D = canvas.getContext('2d');
+    //     event.tile.context2D.mozImageSmoothingEnabled = false;
+    //     event.tile.context2D.webkitImageSmoothingEnabled = false;
+    //     event.tile.context2D.imageSmoothingEnabled = false;
+
+    //     event.tile.context2D.drawImage(img, 0, 0, scaledW, scaledH);
+    //     event.tile.context2D.drawImage(canvas, 0, 0, scaledW, scaledH, 0, 0, event.image.width, event.image.height);
+    // });
+
+    // this.imageView = viewer;
+    
   },
 
   methods: {

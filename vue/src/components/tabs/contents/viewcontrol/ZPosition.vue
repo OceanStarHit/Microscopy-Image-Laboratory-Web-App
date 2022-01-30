@@ -68,6 +68,7 @@ export default {
     },
     z_min() {
       var rs = [1];
+      var value = 1;
       if (this.filesAtRowCol) {
         for (let idx in this.filesAtRowCol) {
           let f = this.filesAtRowCol[idx];
@@ -79,7 +80,7 @@ export default {
         rs = Math.min(...rs);
       }
       console.log("z_min"+rs);
-      return rs;
+      return value;
     }
   },
 
