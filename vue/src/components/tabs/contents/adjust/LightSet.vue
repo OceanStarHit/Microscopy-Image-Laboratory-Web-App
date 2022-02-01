@@ -3,7 +3,7 @@
     <custom-button icon="creation" label="Auto" @click="select1" />
     <custom-button icon="hdr" label="HRD" @click="select2" />
     <custom-button icon="thumb-up-outline" label="Go" @click="select3" />
-    <custom-button icon="cog" label="Set" @click="select4" />
+    <custom-button icon="cog" label="Set" @click="select4" /> 
   </small-card>
 </template>
 
