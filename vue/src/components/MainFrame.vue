@@ -54,7 +54,7 @@
 
       <!-- Center  -->
       <v-col
-        class="grey lighten-3"
+        class="lighten-3"
         cols="8"
         :style="{
           height: windowHeight + 'px'

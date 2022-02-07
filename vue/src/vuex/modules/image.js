@@ -19,6 +19,7 @@ const state = () => ({
   loading: false,
   loading_count: 0,
   loading_count_max: 0,
+  image_num: 0,
   imageUri: [],
 
   coreMetadata: null,
@@ -254,8 +255,10 @@ const actions = {
     commit("incLoadingCount");
     API.setMetadata(formData)
       .then(response => {
-        // var list_name = response.data.path_images;
-        state.imageUri = response.data.path_images;
+        state.image_num = response.data.N_images;
+        console.log(state.image_num);
+        state.imageUri = response;
+
         return response;
       })
       .catch(error => {
@@ -558,39 +561,6 @@ function changeParameter(commit, state, params) {
   commit("changeParameterData", {
     params: newParams
   });
-
-  // if (state.loading) return;
-
-  // commit("setLoading", true);
-
-  // API.changeParameter(params)
-  //   .then(response => {
-  //     const imageObj = new Image();
-  //     imageObj.src = response.imageData;
-
-  //     setTimeout(() => {
-  //       if (imageObj.height) {
-  //         commit("changeParameterData", {
-  //           imageData: imageObj.src,
-  //           params
-  //         });
-  //       } else {
-  //         setTimeout(function() {
-  //           commit("changeParameterData", {
-  //             imageData: imageObj.src,
-  //             params
-  //           });
-  //         }, 1000);
-  //       }
-  //     }, 100);
-
-  //     commit("setLoading", false);
-  //   })
-  //   .catch(error => {
-  //     commit("setLoading", false);
-
-  //     console.log(error);
-  //   });
 }
 
 function adjustImage({ commit, state }, params) {
