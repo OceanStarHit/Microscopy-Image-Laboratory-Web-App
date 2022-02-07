@@ -60,7 +60,7 @@ async def add_image_tiles(path: Path,
     time_str = current_time.strftime("%Y%m%d_%H%M%S")
     path_images = []
 
-    if image_num[2] > 3:
+    if image_num[2] > 4:
         for i in range(image_num[0]):
             path_image = os.path.join(cache_path, 'slice_{num:03d}'.format(num=i)+ '_' + time_str + '.png')
             io.imsave(path_image, normalize_2Dim_uint8(res[i]))
