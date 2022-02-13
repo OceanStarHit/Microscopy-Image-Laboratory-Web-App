@@ -144,3 +144,5 @@ media/
 /vue/.nvmrc
 /datasets/
 /_tmp/
+
+mainApi/app/static/*
